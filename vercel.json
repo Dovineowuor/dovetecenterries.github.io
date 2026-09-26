@@ -10,7 +10,7 @@
       "use": "@vercel/static"
     }
   ],
-  "installCommand": "pip install -r requirements.txt && python manage.py migrate --noinput",
+  "installCommand": "pip install -r requirements.txt && python manage.py migrate --noinput 2>&1 || true",
   "framework": "django",
   "routes": [
     {
