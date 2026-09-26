@@ -1,0 +1,230 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+    <a href="{% url 'ticket_queue' %}" class="btn btn-outline-secondary btn-sm">
+        <i data-feather="chevron-left" style="width:14px;"></i> Ticket queue
+    </a>
+    {% if ticket.inquiry %}
+    <a href="{% url 'funnel_inquiry_detail' ticket.inquiry_id %}" class="btn btn-sm btn-outline-primary">
+        View sales lead →
+    </a>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white mb-3">
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+                <div>
+                    <h3 class="fw-bold mb-1">{{ ticket.reference }} — {{ ticket.subject }}</h3>
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <span class="badge {% if ticket.type == 'issue' %}bg-danger-subtle text-danger-emphasis{% else %}bg-info-subtle text-info-emphasis{% endif %}">{{ ticket.get_type_display }}</span>
+                        <span class="badge bg-primary-subtle text-primary-emphasis">{{ ticket.get_status_display }}</span>
+                        <span class="badge {% if ticket.priority == 'urgent' %}bg-danger{% elif ticket.priority == 'high' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ ticket.get_priority_display }}</span>
+                        {% if ticket.referred_to %}<span class="badge bg-warning text-dark">Referred → {{ ticket.referred_to.get_short_name }}</span>{% endif %}
+                    </div>
+                    <small class="text-muted">
+                        Opened {{ ticket.created_at|date:"M d, Y h:i A" }} · Age {{ ticket.age_hours }}h ·
+                        {{ ticket.get_service_display }} · {{ ticket.get_source_display }}
+                        {% if ticket.resolved_at %}· Resolved {{ ticket.resolved_at|date:"M d, Y" }}{% endif %}
+                    </small>
+                </div>
+                <div class="text-end">
+                    <small class="text-muted d-block">Assignee</small>
+                    <b>{{ ticket.assigned_to.get_short_name|default:"Unassigned" }}</b>
+                </div>
+            </div>
+            <hr>
+            <p class="mb-0" style="white-space: pre-wrap;">{{ ticket.description }}</p>
+            {% if ticket.media_assets.exists %}
+            <div class="mt-3">
+                <small class="text-muted text-uppercase fw-bold">Attachments</small>
+                <ul class="mb-0">
+                    {% for asset in ticket.media_assets.all %}
+                    <li>{% if asset.file %}<a href="{{ asset.file.url }}" target="_blank">{{ asset.original_name }}</a>{% else %}{{ asset.original_name }} (failed){% endif %}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <div class="mt-3 small text-muted">
+                <div>Contact: {{ ticket.contact.display_name|default:"—" }} · {{ ticket.contact.email|default:"" }}</div>
+                {% if ticket.organization %}<div>Org: {{ ticket.organization.name }} · {{ ticket.organization.industry|default:"" }}</div>{% endif %}
+                {% if ticket.industry %}<div>Industry: {{ ticket.industry }}</div>{% endif %}
+                {% if ticket.budget_range != 'unspecified' %}<div>Budget: {{ ticket.get_budget_range_display }}</div>{% endif %}
+                {% if ticket.timeline %}<div>Timeline: {{ ticket.timeline }}</div>{% endif %}
+            </div>
+        </div>
+
+        <!-- Activity timeline -->
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+            <h5 class="fw-bold mb-3"><i data-feather="clock" class="me-2"></i>Activity</h5>
+            {% for item in activity %}
+            <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                <div class="flex-shrink-0">
+                    <span class="badge bg-light text-dark border">{{ item.get_action_display }}</span>
+                </div>
+                <div>
+                    <div class="small">
+                        {% if item.user %}<b>{{ item.user.get_short_name }}</b>{% endif %}
+                        {% if item.from_user and item.to_user %}
+                        · {{ item.from_user.get_short_name }} → <b>{{ item.to_user.get_short_name }}</b>
+                        {% elif item.to_user %} · → <b>{{ item.to_user.get_short_name }}</b>
+                        {% endif %}
+                        <span class="text-muted">· {{ item.created_at|date:"M d, H:i" }}</span>
+                    </div>
+                    {% if item.content %}<div class="small">{{ item.content }}</div>{% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted mb-0">No activity yet.</p>
+            {% endfor %}
+
+            <form method="post" class="mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="note">
+                <textarea name="content" class="form-control mb-2" rows="2" placeholder="Add an internal note…" required></textarea>
+                <button class="btn btn-sm btn-dark">Add note</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <!-- Status / priority -->
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white mb-3">
+            <h6 class="fw-bold mb-3">Status</h6>
+            <form method="post" class="d-flex gap-2 mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="status">
+                <select name="status" class="form-select form-select-sm">
+                    {% for v, l in status_choices %}
+                    <option value="{{ v }}" {% if ticket.status == v %}selected{% endif %}>{{ l }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-sm btn-primary">Update</button>
+            </form>
+
+            <h6 class="fw-bold mb-3">Priority</h6>
+            <form method="post" class="d-flex gap-2 mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="priority">
+                <select name="priority" class="form-select form-select-sm">
+                    {% for v, l in priority_choices %}
+                    <option value="{{ v }}" {% if ticket.priority == v %}selected{% endif %}>{{ l }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-sm btn-outline-primary">Set</button>
+            </form>
+        </div>
+
+        <!-- Assign / transfer / refer -->
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white mb-3">
+            <h6 class="fw-bold mb-3">People</h6>
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="assign">
+                <label class="form-label small text-muted">Assign</label>
+                <div class="d-flex gap-2">
+                    <select name="user_id" class="form-select form-select-sm">
+                        <option value="">— Unassigned —</option>
+                        {% for s in staff %}
+                        <option value="{{ s.id }}" {% if ticket.assigned_to_id == s.id %}selected{% endif %}>{{ s.get_short_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-sm btn-outline-dark">Apply</button>
+                </div>
+            </form>
+
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="transfer">
+                <label class="form-label small text-muted">Transfer ownership (requires note)</label>
+                <select name="user_id" class="form-select form-select-sm mb-1">
+                    <option value="">Select staff…</option>
+                    {% for s in staff %}
+                    <option value="{{ s.id }}">{{ s.get_short_name }}</option>
+                    {% endfor %}
+                </select>
+                <textarea name="content" class="form-control form-control-sm mb-1" rows="2" placeholder="Why transfer?" required></textarea>
+                <button class="btn btn-sm btn-warning w-100">Transfer</button>
+            </form>
+
+            <form method="post" class="mb-2">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="refer">
+                <label class="form-label small text-muted">Refer (keeps ownership, notifies them)</label>
+                <select name="user_id" class="form-select form-select-sm mb-1">
+                    <option value="">Select staff…</option>
+                    {% for s in staff %}
+                    <option value="{{ s.id }}" {% if ticket.referred_to_id == s.id %}selected{% endif %}>{{ s.get_short_name }}</option>
+                    {% endfor %}
+                </select>
+                <textarea name="content" class="form-control form-control-sm mb-1" rows="2" placeholder="Referral context…" required></textarea>
+                <button class="btn btn-sm btn-info w-100">Refer</button>
+            </form>
+
+            {% if ticket.referred_to and ticket.referred_to_id != user.id %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="accept_transfer">
+                <button class="btn btn-sm btn-success w-100">Accept & take ownership</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- Escalate to sales -->
+        {% if not ticket.inquiry %}
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white mb-3 border-start border-4 border-success">
+            <h6 class="fw-bold mb-2"><i data-feather="trending-up" class="me-1"></i>Escalate to sales</h6>
+            <p class="small text-muted">After the issue is resolved (or if this is a prospect), push into the funnel.</p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="escalate">
+                <select name="stage" class="form-select form-select-sm mb-2">
+                    <option value="new">New Lead</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="qualified">Qualified</option>
+                </select>
+                <select name="questionnaire_context" class="form-select form-select-sm mb-2">
+                    <option value="">No questionnaire yet</option>
+                    <option value="onboarding">Attach onboarding template</option>
+                    <option value="discovery">Attach discovery template</option>
+                    <option value="satisfaction">Attach satisfaction template</option>
+                </select>
+                <button class="btn btn-success w-100 btn-sm" onclick="return confirm('Escalate this ticket to the sales funnel?');">
+                    Convert to sales lead
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Questionnaire attach (after escalate) -->
+        {% if ticket.inquiry %}
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+            <h6 class="fw-bold mb-2">Questionnaires</h6>
+            {% if ticket.inquiry.questionnaire %}
+            <a href="{% url 'funnel_questionnaire' ticket.inquiry_id %}" class="btn btn-sm btn-outline-primary w-100 mb-2">
+                Open live questionnaire
+            </a>
+            {% else %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="attach_questionnaire">
+                <select name="template_id" class="form-select form-select-sm mb-2">
+                    {% for t in templates %}
+                    <option value="{{ t.id }}">{{ t.title }} ({{ t.get_context_display }})</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-sm btn-primary w-100">Attach template → lead</button>
+            </form>
+            {% endif %}
+            {% if suggested_templates %}
+            <div class="mt-2 small text-muted">
+                Suggested: {% for t in suggested_templates %}{{ t.title }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

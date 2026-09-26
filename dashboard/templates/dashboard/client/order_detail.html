@@ -1,0 +1,134 @@
+{% extends 'dashboard/client/client_base.html' %}
+
+{% block client_content %}
+<div class="mb-4" data-aos="fade-down">
+    <h1 class="h3 fw-bold text-dark mb-1">Order #{{ order.id }}</h1>
+    <a href="{% url 'client_orders' %}" class="text-muted text-decoration-none">
+        <i data-feather="arrow-left" style="width:16px;"></i> Back to All Orders
+    </a>
+</div>
+
+<div class="row g-4" data-aos="fade-up">
+    <div class="col-lg-8">
+        <!-- Order Items -->
+        <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
+            <h4 class="fw-bold mb-3">Order Items</h4>
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-muted fw-bold">Product</th>
+                        <th class="text-muted fw-bold text-end">Price</th>
+                        <th class="text-muted fw-bold text-center">Qty</th>
+                        <th class="text-muted fw-bold text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"
+                                     class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                {% endif %}
+                                <span class="fw-medium">{{ item.product.name }}</span>
+                            </div>
+                        </td>
+                        <td class="text-end">${{ item.price_at_purchase }}</td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-end">${{ item.total_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Payments -->
+        <div class="bg-white rounded-4 shadow-sm p-4" data-aos="fade-up" data-aos-delay="100">
+            <h4 class="fw-bold mb-3">Payment History</h4>
+            {% if payments %}
+            <table class="table table-borderless align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-muted fw-bold">Date</th>
+                        <th class="text-muted fw-bold">Method</th>
+                        <th class="text-muted fw-bold">Transaction</th>
+                        <th class="text-muted fw-bold text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                        <td>{{ payment.get_payment_method_display|default:"N/A" }}</td>
+                        <td class="text-muted small">{{ payment.transaction_id|default:"—" }}</td>
+                        <td class="text-end">
+                            ${{ payment.amount }}
+                            {% if payment.is_successful %}
+                            <span class="badge bg-success-subtle text-success-emphasis ms-1">Success</span>
+                            {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted text-center py-3">No payment records for this order.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="col-lg-4" data-aos="fade-left">
+        <div class="bg-white rounded-4 shadow-sm p-4">
+            <h4 class="fw-bold mb-3">Order Summary</h4>
+            <table class="table table-borderless small mb-0">
+                <tr>
+                    <td class="text-muted">Order Date:</td>
+                    <td>{{ order.order_date|date:"M d, Y h:i A" }}</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Customer:</td>
+                    <td>{{ order.customer_name }}</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Email:</td>
+                    <td>{{ order.customer_email }}</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Phone:</td>
+                    <td>{{ order.customer_phone|default:"—" }}</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Shipping:</td>
+                    <td>{{ order.address|default:"—" }}{% if order.city %}, {{ order.city }}{% endif %}</td>
+                </tr>
+                <tr class="border-top">
+                    <td class="fw-bold">Total:</td>
+                    <td class="fw-bold text-end">${{ order.total_amount }}</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Status:</td>
+                    <td>
+                        {% if order.status == 'paid' %}
+                        <span class="badge bg-success-subtle text-success-emphasis">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'pending' %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'processing' %}
+                        <span class="badge bg-info-subtle text-info-emphasis">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'shipped' %}
+                        <span class="badge bg-primary-subtle text-primary-emphasis">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'cancelled' %}
+                        <span class="badge bg-danger-subtle text-danger-emphasis">{{ order.get_status_display }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ order.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

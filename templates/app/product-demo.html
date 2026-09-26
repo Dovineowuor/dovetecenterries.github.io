@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .demo-hero {
+        padding: 140px 0 80px;
+        background: linear-gradient(rgba(15, 38, 34, 0.82), rgba(15, 38, 34, 0.9)), url('/static/images/hero_bg.png');
+        background-size: cover;
+        background-position: center;
+        color: #fff;
+        text-align: center;
+    }
+    .demo-step {
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 20px;
+        padding: 1.75rem;
+        height: 100%;
+        text-align: center;
+    }
+    .demo-step .step-num {
+        width: 48px; height: 48px; border-radius: 50%;
+        background: #1F6256; color: #fff; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1rem;
+    }
+    .demo-feature {
+        display: flex; gap: 1rem; align-items: flex-start;
+        padding: 1rem 0; border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .demo-feature i { color: #79C018; flex-shrink: 0; margin-top: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="demo-hero">
+    <div class="container">
+        <h1 class="display-5 fw-bold mb-3" data-aos="fade-up">Request a Product Demo</h1>
+        <p class="lead mx-auto mb-4" style="max-width: 640px;" data-aos="fade-up" data-aos-delay="100">
+            See our software solutions in action. Book a live walkthrough tailored to your industry and team size.
+        </p>
+        <a href="{% url 'contact_us' %}" class="btn btn-primary btn-lg fw-bold px-4" data-aos="fade-up" data-aos-delay="200">Book Your Demo</a>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4 mb-5">
+        <div class="col-md-4" data-aos="fade-up">
+            <div class="demo-step">
+                <div class="step-num">1</div>
+                <h3 class="h5">Tell Us About You</h3>
+                <p class="text-muted mb-0">Share your industry, team size, and the challenges you're trying to solve.</p>
+            </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="demo-step">
+                <div class="step-num">2</div>
+                <h3 class="h5">Live Walkthrough</h3>
+                <p class="text-muted mb-0">We run a 30–45 minute session on the products relevant to you — no generic slide decks.</p>
+            </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="demo-step">
+                <div class="step-num">3</div>
+                <h3 class="h5">Tailored Proposal</h3>
+                <p class="text-muted mb-0">You get a clear plan with pricing, timelines, and next steps within two business days.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7" data-aos="fade-up">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="h4 mb-4">What You'll See</h2>
+                    <div class="demo-feature">
+                        <i class="feather-check-circle"></i>
+                        <div><strong>Tech Darasa LMS</strong> — our learning management platform for schools and training providers.</div>
+                    </div>
+                    <div class="demo-feature">
+                        <i class="feather-check-circle"></i>
+                        <div><strong>Custom web &amp; mobile apps</strong> built for Kenyan businesses, from MVPs to scale.</div>
+                    </div>
+                    <div class="demo-feature">
+                        <i class="feather-check-circle"></i>
+                        <div><strong>Cloud &amp; DevOps setups</strong> with monitoring, CI/CD, and cost optimization.</div>
+                    </div>
+                    <div class="demo-feature border-0">
+                        <i class="feather-check-circle"></i>
+                        <div><strong>Integrations</strong> — M-Pesa, PayPal, ERPs, and the tools your team already uses.</div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{% url 'contact_us' %}" class="btn btn-primary fw-bold px-5">Request Demo Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

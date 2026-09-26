@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% load static %}
+
+{% block title %}Payment Failed - Dovetec Enterprises{% endblock %}
+
+{% block extra_css %}
+<style>
+    .failure-container {
+        padding: 140px 0 100px;
+        background: radial-gradient(circle at top left, rgba(220, 53, 69, 0.05), transparent);
+    }
+
+    .failure-card-premium {
+        background: white;
+        border-radius: 40px;
+        padding: 4rem;
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+
+    .failure-badge-large {
+        width: 120px;
+        height: 120px;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto 2.5rem;
+        box-shadow: 0 20px 40px rgba(220, 53, 69, 0.3);
+    }
+
+    .guidance-box {
+        background: #fdfdfd;
+        border: 1px solid #eee;
+        border-radius: 25px;
+        padding: 2.5rem;
+        margin: 3rem 0;
+        text-align: left;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="failure-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7" data-aos="fade-up">
+                <div class="failure-card-premium text-center">
+                    <div class="failure-badge-large">
+                        <i class="feather-x"></i>
+                    </div>
+
+                    <h1 class="fw-900 display-5 mb-3">Transaction <span class="text-danger">Interrupted</span></h1>
+                    <p class="text-muted h5 fw-normal mb-0">We encountered a portal error while securing your
+                        innovation.</p>
+                    <p class="text-muted small mt-2">Order Reference: #DT-{{ order.id|stringformat:"05d" }}</p>
+
+                    <div class="guidance-box">
+                        <h5 class="fw-800 mb-4 border-bottom pb-3">Recommended Actions:</h5>
+                        <div class="d-flex align-items-start gap-3 mb-4">
+                            <div class="bg-soft-warning p-2 rounded-3"><i class="feather-smartphone text-warning"></i>
+                            </div>
+                            <div>
+                                <p class="fw-bold mb-0">Check your Device</p>
+                                <span class="small text-muted">Ensure your M-Pesa is active and has sufficient funding
+                                    for this investment.</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start gap-3 mb-0">
+                            <div class="bg-soft-primary p-2 rounded-3"><i class="feather-refresh-cw text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="fw-bold mb-0">Network Sync</p>
+                                <span class="small text-muted">A brief timeout may have occurred. Retrying often
+                                    synchronizes the transaction.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'process_payment' order.id %}"
+                            class="btn btn-primary btn-lg py-3 fw-900 shadow-lg border-0">
+                            RETRY TRANSACTION <i class="feather-refresh-cw ms-2"></i>
+                        </a>
+                        <a href="{% url 'cart' %}" class="btn btn-link text-muted text-decoration-none fw-800">
+                            Return to Basket
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-5 text-center">
+                    <p class="text-muted small">Immediate assistance: <a href="mailto:support@dovetec.tech"
+                            class="text-primary fw-800">support@dovetec.tech</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

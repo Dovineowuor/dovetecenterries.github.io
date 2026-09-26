@@ -1,0 +1,90 @@
+{% extends 'dashboard/client/client_base.html' %}
+
+{% block client_content %}
+<div class="mb-4" data-aos="fade-down">
+    <h1 class="h3 fw-bold text-dark mb-1">Billing & Plan</h1>
+    <p class="text-muted mb-0">Your current subscription and available premium plans.</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100" data-aos="fade-up">
+            <h6 class="text-muted text-uppercase small fw-bold mb-2">Current plan</h6>
+            {% if current_plan %}
+            <h3 class="fw-bold mb-1">{{ current_plan.name }}</h3>
+            <p class="mb-2">
+                {% if current_plan.is_free %}
+                <span class="badge bg-secondary">Free</span>
+                {% else %}
+                <span class="badge bg-success">Premium</span>
+                {% endif %}
+                {% if subscription %}
+                · {{ subscription.get_status_display }}
+                {% if subscription.ends_at %} · ends {{ subscription.ends_at|date:"M d, Y" }}{% endif %}
+                {% endif %}
+            </p>
+            <p class="text-muted small">{{ current_plan.description }}</p>
+            <ul class="list-unstyled small text-muted mb-3">
+                {% for f in current_plan.feature_list %}
+                <li class="mb-1"><i data-feather="check" style="width:14px;" class="text-success"></i> {{ f }}</li>
+                {% endfor %}
+            </ul>
+            {% if subscription and subscription.status == 'active' %}
+            <form method="post" action="{% url 'client_subscription_cancel' %}">
+                {% csrf_token %}
+                <button class="btn btn-outline-danger btn-sm w-100"
+                        onclick="return confirm('Cancel this subscription at period end?');">
+                    Cancel subscription
+                </button>
+            </form>
+            {% endif %}
+            {% else %}
+            <p class="text-muted">No plan assigned yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="bg-white rounded-4 shadow-sm p-4" data-aos="fade-up">
+            <h5 class="fw-bold mb-3">Available plans</h5>
+            <div class="row g-3">
+                {% for plan in plans %}
+                <div class="col-md-4">
+                    <div class="border rounded-4 p-3 h-100 {% if current_plan and plan.id == current_plan.id %}border-primary{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="fw-bold mb-0">{{ plan.name }}</h6>
+                            {% if current_plan and plan.id == current_plan.id %}
+                            <span class="badge bg-primary">Yours</span>
+                            {% endif %}
+                        </div>
+                        <p class="h4 fw-bold mb-1">
+                            {% if plan.is_free %}Free{% else %}{{ plan.price|floatformat:0 }} <small class="fs-6">{{ plan.currency }}</small>{% endif %}
+                        </p>
+                        <small class="text-muted d-block mb-2">{{ plan.get_interval_display }}</small>
+                        <ul class="list-unstyled small text-muted mb-3">
+                            {% for f in plan.feature_list %}
+                            <li class="mb-1">{{ f }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% if not current_plan or plan.id != current_plan.id %}
+                        {% if plan.is_free %}
+                        <span class="btn btn-outline-secondary btn-sm w-100 disabled">Default</span>
+                        {% else %}
+                        <form method="post" action="{% url 'client_subscription_choose' plan.slug %}">
+                            {% csrf_token %}
+                            <button class="btn btn-primary btn-sm w-100">Choose {{ plan.name }}</button>
+                        </form>
+                        <small class="text-muted d-block mt-1 text-center">Checkout placeholder</small>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="text-muted small mt-3 mb-0">
+                Payment processing (M-Pesa / PayPal) will complete checkout — selecting a plan records a pending subscription for staff confirmation until wired.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

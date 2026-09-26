@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+{% load static %}
+{% load ad_tags %}
+{% load seo_tags %}
+
+{% block title %}{{ article_obj.meta_title|default:article_obj.title|default:"Article" }} - Dovetec Enterprises{% endblock %}
+{% block seo_desc %}{{ article_obj.meta_description|default:article_obj.seo_description|default:"Read the full article on Dovetec Enterprises."|truncatewords:20 }}{% endblock %}
+{% block seo_keys %}{{ article_obj.category|default:"technology" }}, software engineering, IT solutions, {% for tag in article_obj.tags.all %}{{ tag.name }}, {% endfor %}{% endblock %}
+{% block canonical_url %}{{ article_obj.canonical_url|default_if_none:'' }}{% if not article_obj.canonical_url %}{{ article_obj.get_absolute_url|abs_url:request }}{% endif %}{% endblock %}
+{% block og_title %}{{ article_obj.og_title|default:article_obj.title }}{% endblock %}
+{% block og_desc %}{{ article_obj.og_description|default:article_obj.seo_description|default:"Read the full article."|truncatewords:20 }}{% endblock %}
+{% block og_image %}{% if article_obj.og_image %}{{ article_obj.og_image.url|abs_url:request }}{% elif article_obj.image %}{{ article_obj.image.url|abs_url:request }}{% else %}{{ default_og_image|abs_url:request }}{% endif %}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_extra %}
+<meta property="article:published_time" content="{% if article_obj.published_at %}{{ article_obj.published_at|date:'c' }}{% elif article_obj.scheduled_at %}{{ article_obj.scheduled_at|date:'c' }}{% endif %}">
+<meta property="article:modified_time" content="{% if article_obj.updated_at %}{{ article_obj.updated_at|date:'c' }}{% endif %}">
+{% if article_obj.category %}<meta property="article:section" content="{{ article_obj.category }}">{% endif %}
+{% for tag in article_obj.tags.all %}<meta property="article:tag" content="{{ tag.name }}">{% endfor %}
+{% endblock %}
+{% block twitter_card %}{{ article_obj.twitter_card|default:"summary_large_image" }}{% endblock %}
+{% block twitter_title %}{{ article_obj.twitter_title|default:article_obj.title }}{% endblock %}
+{% block twitter_desc %}{{ article_obj.twitter_description|default:article_obj.seo_description|default:"Read the full article."|truncatewords:20 }}{% endblock %}
+{% block twitter_image %}{% if article_obj.twitter_image %}{{ article_obj.twitter_image.url|abs_url:request }}{% elif article_obj.image %}{{ article_obj.image.url|abs_url:request }}{% else %}{{ default_og_image|abs_url:request }}{% endif %}{% endblock %}
+{% block jsonld %}{% if article_obj %}<script type="application/ld+json">{{ article_obj|schema_json:request|safe }}</script>{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reading-progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 4px;
+        background: linear-gradient(to right, #2b5f57, #1f443e);
+        z-index: 9999;
+        transition: width 0.1s ease;
+    }
+
+    .article-hero {
+        position: relative;
+        padding: 120px 0 80px;
+        background: #f8f9fa;
+        overflow: hidden;
+    }
+
+    .article-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 70% 30%, rgba(13, 71, 161, 0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .article-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .article-body {
+        font-size: 1.2rem;
+        line-height: 1.8;
+        color: #2c3e50;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .article-body h2,
+    .article-body h3 {
+        color: #2b5f57;
+        margin-top: 2.5rem;
+        font-weight: 800;
+    }
+
+    .article-body p {
+        margin-bottom: 1.5rem;
+    }
+
+    .sticky-author-card {
+        position: sticky;
+        top: 100px;
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .comment-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+
+    .comment-card:hover {
+        transform: translateX(10px);
+    }
+
+    .related-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .related-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reading-progress-bar" id="readingProgress"></div>
+
+<!-- Article Hero -->
+<section class="article-hero mt-5">
+    <div class="container text-center">
+        <nav aria-label="breadcrumb" data-aos="fade-up">
+            <ol class="breadcrumb justify-content-center mb-4">
+                <li class="breadcrumb-item"><a href="{% url 'see_blog' %}">Insights</a></li>
+                <li class="breadcrumb-item active">{{ article_obj.category }}</li>
+            </ol>
+        </nav>
+
+        <h1 class="display-4 fw-800 mb-4 article-container" data-aos="fade-up" data-aos-delay="100">
+            {{ article_obj.title }}
+        </h1>
+
+        <div class="d-flex align-items-center justify-content-center gap-3 mb-5" data-aos="fade-up"
+            data-aos-delay="200">
+            <div class="d-flex align-items-center">
+                {% if article_obj.author.user.profile.image %}
+                <img src="{{ article_obj.author.user.profile.image.url }}" class="rounded-circle me-2"
+                    style="width: 40px; height: 40px; object-fit: cover;">
+                {% elif article_obj.user.profile.image %}
+                <img src="{{ article_obj.user.profile.image.url }}" class="rounded-circle me-2"
+                    style="width: 40px; height: 40px; object-fit: cover;">
+                {% endif %}
+                <span class="fw-bold">{% if article_obj.author.user %}{{ article_obj.author.user.get_full_name|default:article_obj.author.user.username }}{% elif article_obj.user %}{{ article_obj.user.get_full_name|default:article_obj.user.username }}{% else %}Dovetec Author{% endif %}</span>
+            </div>
+            <span class="text-muted">•</span>
+            <span class="text-muted"><i class="feather-calendar me-1"></i> 
+                {{ article_obj.created_at|date:"M d, Y" }}
+            </span>
+            <span class="text-muted">•</span>
+            <span class="text-muted"><i class="feather-clock me-1"></i> 8 min read</span>
+        </div>
+
+        {% if article_obj.image %}
+        <div class="article-container" data-aos="zoom-in" data-aos-delay="300">
+            <img src="{{ article_obj.image.url }}" class="img-fluid rounded-4 shadow-lg w-100"
+                style="max-height: 500px; object-fit: cover;" alt="">
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Article Content -->
+<div class="container py-6">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="sticky-author-card text-center">
+                {% if article_obj.author.user.profile.image %}
+                <img src="{{ article_obj.author.user.profile.image.url }}" class="rounded-circle mb-3 shadow-sm"
+                    style="width: 80px; height: 80px; object-fit: cover;">
+                {% elif article_obj.user.profile.image %}
+                <img src="{{ article_obj.user.profile.image.url }}" class="rounded-circle mb-3 shadow-sm"
+                    style="width: 80px; height: 80px; object-fit: cover;">
+                {% endif %}
+                <h6 class="fw-bold mb-1">{% if article_obj.author.user %}{{ article_obj.author.user.get_full_name|default:article_obj.author.user.username }}{% elif article_obj.user %}{{ article_obj.user.get_full_name|default:article_obj.user.username }}{% else %}Dovetec Author{% endif %}</h6>
+                <p class="small text-muted mb-4">{{ article_obj.author.title|default:article_obj.user.profile.title|default:"Tech Visionary" }}</p>
+
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <a href="#" class="btn btn-soft-primary btn-icon rounded-circle"><i class="feather-twitter"></i></a>
+                    <a href="#" class="btn btn-soft-primary btn-icon rounded-circle"><i
+                            class="feather-linkedin"></i></a>
+                </div>
+
+                <button class="btn btn-outline-primary btn-sm w-100">Follow Author</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-8 ps-lg-5">
+            <div class="article-body mb-6">
+                {{ article_obj.content|safe }}
+            </div>
+
+            <!-- Tags & Share -->
+            <div
+                class="d-flex flex-wrap justify-content-between align-items-center border-top border-bottom py-4 gap-3 mb-6">
+                <div class="d-flex gap-2">
+                    {% for tag in article_obj.tags.all %}
+                    <a href="{% url 'tag_detail' tag=tag.name %}" class="btn btn-soft-secondary btn-sm px-3">#{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    {% include 'includes/social_sharing.html' with title=article_obj.title %}
+                </div>
+            </div>
+
+            <!-- Author Bio Section -->
+            <div
+                class="p-4 p-md-5 bg-light rounded-4 mb-6 d-flex flex-column flex-md-row gap-4 align-items-center align-items-md-start">
+                {% if article_obj.user.profile.image %}
+                <img src="{{ article_obj.user.profile.image.url }}" class="rounded-circle shadow-sm"
+                    style="width: 100px; height: 100px; object-fit: cover;">
+                {% endif %}
+                <div class="text-center text-md-start">
+                    <h5 class="fw-bold mb-2">Written by
+                        {% if article_obj.author.user %}{{ article_obj.author.user.get_full_name|default:article_obj.author.user.username }}{% elif article_obj.user %}{{ article_obj.user.get_full_name|default:article_obj.user.username }}{% else %}Dovetec Author{% endif %}</h5>
+                    <p class="text-muted mb-0">{{ article_obj.author.bio|default:article_obj.user.profile.bio|default:"Dedicated to exploring the latest in technology and innovation to bring you deep insights into the digital future." }}</p>
+                </div>
+            </div>
+
+            <!-- Comments -->
+            <div class="comments-section">
+                <h3 class="fw-bold mb-5">Discussion ({{ article_obj.comments.count }})</h3>
+
+                <div class="mb-5">
+                    {% if request.user.is_authenticated %}
+                    <form action="{% url 'comment' post_slug=article_obj.slug %}" method="post"
+                        class="bg-white p-4 rounded-4 shadow-sm border">
+                        {% csrf_token %}
+                        <textarea name="content" class="form-control border-0 bg-light rounded-3 mb-3" rows="3"
+                            placeholder="Share your thoughts..."></textarea>
+                        <div class="text-end">
+                            <button class="btn btn-primary px-4">Post Comment</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-soft-primary rounded-4 text-center py-4">
+                        Please <a href="{% url 'login_view' %}" class="fw-bold">Sign In</a> to join the conversation.
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% for comment in article_obj.comments.all %}
+                <div class="comment-card" data-aos="fade-left">
+                    <div class="d-flex gap-3 align-items-start">
+                        {% if comment.user.profile.image %}
+                        <img src="{{ comment.user.profile.image.url }}" class="rounded-circle"
+                            style="width: 48px; height: 48px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-soft-primary text-primary rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 48px; height: 48px;">
+                            <i class="feather-user"></i>
+                        </div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="fw-bold mb-0">{{ comment.user.get_full_name|default:comment.user.username }}
+                                </h6>
+                                <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
+                            </div>
+                            <p class="text-muted mb-0 small lh-base">{{ comment.content }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-5 opacity-50">
+                    <i class="feather-message-square display-4 mb-3 d-block"></i>
+                    <p>No comments yet. Start the discussion!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Related Articles -->
+{% if related_articles %}
+<section class="bg-light py-8">
+    <div class="container">
+        <h3 class="fw-bold mb-5 text-center">Continue Reading</h3>
+        <div class="row g-4">
+            {% for art in related_articles %}
+            <div class="col-md-4">
+                <div class="related-card bg-white h-100">
+                    <a href="{% url 'blog_detail' art.slug %}">
+                        {% if art.image %}
+                        <img src="{{ art.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                    </a>
+                    <div class="card-body p-4">
+                        <span class="badge bg-soft-primary text-primary mb-2">{{ art.category }}</span>
+                        <h5 class="fw-bold">
+                            <a href="{% url 'blog_detail' art.slug %}" class="text-dark text-decoration-none">
+                                {{ art.title|truncatechars:60 }}
+                            </a>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    window.onscroll = function () {
+        var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        var scrolled = (winScroll / height) * 100;
+        document.getElementById("readingProgress").style.width = scrolled + "%";
+    };
+</script>
+{% endblock %}

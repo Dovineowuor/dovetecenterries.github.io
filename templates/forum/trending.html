@@ -1,0 +1,63 @@
+{% extends 'forum/community_base.html' %}
+
+{% block title %}Trending | Community Hub | Dovetec Enterprises{% endblock %}
+{% block hero_title %}Trending{% endblock %}
+{% block hero_text %}The discussions and posts getting the most attention from the community right now.{% endblock %}
+
+{% block community_content %}
+{% if query %}
+<p class="small text-muted mb-3">Showing trending results for <strong>{{ query }}</strong>{% if active_tab and active_tab != 'all' %} in <strong>{{ active_tab }}</strong>{% endif %}</p>
+{% endif %}
+
+<h3 class="section-heading" style="margin-top:0;">Trending Discussions</h3>
+<div class="row g-3 mb-4">
+    {% for topic in trending_topics %}
+    <div class="col-12 col-md-6">
+        <a href="{% url 'topic_detail' topic_slug=topic.slug %}" class="discussion-card">
+            <span class="category-pill">{{ topic.category.name|default:"General" }}</span>
+            <h5>{{ topic.name }}</h5>
+            <p>{{ topic.description|default:""|truncatewords:18 }}</p>
+            <div class="card-footer">
+                <span class="meta-chip"><i class="feather-file-text"></i> {{ topic.post_count|default:0 }} post{{ topic.post_count|default:0|pluralize }}</span>
+                <span class="meta-chip"><i class="feather-message-circle"></i> {{ topic.comment_count|default:0 }} comment{{ topic.comment_count|default:0|pluralize }}</span>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="empty-state">
+            <i class="feather-trending-up"></i>
+            <h3>Nothing trending yet</h3>
+            <p>When discussions pick up steam, they will show up here. Be the first to start a conversation!</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<h3 class="section-heading">Hot Posts</h3>
+<div class="row g-3 mb-4">
+    {% for post in trending_posts %}
+    <div class="col-12 col-md-6">
+        <a href="{% url 'post_detail' post_slug=post.slug %}" class="discussion-card">
+            <span class="category-pill">{{ post.topic.name|default:post.category|default:"Post" }}</span>
+            <h5>{{ post.title }}</h5>
+            <div class="card-footer">
+                <span class="meta-chip"><i class="feather-heart"></i> {{ post.reaction_count|default:0 }}</span>
+                <span class="meta-chip"><i class="feather-eye"></i> {{ post.views|default:0 }}</span>
+                <span class="meta-chip">{{ post.created_at|timesince }} ago</span>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    {% if trending_topics|length == 0 %}
+    <div class="col-12">
+        <div class="empty-state">
+            <i class="feather-activity"></i>
+            <h3>No hot posts yet</h3>
+            <p>Approved posts with the most reactions will appear here.</p>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block robots %}noindex, nofollow{% endblock %}
+{% block title %}Reply to Comment{% endblock %}
+
+{% block content %}
+<h2>Reply to {{ comment.author.username }}</h2>
+<form method="POST">
+    {% csrf_token %}
+    {{ reply_form.as_p }}
+    <button type="submit" class="btn btn-primary">Add Reply</button>
+</form>
+<a href="{% url 'post_detail' comment.post.id %}" class="btn btn-link">Cancel</a>
+{% endblock %}

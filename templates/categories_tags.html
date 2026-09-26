@@ -1,0 +1,24 @@
+<!-- Categories and Tags Section -->
+<section class="py-6">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9 mx-auto text-center">
+                <h1 class="mb-5">What Would You <br> Like To Read Today?</h1>
+                <ul class="list-inline widget-list-inline">
+                    <!-- Loop through tags or categories dynamically -->
+                    {% for tag in tags %}
+                    <li class="list-inline-item">
+                        <a href="{% url 'tag_detail' tag.slug %}">{{ tag.name }}</a>
+                    </li>
+                    
+                    {% endfor %}
+                    {% for category in categories %}
+                    <li class="list-inline-item">
+                        <a href="{% url 'category_detail' category.slug %}">{{ category.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>

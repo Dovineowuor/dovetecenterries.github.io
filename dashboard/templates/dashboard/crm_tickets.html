@@ -1,0 +1,91 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" data-aos="fade-down">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-1"><i data-feather="life-buoy" class="me-2"></i>Support Tickets</h1>
+        <p class="text-muted mb-0">Issues first — resolve, transfer, refer, then escalate to sales.</p>
+    </div>
+    <form method="get" class="d-flex gap-2 flex-wrap">
+        <input type="hidden" name="scope" value="{{ scope }}">
+        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search ref, subject, email…" style="min-width:200px;">
+        <select name="status" class="form-select form-select-sm" style="width:auto;">
+            <option value="">Any status</option>
+            {% for v, l in status_choices %}
+            <option value="{{ v }}" {% if status_f == v %}selected{% endif %}>{{ l }}</option>
+            {% endfor %}
+        </select>
+        <select name="priority" class="form-select form-select-sm" style="width:auto;">
+            <option value="">Any priority</option>
+            {% for v, l in priority_choices %}
+            <option value="{{ v }}" {% if priority_f == v %}selected{% endif %}>{{ l }}</option>
+            {% endfor %}
+        </select>
+        <select name="type" class="form-select form-select-sm" style="width:auto;">
+            <option value="">Any type</option>
+            {% for v, l in type_choices %}
+            <option value="{{ v }}" {% if type_f == v %}selected{% endif %}>{{ l }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-sm btn-outline-secondary"><i data-feather="search" style="width:14px;"></i></button>
+    </form>
+</div>
+
+<ul class="nav nav-pills mb-3 flex-wrap gap-1">
+    <li class="nav-item"><a class="nav-link {% if scope == 'mine' %}active{% endif %}" href="?scope=mine">Mine <span class="badge bg-secondary">{{ counts.mine }}</span></a></li>
+    <li class="nav-item"><a class="nav-link {% if scope == 'unassigned' %}active{% endif %}" href="?scope=unassigned">Unassigned <span class="badge bg-secondary">{{ counts.unassigned }}</span></a></li>
+    <li class="nav-item"><a class="nav-link {% if scope == 'open' %}active{% endif %}" href="?scope=open">Open <span class="badge bg-secondary">{{ counts.open }}</span></a></li>
+    <li class="nav-item"><a class="nav-link {% if scope == 'referred' %}active{% endif %}" href="?scope=referred">Referred <span class="badge bg-secondary">{{ counts.referred }}</span></a></li>
+    <li class="nav-item"><a class="nav-link {% if scope == 'all' %}active{% endif %}" href="?scope=all">All <span class="badge bg-secondary">{{ counts.all }}</span></a></li>
+    <li class="nav-item"><span class="nav-link text-danger border border-danger rounded-pill">Urgent {{ counts.urgent }}</span></li>
+</ul>
+
+<div class="bg-white rounded-4 shadow-sm p-4" data-aos="fade-up">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="border-bottom">
+                <tr>
+                    <th class="text-muted fw-bold">Ref</th>
+                    <th class="text-muted fw-bold">Subject</th>
+                    <th class="text-muted fw-bold">Type</th>
+                    <th class="text-muted fw-bold">Priority</th>
+                    <th class="text-muted fw-bold">Status</th>
+                    <th class="text-muted fw-bold">Assignee</th>
+                    <th class="text-muted fw-bold">Age</th>
+                    <th class="text-muted fw-bold"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td><a href="{% url 'ticket_detail' ticket.id %}" class="fw-bold text-decoration-none">{{ ticket.reference }}</a></td>
+                    <td>
+                        {{ ticket.subject|truncatechars:50 }}<br>
+                        <small class="text-muted">{{ ticket.contact.email|default:"—" }}</small>
+                    </td>
+                    <td><span class="badge {% if ticket.type == 'issue' %}bg-danger-subtle text-danger-emphasis{% else %}bg-info-subtle text-info-emphasis{% endif %}">{{ ticket.get_type_display }}</span></td>
+                    <td>
+                        <span class="badge {% if ticket.priority == 'urgent' %}bg-danger{% elif ticket.priority == 'high' %}bg-warning text-dark{% elif ticket.priority == 'normal' %}bg-secondary{% else %}bg-light text-dark border{% endif %}">
+                            {{ ticket.get_priority_display }}
+                        </span>
+                    </td>
+                    <td><span class="badge bg-primary-subtle text-primary-emphasis">{{ ticket.get_status_display }}</span></td>
+                    <td>
+                        {% if ticket.assigned_to %}{{ ticket.assigned_to.get_short_name }}{% else %}<span class="text-muted">Unassigned</span>{% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ ticket.age_hours }}h</small></td>
+                    <td><a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-sm btn-outline-dark">Open</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-5">
+                        <i data-feather="inbox" class="opacity-50" style="width:40px;height:40px;"></i>
+                        <p class="mt-2 mb-0">No tickets in this view.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

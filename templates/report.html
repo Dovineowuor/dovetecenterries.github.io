@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Report Content | Dovetec Enterprises{% endblock %}
+{% block seo_desc %}Report abusive, spammy, or policy-violating content on Dovetec Enterprises for review by our moderation team.{% endblock %}
+{% block seo_keys %}report content, moderation, Dovetec Enterprises{% endblock %}
+{% block og_title %}Report Content | Dovetec Enterprises{% endblock %}
+{% block og_desc %}Report abusive or policy-violating content for review by our moderation team.{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="h3 mb-2">Report Content</h1>
+                    <p class="text-muted mb-4">See something that violates our community guidelines? Let us know. Reports are confidential and reviewed by our moderation team.</p>
+                    <form method="post" action="{% url 'report' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="rp-url">Content URL</label>
+                            <input class="form-control" type="url" id="rp-url" name="content_url" required placeholder="https://dovetecenterprises.site/...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="rp-reason">Reason</label>
+                            <select class="form-select" id="rp-reason" name="reason" required>
+                                <option value="">Select a reason...</option>
+                                <option value="spam">Spam or misleading</option>
+                                <option value="harassment">Harassment or hate speech</option>
+                                <option value="inappropriate">Inappropriate content</option>
+                                <option value="copyright">Copyright violation</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" for="rp-details">Details</label>
+                            <textarea class="form-control" id="rp-details" name="details" rows="5" required placeholder="Describe the issue..."></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" for="rp-email">Your Email (optional)</label>
+                            <input class="form-control" type="email" id="rp-email" name="email" placeholder="you@example.com">
+                        </div>
+                        <button class="btn btn-danger w-100 fw-bold" type="submit">Submit Report</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

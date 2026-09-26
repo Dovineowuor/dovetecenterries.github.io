@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Software Showcase: Tech Darasa & Dooomore - Dovetec Enterprises{% endblock %}
+{% block seo_desc %}Software showcase: Dovetec Enterprises presents Tech Darasa and Dooomore. Explore EdTech and project management solutions from Kenya's leading tech company.{% endblock %}
+{% block seo_keys %}Tech Darasa, Dooomore, EdTech, project management, Dovetec Enterprises, software showcase{% endblock %}
+{% block og_title %}Software Showcase: Tech Darasa & Dooomore - Dovetec Enterprises{% endblock %}
+{% block og_desc %}Explore Tech Darasa and Dooomore solutions from Dovetec Enterprises.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Software Showcase: Tech Darasa & Dooomore - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}Explore Tech Darasa and Dooomore solutions from Dovetec Enterprises.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .showcase-header {
+        padding: 100px 0 60px;
+        background: #f8faff;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .project-segment {
+        padding: 80px 0;
+    }
+    .project-segment:nth-child(even) {
+        background: #fafbfc;
+    }
+    .device-mockup {
+        border-radius: 20px;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.1);
+        border: 8px solid #fff;
+    }
+    .tech-tag {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        background: rgba(0,0,0,0.04);
+        color: #4b5563;
+        border-radius: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<header class="showcase-header">
+    <div class="container text-center">
+        <span class="section-label mb-3" data-aos="fade-up">Software Excellence</span>
+        <h1 class="display-4 fw-800 mb-3" data-aos="fade-up" data-aos-delay="100">Tech Darasa & Dooomore</h1>
+        <p class="lead text-muted max-width-700 mx-auto" data-aos="fade-up" data-aos-delay="200">
+            Showcasing our specialized platforms for collaborative learning and enterprise-grade project management.
+        </p>
+    </div>
+</header>
+
+<!-- Tech Darasa Segment -->
+<section class="project-segment">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-right">
+                <img src="{% static 'images/logo-techdarasa.png' %}" alt="Tech Darasa" class="img-fluid mb-4" style="max-height: 50px;">
+                <h2 class="fw-800 mb-4">Empowering the Next Generation of Learners</h2>
+                <p class="text-muted fs-5 mb-4">
+                    Tech Darasa is an end-to-end EdTech solution designed to bridge the digital divide in education. It features interactive course modules, real-time student tracking, and localized content delivery.
+                </p>
+                <div class="d-flex flex-wrap gap-2 mb-5">
+                    <span class="tech-tag">Next.js</span>
+                    <span class="tech-tag">WebSockets</span>
+                    <span class="tech-tag">AWS Cloud</span>
+                    <span class="tech-tag">PostgreSQL</span>
+                </div>
+                <a href="https://techdarasa.dovetecenterprises.site" target="_blank" class="btn btn-primary px-5 py-3 fw-bold">LAUNCH TECH DARASA <i class="feather-external-link ms-2"></i></a>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left" data-aos-delay="100">
+                <img src="{% static 'images/techdarasa-mockup.png' %}" alt="Tech Darasa Interface" class="img-fluid device-mockup">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dooomore Segment -->
+<section class="project-segment">
+    <div class="container">
+        <div class="row align-items-center g-5 flex-lg-row-reverse">
+            <div class="col-lg-6" data-aos="fade-left">
+                <h2 class="fw-800 mb-4">Dooomore: Streamlined Project Operations</h2>
+                <p class="text-muted fs-5 mb-4">
+                    Our flagship productivity suite built for modern teams. Dooomore integrates task management, document collaboration, and team communication into a single shared workspace.
+                </p>
+                <ul class="list-unstyled mb-5">
+                    <li class="mb-3 d-flex align-items-center gap-2">
+                        <i class="feather-check-circle text-primary"></i> <span class="fw-bold">Gantt & Kanban Views</span>
+                    </li>
+                    <li class="mb-3 d-flex align-items-center gap-2">
+                        <i class="feather-check-circle text-primary"></i> <span class="fw-bold">Real-time Syncing</span>
+                    </li>
+                    <li class="mb-3 d-flex align-items-center gap-2">
+                        <i class="feather-check-circle text-primary"></i> <span class="fw-bold">Encrypted Data Storage</span>
+                    </li>
+                </ul>
+                <a href="https://dooomore.dovetecenterprises.site" target="_blank" class="btn btn-dark px-5 py-3 fw-bold">EXPLORE DOOOMORE <i class="feather-external-link ms-2"></i></a>
+            </div>
+            <div class="col-lg-6" data-aos="fade-right" data-aos-delay="100">
+                <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 24px; min-height: 400px; background: linear-gradient(135deg, #2b5f57 0%, #1565C0 100%);">
+                    <div class="card-body d-flex align-items-center justify-content-center text-white p-5">
+                       <div class="text-center">
+                           <i class="feather-layers display-1 opacity-25 mb-4"></i>
+                           <h3 class="fw-bold">Dooomore Hub</h3>
+                           <p class="opacity-75">Production Environment Ready</p>
+                       </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Combined CTA -->
+<section class="py-6 transition-bg" style="background: var(--brand-dark); color: white;">
+    <div class="container text-center">
+        <h2 class="display-5 fw-800 mb-4">Interested in a custom solution?</h2>
+        <p class="lead opacity-75 mb-5">Our engineering team can build and scale your next big idea.</p>
+        <a href="/contact" class="btn btn-primary px-5 py-3 fw-bold">BOOK A CONSULTATION</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "vercel-build": "python manage.py migrate --noinput && python manage.py collectstatic --noinput",
+    "deploy": "vercel --archive=tgz",
+    "deploy:prod": "vercel --prod --archive=tgz",
+    "check-deploy-size": "python3 devops/check_deploy_size.py"
+  }
+}

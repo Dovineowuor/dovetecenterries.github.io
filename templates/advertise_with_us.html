@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1>Advertise with Us</h1>
+            <p>Reach your target audience and promote your brand on our platform.</p>
+            <!-- Button to trigger the modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#advertiseModal">
+                Advertise Here
+            </button>
+        </div>
+    </div>
+
+    <!-- Advertisement Information Section -->
+    <div class="row mt-5">
+        <div class="col-md-8">
+            <h2>Why Advertise Here?</h2>
+            <p>Our platform offers a unique opportunity to reach a diverse audience. Whether you're looking to promote a new product, increase brand awareness, or drive traffic to your website, we have the right advertising solutions for you.</p>
+            
+            <h3>Advertising Options</h3>
+            <ul>
+                <li>Banner Ads</li>
+                <li>Sidebar Ads</li>
+                <li>Sponsored Posts</li>
+                <li>Newsletter Advertising</li>
+            </ul>
+
+            <!-- Ad Placement Example -->
+            <h4 class="mt-4">Sample Ad Placements</h4>
+            <div class="ad-placeholder mb-3">
+                <p>Banner Ad (728x90)</p>
+            </div>
+            <div class="ad-placeholder mb-3">
+                <p>Sidebar Ad (300x250)</p>
+            </div>
+            <div class="ad-placeholder mb-3">
+                <p>Sponsored Post Placement</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advertise Modal -->
+<div class="modal fade" id="advertiseModal" tabindex="-1" role="dialog" aria-labelledby="advertiseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="advertiseModalLabel">Advertise with Us</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Contact Form Inside Modal -->
+                <div class="contact-form">
+                    <form action="{% url 'contact_form' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

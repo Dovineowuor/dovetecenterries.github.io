@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ post.title }} - Dovetec Forum{% endblock %}
+
+{% block content %}
+<div class="hero overlay pt-0 hero-static-bg"
+  style="height: 300px; display: flex; align-items: center;">
+  <div class="container text-center">
+    <h1 class="text-white mb-2" data-aos="fade-up">{{ post.title }}</h1>
+    <div class="d-flex justify-content-center align-items-center text-white-50 small">
+      <span class="me-3"><i data-feather="user" class="me-1" style="width: 14px;"></i> {{ post.user.get_full_name|default:post.user.email }}</span>
+      <span><i data-feather="calendar" class="me-1" style="width: 14px;"></i> {{ post.created_at|date:"M d, Y" }}</span>
+    </div>
+  </div>
+</div>
+
+<section class="section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="row">
+          <!-- Main Content Column -->
+          <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-5" data-aos="fade-up">
+              <!-- Article Content -->
+              <div class="post-content mb-4">
+                {{ post.content|safe }}
+              </div>
+
+              <!-- Post Reactions -->
+              <div class="d-flex align-items-center mb-5 gap-3">
+                <a href="{% url 'toggle_like' post.slug %}" class="btn btn-outline-success btn-sm d-flex align-items-center fw-bold">
+                    <i data-feather="thumbs-up" class="me-2" style="width: 16px;"></i> {{ post.like_set.count }} {% trans "Like" %}
+                </a>
+                <a href="{% url 'toggle_dislike' post.slug %}" class="btn btn-outline-danger btn-sm d-flex align-items-center fw-bold">
+                    <i data-feather="thumbs-down" class="me-2" style="width: 16px;"></i> {{ post.dislike_set.count }} {% trans "Dislike" %}
+                </a>
+              </div>
+
+              <!-- Tags -->
+              <div class="post-tags pt-4 border-top">
+                <h6 class="fw-bold text-muted small text-uppercase mb-3">{% trans "Tags" %}</h6>
+                {% for tag in post.tags.all %}
+                <a href="{% url 'tag_detail' tag.name %}"
+                  class="badge bg-light text-primary px-3 py-2 text-decoration-none me-2 mb-2">#{{ tag.name }}</a>
+                {% endfor %}
+              </div>
+
+              <!-- Social Share -->
+              <div class="post-share pt-4 pb-2 border-top mt-4 d-flex align-items-center">
+                <h6 class="fw-bold text-muted small text-uppercase mb-0 me-4">{% trans "Share this discussion" %}</h6>
+                <div class="d-flex gap-2">
+                  <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ post.title }}" target="_blank" class="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <i data-feather="twitter" style="width: 16px; color: #1DA1F2;"></i>
+                  </a>
+                  <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ post.title }}" target="_blank" class="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <i data-feather="linkedin" style="width: 16px; color: #0077b5;"></i>
+                  </a>
+                  <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <i data-feather="facebook" style="width: 16px; color: #1877F2;"></i>
+                  </a>
+                  <button onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied to clipboard!');" class="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="Copy Link">
+                    <i data-feather="link" style="width: 16px; color: #6c757d;"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="comments-wrapper" id="comments" data-aos="fade-up">
+              <h3 class="fw-bold mb-4">{{ post.comments.count }} {% trans "Comments" %}</h3>
+
+              {% for comment in post.comments.all %}
+              <div class="comment-item card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <div class="d-flex align-items-start mb-3">
+                  <img
+                    src="{% if comment.user.profile.image %}{{ comment.user.profile.image.url }}{% else %}{% static 'images/person_1.jpg' %}{% endif %}"
+                    class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                  <div>
+                    <h6 class="fw-bold mb-0">{{ comment.user.get_full_name|default:comment.user.email }}</h6>
+                    <small class="text-muted">{{ comment.created_at|date:"M d, Y H:i" }}</small>
+                  </div>
+                </div>
+                <p class="text-muted mb-3">{{ comment.content }}</p>
+
+                <div class="d-flex align-items-center">
+                  <a href="javascript:void(0);" onclick="this.classList.toggle('text-success'); this.querySelector('.reaction-count').innerText = parseInt(this.querySelector('.reaction-count').innerText) + (this.classList.contains('text-success') ? 1 : -1);" class="text-muted small text-decoration-none fw-bold me-3">
+                    <i data-feather="thumbs-up" class="me-1" style="width: 12px;"></i> <span class="reaction-count">0</span>
+                  </a>
+                  <a href="javascript:void(0);" onclick="this.classList.toggle('text-danger'); this.querySelector('.reaction-count').innerText = parseInt(this.querySelector('.reaction-count').innerText) + (this.classList.contains('text-danger') ? 1 : -1);" class="text-muted small text-decoration-none fw-bold me-3">
+                    <i data-feather="thumbs-down" class="me-1" style="width: 12px;"></i> <span class="reaction-count">0</span>
+                  </a>
+                  <a href="#reply-{{ comment.id }}" class="text-primary small text-decoration-none fw-bold"
+                    data-toggle="collapse">
+                    <i data-feather="corner-up-left" class="me-1" style="width: 12px;"></i> {% trans "Reply" %}
+                  </a>
+                </div>
+
+                <!-- Reply Form -->
+                <div id="reply-{{ comment.id }}" class="collapse mt-3">
+                  <form action="{% url 'add_reply' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="comment_id" value="{{ comment.id }}">
+                    <textarea name="content" class="form-control rounded-4 bg-light border-0 mb-2" rows="2"
+                      placeholder="{% trans 'Write a reply...' %}" required></textarea>
+                    <button type="submit" class="btn btn-primary btn-sm px-3">{% trans "Send Reply" %}</button>
+                  </form>
+                </div>
+              </div>
+              {% empty %}
+              <div class="alert alert-light border-0 rounded-4 text-center py-4 mb-5">
+                <p class="mb-0 text-muted small">{% trans "No comments yet. Be the first to share your thoughts!" %}</p>
+              </div>
+              {% endfor %}
+
+              <!-- Add Comment Form -->
+              <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
+                <h4 class="fw-bold mb-4">{% trans "Leave a Comment" %}</h4>
+                <form action="{% url 'add_comment' post.slug %}" method="post">
+                  {% csrf_token %}
+                  <div class="form-group mb-3">
+                    <textarea class="form-control rounded-4 bg-light border-0 p-3" name="content" rows="4"
+                      placeholder="{% trans 'Share your message here...' %}" required></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary px-5 py-3 fw-bold">{% trans "Post Comment" %}</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="col-lg-4">
+            <div class="sticky-top" style="top: 100px;">
+              <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h5 class="fw-bold mb-3">{% trans "About the Author" %}</h5>
+                <div class="text-center mb-3">
+                  <img
+                    src="{% if post.user.profile.image %}{{ post.user.profile.image.url }}{% else %}{% static 'images/person_1.jpg' %}{% endif %}"
+                    class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                  <h6 class="fw-bold mb-0">{{ post.user.get_full_name|default:post.user.email }}</h6>
+                </div>
+                <p class="text-muted small text-center">{{ post.user.profile.bio|default:"Passionate tech enthusiast and community contributor." }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

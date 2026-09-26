@@ -1,0 +1,110 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="row" data-aos="fade-up">
+    <div class="col-md-10 col-lg-8 mx-auto">
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+            <h4 class="font-weight-bold text-dark mb-4 border-bottom pb-3"><i data-feather="edit-2"
+                    class="me-2 text-primary" style="margin-top:-3px;"></i>{{ page_title }}</h4>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger px-4 py-3 rounded-3 shadow-sm mb-4">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                {% for field in form %}
+                <div class="mb-4">
+                    <label for="{{ field.id_for_label }}"
+                        class="form-label font-weight-bold text-muted small text-uppercase"
+                        style="letter-spacing: 0.5px;">{{ field.label }}</label>
+
+                    {% if field.field.widget.attrs.is_checkbox_select_multiple or field.name == "recipients" %}
+                    <!-- Searchable Checkbox List -->
+                    <div class="mb-2">
+                        <input type="text" class="form-control form-control-smmb-2 checkbox-filter"
+                            placeholder="Search {{ field.label }}..." data-target="checkbox-list-{{ forloop.counter }}">
+                    </div>
+                    <div class="border rounded-3 p-3 bg-light-subtle overflow-auto checkbox-scroll-list"
+                        id="checkbox-list-{{ forloop.counter }}" style="max-height: 300px;">
+                        {% for choice_value, choice_label in field.field.choices %}
+                        <div class="form-check checkbox-item">
+                            <input class="form-check-input" type="checkbox" name="{{ field.name }}"
+                                value="{{ choice_value }}" id="{{ field.name }}_{{ forloop.counter }}" 
+                                {% if choice_value in field.value %}checked{% endif %}>
+                            <label class="form-check-label small" for="{{ field.name }}_{{ forloop.counter }}">
+                                {{ choice_label }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% elif field.field.widget.input_type == "checkbox" %}
+                    <div class="form-check form-switch pt-1">
+                        {{ field }}
+                        <label class="form-check-label text-muted ms-2" for="{{ field.id_for_label }}">Enable {{ field.label|lower }}</label>
+                    </div>
+                    {% else %}
+                    {{ field }}
+                    {% endif %}
+
+                    {% if field.help_text %}
+                    <small class="form-text text-muted d-block mt-1"><i data-feather="info"
+                            style="width: 12px; margin-top:-2px;" class="me-1"></i>{{ field.help_text }}</small>
+                    {% endif %}
+
+                    {% if field.errors %}
+                    <div class="text-danger small mt-2 font-weight-bold">
+                        {% for error in field.errors %}
+                        <i data-feather="alert-circle" style="width: 14px; margin-top:-2px;" class="me-1"></i>{{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="mt-5 d-flex justify-content-between align-items-center">
+                    <a href="{{ next_url|default:'javascript:history.back()' }}"
+                        class="btn btn-lightpx-4 text-secondary font-weight-bold">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-5 shadow-sm font-weight-bold">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Froala textarea auto-styling
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(ta => {
+            if (!ta.classList.contains('form-control')) {
+                ta.classList.add('form-control');
+            }
+        });
+
+        // Searchable Checkbox Logic
+        const filters = document.querySelectorAll('.checkbox-filter');
+        filters.forEach(filter => {
+            filter.addEventListener('keyup', function () {
+                const targetId = this.getAttribute('data-target');
+                const list = document.getElementById(targetId);
+                const items = list.querySelectorAll('.checkbox-item');
+                const term = this.value.toLowerCase();
+
+                items.forEach(item => {
+                    const label = item.querySelector('label').textContent.toLowerCase();
+                    if (label.includes(term)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

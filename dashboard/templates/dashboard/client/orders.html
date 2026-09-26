@@ -1,0 +1,59 @@
+{% extends 'dashboard/client/client_base.html' %}
+
+{% block client_content %}
+<div class="mb-4" data-aos="fade-down">
+    <h1 class="h3 fw-bold text-dark mb-1">My Orders</h1>
+    <p class="text-muted mb-0">Track and view all your orders in one place.</p>
+</div>
+
+<div class="bg-white rounded-4 shadow-sm p-4" data-aos="fade-up">
+    <table class="table table-hover table-borderless align-middle mb-0">
+        <thead class="border-bottom">
+            <tr>
+                <th class="text-muted fw-bold">Order #</th>
+                <th class="text-muted fw-bold">Date</th>
+                <th class="text-muted fw-bold">Total</th>
+                <th class="text-muted fw-bold">Status</th>
+                <th class="text-muted fw-bold">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td class="fw-medium">{{ order.id }}</td>
+                <td>{{ order.order_date|date:"M d, Y" }}</td>
+                <td>${{ order.total_amount }}</td>
+                <td>
+                    {% if order.status == 'paid' %}
+                    <span class="badge bg-success-subtle text-success-emphasis">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'pending' %}
+                    <span class="badge bg-warning-subtle text-warning-emphasis">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'processing' %}
+                    <span class="badge bg-info-subtle text-info-emphasis">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'shipped' %}
+                    <span class="badge bg-primary-subtle text-primary-emphasis">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'cancelled' %}
+                    <span class="badge bg-danger-subtle text-danger-emphasis">{{ order.get_status_display }}</span>
+                    {% else %}
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ order.get_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'client_order_detail' order.id %}" class="btn btn-sm btn-outline-secondary">
+                        <i data-feather="eye" style="width:14px;"></i> View Details
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                    <i data-feather="shopping-cart" class="text-muted opacity-50" style="width: 48px; height: 48px;"></i>
+                    <p class="mt-2 mb-0">You haven't placed any orders yet.</p>
+                    <a href="{% url 'home' %}" class="text-primary text-decoration-none">Browse products →</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

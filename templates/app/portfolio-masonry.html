@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Portfolio Masonry - Dovetec Enterprises | Case Studies{% endblock %}
+{% block seo_desc %}Browse our portfolio massionry of case studies and projects at Dovetec Enterprises. Software engineering, IT solutions, and digital transformation success stories.{% endblock %}
+{% block seo_keys %}portfolio massionry, case studies, projects, Dovetec Enterprises, software engineering{% endblock %}
+{% block og_title %}Portfolio Masonry - Dovetec Enterprises{% endblock %}
+{% block og_desc %}Browse our portfolio massionry of case studies and projects.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Portfolio Masonry - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}Browse our portfolio massionry of case studies and projects.{% endblock %}
+{% block content %}
+
+<!-- Hero Section -->
+<div class="site-blocks-cover" style="width: 100vw; background-image: url({% static 'images/bg-video.jpg' %});">
+    <div class="container">
+        <div class="row align-items-center justify-content-center pt-4">
+            <div class="col-md-12" style="position: relative;">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 text-center text-white p-5">
+                        <h1 class="mb-4 text-white font-weight-bold pt-3" data aos="fade-up" data-aos-delay="10">
+                            Portfolio Masionry
+                        </h1>
+                        <p  data-aos-delay="200">with Proven track of quality works with high
+                            customer satisfaction. We have a trend record with vast recommendations based on quality
+                            services rendered.
+                            below are some of the latest works for our partner Brands:
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END Hero Section -->
+
+<div class="col-md-8 text-center text-white p-5">
+    <h1 class="mb-4 text-primary font-weight-bold " data aos="fade-up" data-aos-delay="10">
+        Portfolio Masionry
+    </h1>
+</div>
+
+<!-- Cards -->
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 portfolio-item p-3 ">
+            <div class="card rounded">
+                <img src="{% static 'images/img_h_8-min.png' %}" class="card-img-top" alt="Image 1">
+                <div class="card-body">
+                    <h5 class="card-title">Oddibites</h5>
+                    <p class="card-text">Food and Orders.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 portfolio-item p-3">
+            <div class="card rounded">
+                <img src="{% static 'images/img_v_4-min.jpg' %}" class="card-img-top" alt="Image 2">
+                <div class="card-body">
+                    <h5 class="card-title">Oddibites Revamp</h5>
+                    <p class="card-text">Oddinites Brand Revamp</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 portfolio-item p-3">
+            <div class="card rounded">
+                <img src="{% static 'images/img_v_2-min.png' %}" class="card-img-top" alt="Image 3">
+                <div class="card-body">
+                    <h5 class="card-title">Dovetec  Enterprises Media</h5>
+                    <p class="card-text">Dovetec Enterprises Media Handling - Video Editing</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

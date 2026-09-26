@@ -1,0 +1,39 @@
+{% extends 'dashboard/client/client_base.html' %}
+
+{% block client_content %}
+<div class="mb-4" data-aos="fade-down">
+    <h1 class="h3 fw-bold text-dark mb-1">My Support Tickets</h1>
+    <p class="text-muted mb-0">Issues and requests you've opened with our team.</p>
+</div>
+
+{% for ticket in tickets %}
+<div class="bg-white rounded-4 shadow-sm p-4 mb-3" data-aos="fade-up">
+    <div class="d-flex justify-content-between flex-wrap gap-2">
+        <div>
+            <h5 class="fw-bold mb-1">
+                <a href="{% url 'client_ticket_detail' ticket.id %}" class="text-decoration-none text-dark">
+                    {{ ticket.reference }} — {{ ticket.subject }}
+                </a>
+            </h5>
+            <p class="text-muted small mb-1">{{ ticket.get_type_display }} · {{ ticket.get_service_display }} ·
+               Opened {{ ticket.created_at|date:"M d, Y" }}</p>
+            <p class="text-muted small mb-0">{{ ticket.description|truncatechars:140 }}</p>
+        </div>
+        <div class="text-end">
+            <span class="badge {% if ticket.status == 'resolved' or ticket.status == 'closed' %}bg-success-subtle text-success-emphasis{% elif ticket.status == 'waiting' %}bg-warning-subtle text-warning-emphasis{% else %}bg-primary-subtle text-primary-emphasis{% endif %} mb-1 d-block px-3 py-2">
+                {{ ticket.get_status_display }}
+            </span>
+            <span class="badge bg-light text-dark border">{{ ticket.get_priority_display }}</span>
+        </div>
+    </div>
+    <a href="{% url 'client_ticket_detail' ticket.id %}" class="btn btn-outline-primary btn-sm mt-2">
+        <i data-feather="eye" style="width:14px;"></i> View / update
+    </a>
+</div>
+{% empty %}
+<div class="bg-white rounded-4 shadow-sm p-5 text-center" data-aos="fade-up">
+    <i data-feather="life-buoy" class="text-muted opacity-50" style="width: 48px; height: 48px;"></i>
+    <p class="text-muted mt-2 mb-0">No tickets yet. Use the contact form to open a support request.</p>
+</div>
+{% endfor %}
+{% endblock %}

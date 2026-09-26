@@ -1,0 +1,160 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<!-- KPI Row -->
+<div class="row row-cols-2 row-cols-xl-5 mb-4 g-3 text-center" data-aos="fade-down">
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-3">
+            <div class="card-body p-1">
+                <h6 class="text-uppercase text-muted" style="font-size:.7rem; letter-spacing:1px;">Total Leads</h6>
+                <h3 class="fw-bold mb-0">{{ total_leads }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-3">
+            <div class="card-body p-1">
+                <h6 class="text-uppercase text-muted" style="font-size:.7rem; letter-spacing:1px;">Open Pipeline</h6>
+                <h3 class="fw-bold text-primary mb-0">{{ open_leads }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-3">
+            <div class="card-body p-1">
+                <h6 class="text-uppercase text-muted" style="font-size:.7rem; letter-spacing:1px;">Conversion Rate</h6>
+                <h3 class="fw-bold text-success mb-0">{{ conversion_rate }}%</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-3">
+            <div class="card-body p-1">
+                <h6 class="text-uppercase text-muted" style="font-size:.7rem; letter-spacing:1px;">Pipeline Value</h6>
+                <h3 class="fw-bold text-warning mb-0">KES {{ pipeline_value|floatformat:0 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-3" style="background:linear-gradient(135deg,#059636,#00b386);">
+            <div class="card-body p-1 text-white">
+                <h6 class="text-uppercase opacity-75" style="font-size:.7rem; letter-spacing:1px;">Won Value</h6>
+                <h3 class="fw-bold mb-0">KES {{ won_value|floatformat:0 }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Funnel Board -->
+<div class="d-flex overflow-auto pb-4" style="gap: 1rem; align-items: flex-start;" data-aos="fade-up">
+    {% for column in stage_columns %}
+    <div class="flex-shrink-0 bg-white rounded-4 shadow-sm" style="width: 320px;">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center
+             {% if column.stage == 'won' %}bg-success-subtle{% elif column.stage == 'lost' %}bg-danger-subtle{% elif column.stage == 'new' %}bg-primary-subtle{% else %}bg-light{% endif %}"
+             style="border-radius: 1rem 1rem 0 0;">
+            <span class="fw-bold small">
+                {% if column.stage == 'won' %}🏆{% elif column.stage == 'lost' %}✖{% else %}{{ forloop.counter }}.{% endif %}
+                {{ column.label }}
+            </span>
+            <span>
+                <span class="badge bg-dark">{{ column.count }}</span>
+                <span class="badge bg-light text-dark border">KES {{ column.value|floatformat:0 }}</span>
+            </span>
+        </div>
+
+        <div class="p-2" style="min-height: 120px; max-height: 65vh; overflow-y: auto;">
+            {% for lead in column.leads %}
+            <div class="card border mb-2 shadow-sm">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="fw-bold mb-1"><a href="{% url 'funnel_inquiry_detail' lead.id %}" class="text-decoration-none text-dark">{{ lead.name }}</a></h6>
+                            <small class="text-muted d-block">{{ lead.get_service_display }}</small>
+                            <small class="text-muted"><i data-feather="mail" style="width:12px;"></i> {{ lead.email }}</small>
+                            {% if lead.phone %}<small class="text-muted d-block"><i data-feather="phone" style="width:12px;"></i> {{ lead.phone }}</small>{% endif %}
+                        </div>
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis" style="font-size:.65rem;">{{ lead.estimated_value|floatformat:0 }}</span>
+                    </div>
+                    {% if lead.assigned_to %}
+                    <small class="text-muted mt-1 d-block"><i data-feather="user-check" style="width:12px;"></i> {{ lead.assigned_to.get_short_name }}</small>
+                    {% endif %}
+                    <!-- Stage controls -->
+                    <div class="d-flex gap-1 mt-2 flex-wrap">
+                        {% if lead.next_stage %}
+                        <form method="post" action="{% url 'funnel_update_stage' lead.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="stage" value="{{ lead.next_stage }}">
+                            <button class="btn btn-sm btn-success py-0 px-2" style="font-size:.7rem;" title="Advance stage">
+                                ▶ {{ lead.next_stage|title }}
+                            </button>
+                        </form>
+                        {% endif %}
+                        {% if lead.is_open or lead.next_stage %}
+                        <form method="post" action="{% url 'funnel_update_stage' lead.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="stage" value="lost">
+                            <button class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:.7rem;" title="Mark as lost">✖ Lost</button>
+                        </form>
+                        {% endif %}
+                        {% if lead.is_lost %}
+                        <form method="post" action="{% url 'funnel_update_stage' lead.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="stage" value="new">
+                            <button class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:.7rem;">↺ Reopen</button>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                    <!-- Move to any stage + details -->
+                    <div class="mt-2">
+                        {% if lead.is_won %}
+                        <a href="{% url 'dashboard_projects' %}"
+                           class="btn btn-sm btn-outline-success py-0 px-2 me-1" style="font-size:.7rem;"
+                           title="Delivery project auto-created from this won deal">📦 Project</a>
+                        {% endif %}
+                        <a href="{% url 'funnel_questionnaire' lead.id %}"
+                           class="btn btn-sm btn-outline-primary py-0 px-2 me-1" style="font-size:.7rem;"
+                           title="Custom questionnaire for this lead">📋 Questionnaire</a>
+                        <button class="btn btn-sm btn-link text-decoration-none p-0" style="font-size:.72rem;"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#manage-{{ lead.id }}">
+                            ⚙ Manage lead
+                        </button>
+                        <div class="collapse" id="manage-{{ lead.id }}">
+                            <form method="post" action="{% url 'funnel_update_stage' lead.id %}" class="d-flex gap-1 mt-1">
+                                {% csrf_token %}
+                                <select name="stage" class="form-select form-select-sm" style="font-size:.72rem;">
+                                    {% for value, label in stage_choices %}
+                                    <option value="{{ value }}" {% if value == lead.stage %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn btn-sm btn-dark py-1 px-2" style="font-size:.72rem;">Move</button>
+                            </form>
+                            <form method="post" action="{% url 'funnel_update_lead' lead.id %}" class="mt-2">
+                                {% csrf_token %}
+                                <input type="number" step="0.01" min="0" name="estimated_value" value="{{ lead.estimated_value|floatformat:2 }}"
+                                       class="form-control form-control-sm mb-1" style="font-size:.72rem;" placeholder="Deal value (KES)">
+                                <select name="assigned_to" class="form-select form-select-sm mb-1" style="font-size:.72rem;">
+                                    <option value="">— Unassigned —</option>
+                                    {% for rep in sales_reps %}
+                                    <option value="{{ rep.id }}" {% if lead.assigned_to_id == rep.id %}selected{% endif %}>{{ rep.get_full_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <textarea name="notes" class="form-control form-control-sm mb-1" rows="2" style="font-size:.72rem;"
+                                          placeholder="Follow-up notes...">{{ lead.notes|default:'' }}</textarea>
+                                <button class="btn btn-sm btn-primary w-100 py-1" style="font-size:.72rem;">Save Lead Details</button>
+                            </form>
+                            {% if lead.notes %}
+                            <small class="text-muted d-block mt-1" style="font-size:.7rem;"><b>Notes:</b> {{ lead.notes }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted text-center small py-4 mb-0">No leads here.</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

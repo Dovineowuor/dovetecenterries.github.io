@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% load static %}
+
+{% block title %}Verify OTP - Dovetec Enterprises{% endblock %}
+{% block seo_desc %}Verify your one-time password (OTP) for secure account access at Dovetec Enterprises.{% endblock %}
+{% block seo_keys %}OTP verification, security, Dovetec Enterprises, authentication{% endblock %}
+{% block og_title %}Verify OTP - Dovetec Enterprises{% endblock %}
+{% block og_desc %}Verify your one-time password (OTP) for secure account access.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Verify OTP - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}Verify your one-time password (OTP) for secure account access.{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4">Verify Your OTP</h3>
+                    
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="text-center mb-4">
+                        <p>Please enter the 6-digit OTP sent to <strong>{{ email }}</strong></p>
+                        {% if remaining_attempts %}
+                        <p class="text-muted small">Remaining attempts: {{ remaining_attempts }}</p>
+                        {% endif %}
+                        {% if expiry_time %}
+                        <p class="text-muted small">Code expires at: {{ expiry_time|date:'g:i A' }}</p>
+                        {% endif %}
+                    </div>
+
+                    <form method="POST" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="form-group mb-4">
+                            <label for="otp" class="form-label">Enter OTP</label>
+                            <input type="text" 
+                                   class="form-control form-control-lg text-center" 
+                                   id="otp" 
+                                   name="otp" 
+                                   placeholder="Enter 6-digit code"
+                                   maxlength="6"
+                                   pattern="[0-9]{6}"
+                                   required>
+                            <div class="invalid-feedback">
+                                Please enter the 6-digit OTP code.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Verify OTP</button>
+                            <a href="{% url 'forget_password' %}" class="btn btn-outline-secondary">Request New OTP</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    Didn't receive the code? 
+                    <a href="{% url 'forget_password' %}" class="text-decoration-none">Request new code</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+// Enable Bootstrap form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+
+// Format OTP input
+document.getElementById('otp').addEventListener('input', function(e) {
+    // Remove any non-digit characters
+    this.value = this.value.replace(/\D/g, '');
+    
+    // Limit to 6 digits
+    if (this.value.length > 6) {
+        this.value = this.value.slice(0, 6);
+    }
+});
+</script>
+{% endblock %}

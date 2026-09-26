@@ -1,0 +1,1555 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Case Study: Agridoer | Problem to Solution - Dovetec Enterprises{% endblock %}
+{% block seo_desc %}Comprehensive case study: Agridoer digital transformation of the agricultural supply chain. From problem statement to solution, featuring UX research, competitor analysis, and design process.{% endblock %}
+{% block seo_keys %}case study, Agridoer, agricultural, UX research, design thinking, SaaS, Dovetec Enterprises{% endblock %}
+{% block og_title %}Case Study: Agridoer | Problem to Solution{% endblock %}
+{% block og_desc %}Comprehensive case study on Agridoer's digital transformation.{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block twitter_title %}Case Study: Agridoer | Problem to Solution{% endblock %}
+{% block twitter_desc %}Comprehensive case study on Agridoer's digital transformation.{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Apple Design System Tokens ── */
+    :root {
+        --apple-bg: #ffffff;
+        --apple-bg-secondary: #f5f5f7;
+        --apple-text-primary: #1d1d1f;
+        --apple-text-secondary: #86868b;
+        --apple-text-tertiary: #aeaeb2;
+        --apple-accent: #0071e3;
+        --apple-accent-hover: #0077ed;
+        --apple-gradient: linear-gradient(135deg, #0071e3 0%, #5856d6 100%);
+        --apple-border: rgba(0, 0, 0, 0.06);
+        --apple-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        --apple-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+        --apple-radius: 16px;
+        --apple-radius-lg: 24px;
+        --apple-font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+    }
+
+    * { font-family: var(--apple-font); }
+
+    .cs-hero {
+        background: linear-gradient(135deg, #1d1d1f 0%, #0071e3 50%, #5856d6 100%);
+        color: white;
+        padding: 140px 0 100px;
+        position: relative;
+        overflow: hidden;
+    }
+    .cs-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%; right: -20%;
+        width: 800px; height: 800px;
+        background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .cs-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -30%; left: -10%;
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .cs-hero .logo-mark {
+        width: 80px; height: 80px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem; font-weight: 800;
+        border: 1px solid rgba(255,255,255,0.2);
+        margin-bottom: 2rem;
+    }
+    .cs-hero h1 {
+        font-size: clamp(2.5rem, 5vw, 4.5rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+    }
+    .cs-hero .subtitle {
+        font-size: clamp(1.1rem, 2vw, 1.5rem);
+        opacity: 0.85;
+        font-weight: 400;
+        max-width: 600px;
+        line-height: 1.6;
+    }
+    .cs-hero .tags {
+        display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2rem;
+    }
+    .cs-hero .tag {
+        padding: 6px 14px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 100px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* ── Section Styles ── */
+    .cs-section {
+        padding: 100px 0;
+        background: var(--apple-bg);
+    }
+    .cs-section:nth-child(even) {
+        background: var(--apple-bg-secondary);
+    }
+    .cs-section-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 40px;
+    }
+    .cs-section-header {
+        margin-bottom: 60px;
+    }
+    .cs-section-number {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--apple-accent);
+        margin-bottom: 12px;
+    }
+    .cs-section-title {
+        font-size: clamp(2rem, 3.5vw, 3rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--apple-text-primary);
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+    .cs-section-desc {
+        font-size: 1.125rem;
+        color: var(--apple-text-secondary);
+        line-height: 1.7;
+        max-width: 700px;
+    }
+
+    /* ── Cards ── */
+    .cs-card {
+        background: white;
+        border-radius: var(--apple-radius-lg);
+        padding: 40px;
+        border: 1px solid var(--apple-border);
+        box-shadow: var(--apple-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .cs-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--apple-shadow-lg);
+    }
+    .cs-card-icon {
+        width: 56px; height: 56px;
+        background: var(--apple-gradient);
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: white;
+        margin-bottom: 24px;
+    }
+    .cs-card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--apple-text-primary);
+        margin-bottom: 12px;
+        letter-spacing: -0.01em;
+    }
+    .cs-card-text {
+        font-size: 1rem;
+        color: var(--apple-text-secondary);
+        line-height: 1.7;
+    }
+
+    /* ── Process Timeline ── */
+    .cs-timeline {
+        position: relative;
+        padding-left: 40px;
+    }
+    .cs-timeline::before {
+        content: '';
+        position: absolute;
+        left: 19px; top: 0; bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, var(--apple-accent), var(--apple-accent-hover), transparent);
+    }
+    .cs-timeline-item {
+        position: relative;
+        margin-bottom: 48px;
+    }
+    .cs-timeline-dot {
+        position: absolute;
+        left: -33px; top: 4px;
+        width: 14px; height: 14px;
+        background: var(--apple-accent);
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 0 0 3px var(--apple-accent);
+    }
+    .cs-timeline-item:nth-child(even) .cs-timeline-dot {
+        background: var(--apple-accent-hover);
+        box-shadow: 0 0 0 3px var(--apple-accent-hover);
+    }
+    .cs-timeline-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--apple-accent);
+        margin-bottom: 8px;
+    }
+    .cs-timeline-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--apple-text-primary);
+        margin-bottom: 8px;
+    }
+    .cs-timeline-text {
+        font-size: 1rem;
+        color: var(--apple-text-secondary);
+        line-height: 1.6;
+    }
+
+    /* ── Matrix Grid ── */
+    .cs-matrix {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+    }
+    .cs-matrix-card {
+        background: white;
+        border-radius: var(--apple-radius);
+        padding: 32px;
+        border: 1px solid var(--apple-border);
+        text-align: center;
+    }
+    .cs-matrix-icon {
+        font-size: 2.5rem;
+        margin-bottom: 16px;
+    }
+    .cs-matrix-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--apple-text-primary);
+        margin-bottom: 8px;
+    }
+    .cs-matrix-desc {
+        font-size: 0.9rem;
+        color: var(--apple-text-secondary);
+        line-height: 1.5;
+    }
+
+    /* ── Feature List ── */
+    .cs-feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .cs-feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px 0;
+        border-bottom: 1px solid var(--apple-border);
+    }
+    .cs-feature-item:last-child { border-bottom: none; }
+    .cs-feature-icon {
+        width: 40px; height: 40px;
+        min-width: 40px;
+        background: var(--apple-bg-secondary);
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem;
+        color: var(--apple-accent);
+    }
+    .cs-feature-content { flex: 1; }
+    .cs-feature-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--apple-text-primary);
+        margin-bottom: 4px;
+    }
+    .cs-feature-desc {
+        font-size: 0.9rem;
+        color: var(--apple-text-secondary);
+        line-height: 1.5;
+    }
+
+    /* ── Persona Card ── */
+    .cs-persona {
+        background: linear-gradient(135deg, #1d1d1f 0%, #2d2d30 100%);
+        color: white;
+        border-radius: var(--apple-radius-lg);
+        padding: 48px;
+        position: relative;
+        overflow: hidden;
+    }
+    .cs-persona::before {
+        content: '';
+        position: absolute;
+        top: -100px; right: -100px;
+        width: 300px; height: 300px;
+        background: rgba(0, 113, 227, 0.1);
+        border-radius: 50%;
+    }
+    .cs-persona-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    .cs-persona-role {
+        font-size: 0.9rem;
+        opacity: 0.7;
+        margin-bottom: 24px;
+    }
+    .cs-persona-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        margin-top: 32px;
+    }
+    .cs-persona-detail {
+        padding: 20px;
+        background: rgba(255,255,255,0.08);
+        border-radius: var(--apple-radius);
+        backdrop-filter: blur(10px);
+    }
+    .cs-persona-detail-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        opacity: 0.5;
+        margin-bottom: 8px;
+    }
+    .cs-persona-detail-value {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    /* ── Screen Mockups ── */
+    .cs-screen-mockup {
+        background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 100%);
+        border-radius: var(--apple-radius-lg);
+        padding: 40px;
+        border: 1px solid var(--apple-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+        position: relative;
+        overflow: hidden;
+    }
+    .cs-screen-mockup .screen-placeholder {
+        text-align: center;
+        color: var(--apple-text-tertiary);
+    }
+    .cs-screen-mockup .screen-icon {
+        font-size: 4rem;
+        margin-bottom: 16px;
+        opacity: 0.3;
+    }
+    .cs-screen-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--apple-text-secondary);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* ── Research Card ── */
+    .cs-research-card {
+        background: white;
+        border-radius: var(--apple-radius);
+        overflow: hidden;
+        border: 1px solid var(--apple-border);
+    }
+    .cs-research-header {
+        background: var(--apple-gradient);
+        color: white;
+        padding: 24px 32px;
+    }
+    .cs-research-header-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    .cs-research-header-sub {
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+    .cs-research-body {
+        padding: 32px;
+    }
+    .cs-research-stat {
+        text-align: center;
+        padding: 24px;
+        border-right: 1px solid var(--apple-border);
+    }
+    .cs-research-stat:last-child { border-right: none; }
+    .cs-research-stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--apple-text-primary);
+        display: block;
+    }
+    .cs-research-stat-label {
+        font-size: 0.8rem;
+        color: var(--apple-text-secondary);
+        margin-top: 4px;
+    }
+
+    /* ── Flow Diagram ── */
+    .cs-flow {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        overflow-x: auto;
+        padding: 20px 0;
+    }
+    .cs-flow-step {
+        min-width: 140px;
+        text-align: center;
+        position: relative;
+    }
+    .cs-flow-circle {
+        width: 60px; height: 60px;
+        background: var(--apple-gradient);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 12px;
+        color: white;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+    .cs-flow-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--apple-text-primary);
+        white-space: nowrap;
+    }
+    .cs-flow-arrow {
+        min-width: 40px;
+        color: var(--apple-text-tertiary);
+        display: flex; align-items: center;
+        flex-shrink: 0;
+    }
+
+    /* ── Why Analysis ── */
+    .cs-why-box {
+        background: white;
+        border-left: 4px solid var(--apple-accent);
+        border-radius: 0 var(--apple-radius) var(--apple-radius) 0;
+        padding: 32px;
+        margin-bottom: 16px;
+    }
+    .cs-why-number {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--apple-accent);
+        margin-bottom: 8px;
+    }
+    .cs-why-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--apple-text-primary);
+        margin-bottom: 8px;
+    }
+    .cs-why-text {
+        font-size: 0.95rem;
+        color: var(--apple-text-secondary);
+        line-height: 1.6;
+    }
+
+    /* ── Tag Badges ── */
+    .cs-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 100px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin: 4px;
+    }
+    .cs-badge-primary { background: rgba(0,113,227,0.1); color: var(--apple-accent); }
+    .cs-badge-secondary { background: rgba(0,0,0,0.05); color: var(--apple-text-secondary); }
+    .cs-badge-success { background: rgba(52,199,89,0.1); color: #34c759; }
+    .cs-badge-warning { background: rgba(255,149,0,0.1); color: #ff9500; }
+
+    /* ── CTA Section ── */
+    .cs-cta {
+        background: var(--apple-text-primary);
+        color: white;
+        padding: 100px 0;
+        text-align: center;
+    }
+    .cs-cta h2 {
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 1rem;
+    }
+    .cs-cta p {
+        font-size: 1.125rem;
+        opacity: 0.7;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+    }
+    .cs-cta-btn {
+        display: inline-block;
+        padding: 14px 36px;
+        background: var(--apple-accent);
+        color: white;
+        border-radius: 100px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .cs-cta-btn:hover {
+        background: var(--apple-accent-hover);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    /* ── Comparison Table ── */
+    .cs-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: var(--apple-radius);
+        overflow: hidden;
+        border: 1px solid var(--apple-border);
+    }
+    .cs-table th {
+        background: var(--apple-text-primary);
+        color: white;
+        padding: 20px 24px;
+        text-align: left;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+    .cs-table td {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--apple-border);
+        font-size: 0.95rem;
+        color: var(--apple-text-primary);
+    }
+    .cs-table tr:nth-child(even) { background: var(--apple-bg-secondary); }
+    .cs-table tr:last-child td { border-bottom: none; }
+    .cs-table .featured { background: rgba(0,113,227,0.05); }
+    .cs-table .featured .cs-check { color: var(--apple-accent); font-weight: 700; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+        .cs-section { padding: 60px 0; }
+        .cs-section-inner { padding: 0 24px; }
+        .cs-card { padding: 24px; }
+        .cs-persona { padding: 32px; }
+        .cs-flow { flex-direction: column; align-items: flex-start; }
+        .cs-flow-arrow { transform: rotate(90deg); min-width: auto; min-height: 30px; }
+        .cs-matrix { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════════════════
+     HERO SECTION
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-hero">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <div class="logo-mark">A</div>
+                <span class="tag mb-3">CASE STUDY</span>
+                <h1 class="mb-4">Agridoer:<br>Digitalizing the Agricultural Supply Chain</h1>
+                <p class="subtitle mb-5">A comprehensive study of how Dovetec Enterprises transformed fragmented agricultural markets into a unified SaaS platform serving thousands of farmers across East Africa.</p>
+                <div class="tags">
+                    <span class="tag">Agriculture</span>
+                    <span class="tag">SaaS Platform</span>
+                    <span class="tag">E-Commerce</span>
+                    <span class="tag">Logistics</span>
+                    <span class="tag">Flutter</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     1. PROBLEM STATEMENT
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">01</p>
+            <h2 class="cs-section-title">Problem Statement</h2>
+            <p class="cs-section-desc">The agricultural supply chain in East Africa was fragmented, inefficient, and inaccessible to small-scale farmers who needed a reliable way to connect with urban buyers.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="cs-card">
+                    <div class="cs-card-icon"><i class="feather-alert-triangle"></i></div>
+                    <h3 class="cs-card-title">Fragmented Markets</h3>
+                    <p class="cs-card-text">Farmers had no centralized platform to list produce, resulting in wasted harvest and lower prices. Buyers struggled to find reliable suppliers, leading to supply shortages and inflated costs.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="cs-card">
+                    <div class="cs-card-icon"><i class="feather-truck"></i></div>
+                    <h3 class="cs-card-title">Inefficient Logistics</h3>
+                    <p class="cs-card-text">Post-harvest losses reached 40% due to lack of cold storage and coordinated transport. Delivery times were unpredictable, and food safety standards were rarely maintained.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     2. OUR PROCESS
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section" style="background: var(--apple-bg-secondary);">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">02</p>
+            <h2 class="cs-section-title">Our Process</h2>
+            <p class="cs-section-desc">A structured, user-centered design thinking approach that moved from discovery through to delivery, ensuring every decision was grounded in research and validated by users.</p>
+        </div>
+        <div class="cs-timeline">
+            <div class="cs-timeline-item">
+                <div class="cs-timeline-dot"></div>
+                <p class="cs-timeline-label">Phase 01</p>
+                <h3 class="cs-timeline-title">Discover &amp; Research</h3>
+                <p class="cs-timeline-text">Immersed in farming communities, conducted 50+ interviews, and analyzed market data to understand the full scope of the problem.</p>
+            </div>
+            <div class="cs-timeline-item">
+                <div class="cs-timeline-dot"></div>
+                <p class="cs-timeline-label">Phase 02</p>
+                <h3 class="cs-timeline-title">Define &amp; Strategize</h3>
+                <p class="cs-timeline-text">Synthesized findings into actionable insights, defined user personas, and mapped the core value proposition.</p>
+            </div>
+            <div class="cs-timeline-item">
+                <div class="cs-timeline-dot"></div>
+                <p class="cs-timeline-label">Phase 03</p>
+                <h3 class="cs-timeline-title">Design &amp; Prototype</h3>
+                <p class="cs-timeline-text">Created wireframes, interactive prototypes, and high-fidelity mockups. Iterated rapidly based on user feedback.</p>
+            </div>
+            <div class="cs-timeline-item">
+                <div class="cs-timeline-dot"></div>
+                <p class="cs-timeline-label">Phase 04</p>
+                <h3 class="cs-timeline-title">Build &amp; Validate</h3>
+                <p class="cs-timeline-text">Developed the MVP with Flutter and Django, conducted usability testing, and refined based on real-world usage.</p>
+            </div>
+            <div class="cs-timeline-item">
+                <div class="cs-timeline-dot"></div>
+                <p class="cs-timeline-label">Phase 05</p>
+                <h3 class="cs-timeline-title">Launch &amp; Scale</h3>
+                <p class="cs-timeline-text">Deployed to production, onboarded 2,500+ farmers, and iterated on features based on user analytics and feedback.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     3. OBJECTIVES & GOALS
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">03</p>
+            <h2 class="cs-section-title">Objectives &amp; Goals</h2>
+            <p class="cs-section-desc">Every goal was designed to be measurable, time-bound, and directly tied to user outcomes and business impact.</p>
+        </div>
+        <div class="cs-matrix">
+            <div class="cs-card" style="border-left: 3px solid #34c759;">
+                <div class="cs-card-icon" style="background: linear-gradient(135deg, #34c759, #248a3d);"><i class="feather-target"></i></div>
+                <h3 class="cs-card-title">Reduce Post-Harvest Loss</h3>
+                <p class="cs-card-text">Achieve 40% reduction in post-harvest waste through better supply chain coordination and real-time logistics tracking.</p>
+                <div style="margin-top: 16px;"><span class="cs-badge cs-badge-success">Goal: Met</span></div>
+            </div>
+            <div class="cs-card" style="border-left: 3px solid var(--apple-accent);">
+                <div class="cs-card-icon"><i class="feather-users"></i></div>
+                <h3 class="cs-card-title">Onboard 2,500 Farmers</h3>
+                <p class="cs-card-text">Register and actively onboard small-scale farmers onto the platform within 6 months of launch.</p>
+                <div style="margin-top: 16px;"><span class="cs-badge cs-badge-primary">Goal: Met</span></div>
+            </div>
+            <div class="cs-card" style="border-left: 3px solid #ff9500;">
+                <div class="cs-card-icon" style="background: linear-gradient(135deg, #ff9500, #ff6b00);"><i class="feather-bar-chart-2"></i></div>
+                <h3 class="cs-card-title">15k+ Monthly Orders</h3>
+                <p class="cs-card-text">Drive 15,000+ active monthly orders by optimizing the ordering experience and expanding the buyer base.</p>
+                <div style="margin-top: 16px;"><span class="cs-badge cs-badge-warning">Goal: Met</span></div>
+            </div>
+            <div class="cs-card" style="border-left: 3px solid #5856d6;">
+                <div class="cs-card-icon" style="background: linear-gradient(135deg, #5856d6, #af52de);"><i class="feather-globe"></i></div>
+                <h3 class="cs-card-title">Expand to 3 Countries</h3>
+                <p class="cs-card-text">Scale the platform to serve farmers across Kenya, Uganda, and Tanzania within the first year.</p>
+                <div style="margin-top: 16px;"><span class="cs-badge cs-badge-primary">In Progress</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     4. BUSINESS CHALLENGE
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section" style="background: var(--apple-bg-secondary);">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">04</p>
+            <h2 class="cs-section-title">Business Challenge</h2>
+            <p class="cs-section-desc">The client faced a critical inflection point: market dynamics were shifting, and without a digital transformation, their business model was at risk of obsolescence.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="cs-research-card">
+                    <div class="cs-research-header">
+                        <p class="cs-research-header-title">Market Dynamics</p>
+                        <p class="cs-research-header-sub">The business challenge at a glance</p>
+                    </div>
+                    <div class="cs-research-body">
+                        <div class="cs-feature-list">
+                            <div class="cs-feature-item">
+                                <div class="cs-feature-icon"><i class="feather-zap"></i></div>
+                                <div class="cs-feature-content">
+                                    <p class="cs-feature-title">Declining Market Share</p>
+                                    <p class="cs-feature-desc">Traditional middlemen were capturing more value, squeezing margins for both farmers and buyers.</p>
+                                </div>
+                            </div>
+                            <div class="cs-feature-item">
+                                <div class="cs-feature-icon"><i class="feather-bar-chart"></i></div>
+                                <div class="cs-feature-content">
+                                    <p class="cs-feature-title">Revenue Stagnation</p>
+                                    <p class="cs-feature-desc">Revenue growth had plateaued at 2% year-over-year, well below industry average of 15%.</p>
+                                </div>
+                            </div>
+                            <div class="cs-feature-item">
+                                <div class="cs-feature-icon"><i class="feather-shield-off"></i></div>
+                                <div class="cs-feature-content">
+                                    <p class="cs-feature-title">Competitive Pressure</p>
+                                    <p class="cs-feature-desc">Global agri-tech platforms were entering the East African market with superior technology.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cs-card" style="border-left: 3px solid var(--apple-accent);">
+                    <div class="cs-card-icon"><i class="feather-lightbulb"></i></div>
+                    <h3 class="cs-card-title">The Opportunity</h3>
+                    <p class="cs-card-text">The East African agricultural market is worth $50B+ annually, with less than 5% digital penetration. This represents an enormous opportunity for a platform that can bridge the gap between rural producers and urban consumers.</p>
+                    <div style="margin-top: 20px;">
+                        <span class="cs-badge cs-badge-primary">$50B Market</span>
+                        <span class="cs-badge cs-badge-success">5% Digital</span>
+                        <span class="cs-badge cs-badge-warning">High Growth</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     5. QUANTITATIVE RESEARCH
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">05</p>
+            <h2 class="cs-section-title">Quantitative Research</h2>
+            <p class="cs-section-desc">Data-driven insights gathered from 500+ surveys, platform analytics, and market studies to validate assumptions and guide strategic decisions.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="cs-research-card">
+                    <div class="cs-research-header" style="background: linear-gradient(135deg, #34c759, #248a3d);">
+                        <p class="cs-research-header-title">Surveys</p>
+                        <p class="cs-research-header-sub">500+ completed</p>
+                    </div>
+                    <div class="cs-research-body">
+                        <div class="text-center">
+                            <span class="cs-research-stat-value">87%</span>
+                            <span class="cs-research-stat-label">Farmers reported supply chain inefficiencies as their primary concern</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="cs-research-card">
+                    <div class="cs-research-header" style="background: linear-gradient(135deg, var(--apple-accent), #5856d6);">
+                        <p class="cs-research-header-title">Platform Analytics</p>
+                        <p class="cs-research-header-sub">Real user behavior</p>
+                    </div>
+                    <div class="cs-research-body">
+                        <div class="text-center">
+                            <span class="cs-research-stat-value">3.2min</span>
+                            <span class="cs-research-stat-label">Average session duration on mobile, indicating strong engagement</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="cs-research-card">
+                    <div class="cs-research-header" style="background: linear-gradient(135deg, #ff9500, #ff6b00);">
+                        <p class="cs-research-header-title">Market Study</p>
+                        <p class="cs-research-header-sub">East Africa</p>
+                    </div>
+                    <div class="cs-research-body">
+                        <div class="text-center">
+                            <span class="cs-research-stat-value">40%</span>
+                            <span class="cs-research-stat-label">Post-harvest loss rate — the key metric the platform aimed to reduce</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     6. USER NEEDS
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section" style="background: var(--apple-bg-secondary);">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">06</p>
+            <h2 class="cs-section-title">User Needs</h2>
+            <p class="cs-section-desc">Derived from extensive interviews and observation, these are the core needs that drove every feature decision.</p>
+        </div>
+        <div class="cs-feature-list">
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-shopping-cart"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Discoverability</p>
+                    <p class="cs-feature-desc">Farmers need a way to list their produce and have buyers find them easily, without manual searching.</p>
+                </div>
+            </div>
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-shield-check"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Trust &amp; Transparency</p>
+                    <p class="cs-feature-desc">Both sides need verifiable quality standards, pricing transparency, and reliable delivery confirmation.</p>
+                </div>
+            </div>
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-clock"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Speed</p>
+                    <p class="cs-feature-desc">Orders must be fulfilled within hours, not days, to preserve perishable agricultural goods.</p>
+                </div>
+            </div>
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-smartphone"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Mobile-First Simplicity</p>
+                    <p class="cs-feature-desc">Most farmers use low-end Android phones with intermittent connectivity. The UI must be lightweight and offline-capable.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     7. FEATURES & FUNCTIONALITIES
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">07</p>
+            <h2 class="cs-section-title">Features &amp; Functionalities</h2>
+            <p class="cs-section-desc">Every feature maps directly to a user need, validated through iterative prototyping and usability testing.</p>
+        </div>
+        <div class="cs-feature-list">
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-globe"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Smart Marketplace</p>
+                    <p class="cs-feature-desc">AI-powered matching of farmers to buyers based on location, product type, quantity, and pricing preferences.</p>
+                </div>
+            </div>
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-map-pin"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">GIS Logistics Tracking</p>
+                    <p class="cs-feature-desc">Real-time shipment tracking with cold-chain monitoring and estimated delivery windows.</p>
+                </div>
+            </div>
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-credit-card"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Secure Payments</p>
+                    <p class="cs-feature-desc">Escrow-based payment system protecting both buyers and sellers until delivery confirmation.</p>
+                </div>
+            </div>
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-bar-chart-2"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Analytics Dashboard</p>
+                    <p class="cs-feature-desc">Farmers and buyers access sales trends, pricing insights, and performance metrics.</p>
+                </div>
+            </div>
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-bell"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Offline Mode</p>
+                    <p class="cs-feature-desc">Core functionality available offline with automatic sync when connectivity is restored.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     8. PRODUCT USER CHALLENGES
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section" style="background: var(--apple-bg-secondary);">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">08</p>
+            <h2 class="cs-section-title">Product User Challenges</h2>
+            <p class="cs-section-desc">Identified through usability testing and analytics, these are the friction points we systematically eliminated.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="cs-card">
+                    <div class="cs-card-icon" style="background: linear-gradient(135deg, #ff3b30, #d63031);"><i class="feather-x-circle"></i></div>
+                    <h3 class="cs-card-title">Onboarding Friction</h3>
+                    <p class="cs-card-text">Farmers struggled with account creation due to complex forms and verification requirements. Solution: Simplified SMS-based onboarding reduced drop-off by 60%.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cs-card">
+                    <div class="cs-card-icon" style="background: linear-gradient(135deg, #ff9500, #ff6b00);"><i class="feather-smartphone-off"></i></div>
+                    <h3 class="cs-card-title">Connectivity Issues</h3>
+                    <p class="cs-card-text">Intermittent 2G/3G connections caused data loss and frustration. Solution: Offline-first architecture with intelligent sync protocols.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cs-card">
+                    <div class="cs-card-icon" style="background: linear-gradient(135deg, #5856d6, #af52de);"><i class="feather-language"></i></div>
+                    <h3 class="cs-card-title">Language Barriers</h3>
+                    <p class="cs-card-text">Users spoke Swahili, Luganda, and local dialects. Solution: Multi-language support with voice-input and image-based navigation.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cs-card">
+                    <div class="cs-card-icon" style="background: linear-gradient(135deg, #34c759, #248a3d);"><i class="feather-database"></i></div>
+                    <h3 class="cs-card-title">Data Entry Burden</h3>
+                    <p class="cs-card-text">Manually entering crop details was tedious. Solution: Barcode scanning and voice-to-text for rapid listing creation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     9. COMPETITOR ANALYSIS
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">09</p>
+            <h2 class="cs-section-title">Competitor Analysis</h2>
+            <p class="cs-section-desc">Systematic evaluation of key competitors to identify gaps and opportunities for differentiation.</p>
+        </div>
+        <table class="cs-table">
+            <thead>
+                <tr>
+                    <th>Competitor</th>
+                    <th>Market</th>
+                    <th>Strength</th>
+                    <th>Weakness</th>
+                    <th>Agridoer Edge</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Twiga Foods</td>
+                    <td>Kenya</td>
+                    <td>Established logistics</td>
+                    <td>B2B only, no farmer app</td>
+                    <td><span class="cs-check">✓ B2C + B2B</span></td>
+                </tr>
+                <tr>
+                    <td>Hello Tractor</td>
+                    <td>Pan-Africa</td>
+                    <td>Asset-sharing model</td>
+                    <td>Single-vertical focus</td>
+                    <td><span class="cs-check">✓ Full marketplace</span></td>
+                </tr>
+                <tr class="featured">
+                    <td>FarmDrive</td>
+                    <td>Kenya</td>
+                    <td>Credit scoring</td>
+                    <td>No marketplace functionality</td>
+                    <td><span class="cs-check">✓ Integrated marketplace</span></td>
+                </tr>
+                <tr>
+                    <td>AgroCenta</td>
+                    <td>Ghana</td>
+                    <td>Community building</td>
+                    <td>Limited to one country</td>
+                    <td><span class="cs-check">✓ Multi-country</span></td>
+                </tr>
+                <tr>
+                    <td>MarketForce</td>
+                    <td>East Africa</td>
+                    <td>Retail distribution</td>
+                    <td>No logistics tracking</td>
+                    <td><span class="cs-check">✓ GIS logistics</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     10. UNIQUE FEATURES
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section" style="background: var(--apple-bg-secondary);">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">10</p>
+            <h2 class="cs-section-title">Unique Features</h2>
+            <p class="cs-section-desc">The differentiators that set Agridoer apart from every competitor in the market.</p>
+        </div>
+        <div class="cs-feature-list">
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-thermometer"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Cold Chain Monitoring</p>
+                    <p class="cs-feature-desc">IoT sensor integration that monitors temperature and humidity throughout transit, ensuring food safety compliance.</p>
+                </div>
+            </div>
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-calculator"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Dynamic Pricing Engine</p>
+                    <p class="cs-feature-desc">AI-driven pricing that adjusts in real-time based on supply, demand, seasonality, and market conditions.</p>
+                </div>
+            </div>
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-shield"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Farmer Credit Score</p>
+                    <p class="cs-feature-desc">Built-in credit scoring system based on transaction history, enabling micro-loans and advance payments.</p>
+                </div>
+            </div>
+            <div class="cs-feature-item">
+                <div class="cs-feature-icon"><i class="feather-radio"></i></div>
+                <div class="cs-feature-content">
+                    <p class="cs-feature-title">Voice Interface</p>
+                    <p class="cs-feature-desc">Full voice-command support in Swahili, Luganda, and English for users who cannot read text on small screens.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     11. USER PERSONA
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">11</p>
+            <h2 class="cs-section-title">User Persona</h2>
+            <p class="cs-section-desc">The archetypal user our design decisions revolved around — every feature serves this persona's needs.</p>
+        </div>
+        <div class="cs-persona">
+            <div class="row align-items-center">
+                <div class="col-lg-4 text-center mb-4 mb-lg-0">
+                    <div style="width: 100px; height: 100px; margin: 0 auto 16px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="feather-user" style="font-size: 3rem;"></i>
+                    </div>
+                    <p class="cs-persona-name">Amina M.</p>
+                    <p class="cs-persona-role">Small-Scale Farmer, Kenya</p>
+                    <p style="opacity: 0.7; font-size: 0.9rem;">32 years old | Maize & Vegetable farmer | 2 acres</p>
+                </div>
+                <div class="col-lg-8">
+                    <div class="cs-persona-grid">
+                        <div class="cs-persona-detail">
+                            <p class="cs-persona-detail-label">Goal</p>
+                            <p class="cs-persona-detail-value">Sell produce at fair market prices within 48 hours</p>
+                        </div>
+                        <div class="cs-persona-detail">
+                            <p class="cs-persona-detail-label">Frustration</p>
+                            <p class="cs-persona-detail-value">Middlemen take 60% of the value; unreliable buyers</p>
+                        </div>
+                        <div class="cs-persona-detail">
+                            <p class="cs-persona-detail-label">Tech Usage</p>
+                            <p class="cs-persona-detail-value">Samsung Galaxy A-series | Android 11 | 3G connection</p>
+                        </div>
+                        <div class="cs-persona-detail">
+                            <p class="cs-persona-detail-label">Key Need</p>
+                            <p class="cs-persona-detail-value">Simple, voice-enabled listing with guaranteed buyer access</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     12. TASK MAPPING
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section" style="background: var(--apple-bg-secondary);">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">12</p>
+            <h2 class="cs-section-title">Task Mapping</h2>
+            <p class="cs-section-desc">Every user task mapped to a corresponding feature and screen, ensuring complete coverage of the user journey.</p>
+        </div>
+        <div class="cs-flow">
+            <div class="cs-flow-step">
+                <div class="cs-flow-circle">1</div>
+                <p class="cs-flow-label">Browse</p>
+            </div>
+            <div class="cs-flow-arrow"><i class="feather-chevron-right"></i></div>
+            <div class="cs-flow-step">
+                <div class="cs-flow-circle">2</div>
+                <p class="cs-flow-label">Select</p>
+            </div>
+            <div class="cs-flow-arrow"><i class="feather-chevron-right"></i></div>
+            <div class="cs-flow-step">
+                <div class="cs-flow-circle">3</div>
+                <p class="cs-flow-label">Order</p>
+            </div>
+            <div class="cs-flow-arrow"><i class="feather-chevron-right"></i></div>
+            <div class="cs-flow-step">
+                <div class="cs-flow-circle">4</div>
+                <p class="cs-flow-label">Pay</p>
+            </div>
+            <div class="cs-flow-arrow"><i class="feather-chevron-right"></i></div>
+            <div class="cs-flow-step">
+                <div class="cs-flow-circle">5</div>
+                <p class="cs-flow-label">Track</p>
+            </div>
+            <div class="cs-flow-arrow"><i class="feather-chevron-right"></i></div>
+            <div class="cs-flow-step">
+                <div class="cs-flow-circle">6</div>
+                <p class="cs-flow-label">Confirm</p>
+            </div>
+        </div>
+        <div class="row g-4 mt-4">
+            <div class="col-md-6">
+                <div class="cs-card">
+                    <h4 class="fw-bold mb-3">User Tasks</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-2" style="opacity: 0.8;">📋 Browse available produce by location</li>
+                        <li class="mb-2" style="opacity: 0.8;">📋 Filter by price, quantity, quality</li>
+                        <li class="mb-2" style="opacity: 0.8;">📋 Place order with delivery address</li>
+                        <li class="mb-2" style="opacity: 0.8;">📋 Make secure payment via escrow</li>
+                        <li class="mb-2" style="opacity: 0.8;">📋 Track shipment in real-time</li>
+                        <li style="opacity: 0.8;">📋 Rate supplier and provide feedback</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cs-card">
+                    <h4 class="fw-bold mb-3">System Tasks</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-2" style="opacity: 0.8;">⚡ Match buyer to nearest farmer</li>
+                        <li class="mb-2" style="opacity: 0.8;">⚡ Calculate dynamic pricing</li>
+                        <li class="mb-2" style="opacity: 0.8;">⚡ Process escrow payment</li>
+                        <li class="mb-2" style="opacity: 0.8;">⚡ Route logistics via GIS engine</li>
+                        <li class="mb-2" style="opacity: 0.8;">⚡ Send push notifications</li>
+                        <li style="opacity: 0.8;">⚡ Generate analytics reports</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     13. EISENHOWER MATRIX
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">13</p>
+            <h2 class="cs-section-title">Eisenhower Matrix</h2>
+            <p class="cs-section-desc">Prioritization of features based on urgency and importance — what to build first, what to defer, and what to eliminate.</p>
+        </div>
+        <div class="cs-matrix">
+            <div class="cs-card" style="border-top: 4px solid #ff3b30; background: #fff5f5;">
+                <div class="cs-card-title" style="color: #ff3b30;">🔴 Do First<br><small style="font-weight: 400; color: var(--apple-text-secondary);">Urgent + Important</small></div>
+                <p class="cs-card-text" style="margin-top: 12px;">Core marketplace, payment system, user onboarding. These are the foundation — without them, nothing else matters.</p>
+                <div style="margin-top: 16px;"><span class="cs-badge cs-badge-primary">MVP v1.0</span></div>
+            </div>
+            <div class="cs-card" style="border-top: 4px solid #ff9500;">
+                <div class="cs-card-title" style="color: #ff9500;">🟡 Schedule<br><small style="font-weight: 400; color: var(--apple-text-secondary);">Important, Not Urgent</small></div>
+                <p class="cs-card-text" style="margin-top: 12px;">Analytics dashboard, voice interface, offline mode. Critical for scale but not blocking launch.</p>
+                <div style="margin-top: 16px;"><span class="cs-badge cs-badge-warning">v2.0</span></div>
+            </div>
+            <div class="cs-card" style="border-top: 4px solid #34c759;">
+                <div class="cs-card-title" style="color: #34c759;">🟢 Delegate<br><small style="font-weight: 400; color: var(--apple-text-secondary);">Urgent, Not Important</small></div>
+                <p class="cs-card-text" style="margin-top: 12px;">Push notifications, social sharing, profile customization. Can be built by partner teams.</p>
+                <div style="margin-top: 16px;"><span class="cs-badge cs-badge-success">Partner</span></div>
+            </div>
+            <div class="cs-card" style="border-top: 4px solid #86868b; background: #f5f5f7;">
+                <div class="cs-card-title" style="color: var(--apple-text-tertiary);">⚪ Eliminate<br><small style="font-weight: 400; color: var(--apple-text-secondary);">Not Urgent, Not Important</small></div>
+                <p class="cs-card-text" style="margin-top: 12px;">Gamification, AR product viewing, social feed. Distracting from core value proposition.</p>
+                <div style="margin-top: 16px;"><span class="cs-badge cs-badge-secondary">Backlog</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     14. 5 WHY ANALYSIS
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section" style="background: var(--apple-bg-secondary);">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">14</p>
+            <h2 class="cs-section-title">5 Why Analysis</h2>
+            <p class="cs-section-desc">Root cause analysis of the core problem — low farmer adoption — by asking "Why?" five times.</p>
+        </div>
+        <div class="cs-why-box">
+            <p class="cs-why-number">Why 1</p>
+            <h3 class="cs-why-title">Why do farmers not use digital platforms?</h3>
+            <p class="cs-why-text">Because they find the existing platforms too complex and time-consuming to use.</p>
+        </div>
+        <div class="cs-why-box" style="border-left-color: #ff9500;">
+            <p class="cs-why-number">Why 2</p>
+            <h3 class="cs-why-title">Why do they find platforms complex?</h3>
+            <p class="cs-why-text">Because the interfaces require text input and navigation patterns designed for smartphones, not feature phones.</p>
+        </div>
+        <div class="cs-why-box" style="border-left-color: #5856d6;">
+            <p class="cs-why-number">Why 3</p>
+            <h3 class="cs-why-title">Why don't platforms support simpler interfaces?</h3>
+            <p class="cs-why-text">Because designers assumed all farmers have smartphones with reliable internet and can read text.</p>
+        </div>
+        <div class="cs-why-box" style="border-left-color: #ff3b30;">
+            <p class="cs-why-number">Why 4</p>
+            <h3 class="cs-why-title">Why was this assumption made?</h3>
+            <p class="cs-why-text">Because there was no user research conducted with actual farmers in rural communities before design began.</p>
+        </div>
+        <div class="cs-why-box" style="border-left-color: #34c759;">
+            <p class="cs-why-number">Why 5</p>
+            <h3 class="cs-why-title">Why wasn't research conducted?</h3>
+            <p class="cs-why-text">Because the product team was headquartered in Nairobi and had no field researchers in rural farming communities. <strong>Root Cause: Lack of empathy-driven research methodology.</strong></p>
+        </div>
+        <div class="cs-card mt-4" style="border-left: 3px solid var(--apple-accent);">
+            <h4 class="fw-bold mb-2">Insight</h4>
+            <p class="cs-card-text">The real problem wasn't technology — it was the disconnect between the design team and the end users. Agridoer's first investment was in embedding researchers directly in farming communities for 3 months before any design work began.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     15. ROOT CAUSE ANALYSIS (RCA)
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">15</p>
+            <h2 class="cs-section-title">Root Cause Analysis (RCA)</h2>
+            <p class="cs-section-desc">Fishbone diagram analysis of post-launch issues to identify underlying systemic causes.</p>
+        </div>
+        <div class="cs-matrix">
+            <div class="cs-card">
+                <h4 class="fw-bold mb-3" style="color: #ff3b30;">Problem: Low Order Completion</h4>
+                <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 16px;">Fishbone Categories:</div>
+                <ul class="list-unstyled" style="font-size: 0.9rem;">
+                    <li class="mb-2">🦴 <strong>Method:</strong> Checkout flow too long (5 steps)</li>
+                    <li class="mb-2">🦴 <strong>Machine:</strong> Server latency > 3s on payment</li>
+                    <li class="mb-2">🦴 <strong>Material:</strong> Payment gateway timeout at peak</li>
+                    <li class="mb-2">🦴 <strong>Man:</strong> Users abandon when asked to create account</li>
+                    <li class="mb-2">🦴 <strong>Measurement:</strong> No real-time abandonment tracking</li>
+                    <li class="mb-2">🦴 <strong>Environment:</strong> Network congestion during peak hours</li>
+                </ul>
+                <div class="mt-3" style="padding-top: 16px; border-top: 1px solid var(--apple-border);">
+                    <strong>Root Cause:</strong> Account creation requirement before checkout</strong>
+                </div>
+                <div style="margin-top: 8px;">
+                    <span class="cs-badge cs-badge-success">Fix: Guest checkout → 35% increase</span>
+                </div>
+            </div>
+            <div class="cs-card">
+                <h4 class="fw-bold mb-3" style="color: #ff9500;">Problem: High Churn Rate</h4>
+                <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 16px;">Fishbone Categories:</div>
+                <ul class="list-unstyled" style="font-size: 0.9rem;">
+                    <li class="mb-2">🦴 <strong>Method:</strong> No onboarding tutorial</li>
+                    <li class="mb-2">🦴 <strong>Machine:</strong> App crashes on startup (2% crash rate)</li>
+                    <li class="mb-2">🦴 <strong>Material:</strong> Cache issues on low-storage devices</li>
+                    <li class="mb-2">🦴 <strong>Man:</strong> Users can't find the search function</li>
+                    <li class="mb-2">🦴 <strong>Measurement:</strong> No session recording analytics</li>
+                    <li class="mb-2">🦴 <strong>Environment:</strong> High memory pressure on background apps</li>
+                </ul>
+                <div class="mt-3" style="padding-top: 16px; border-top: 1px solid var(--apple-border);">
+                    <strong>Root Cause:</strong> No contextual onboarding and discoverability issues</strong>
+                </div>
+                <div style="margin-top: 8px;">
+                    <span class="cs-badge cs-badge-warning">Fix: Contextual tips → 22% retention improvement</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     16. TASK FLOWS
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section" style="background: var(--apple-bg-secondary);">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">16</p>
+            <h2 class="cs-section-title">Task Flows</h2>
+            <p class="cs-section-desc">Complete user journey maps showing every screen, decision point, and interaction for key tasks.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="cs-card">
+                    <h4 class="fw-bold mb-3">🛒 Ordering Flow</h4>
+                    <div class="cs-flow" style="flex-direction: column;">
+                        <div class="cs-flow-step" style="flex-direction: row; text-align: left; gap: 12px;">
+                            <div class="cs-flow-circle" style="margin: 0;">1</div>
+                            <div><strong>Browse Products</strong><br><span style="font-size: 0.8rem; opacity: 0.7;">Search → Filter → Select</span></div>
+                        </div>
+                        <div class="cs-flow-arrow"><i class="feather-chevron-down"></i></div>
+                        <div class="cs-flow-step" style="flex-direction: row; text-align: left; gap: 12px;">
+                            <div class="cs-flow-circle" style="margin: 0;">2</div>
+                            <div><strong>Review Cart</strong><br><span style="font-size: 0.8rem; opacity: 0.7;">Quantity → Total → Proceed</span></div>
+                        </div>
+                        <div class="cs-flow-arrow"><i class="feather-chevron-down"></i></div>
+                        <div class="cs-flow-step" style="flex-direction: row; text-align: left; gap: 12px;">
+                            <div class="cs-flow-circle" style="margin: 0;">3</div>
+                            <div><strong>Checkout</strong><br><span style="font-size: 0.8rem; opacity: 0.7;">Address → Payment → Confirm</span></div>
+                        </div>
+                        <div class="cs-flow-arrow"><i class="feather-chevron-down"></i></div>
+                        <div class="cs-flow-step" style="flex-direction: row; text-align: left; gap: 12px;">
+                            <div class="cs-flow-circle" style="margin: 0;">4</div>
+                            <div><strong>Track Order</strong><br><span style="font-size: 0.8rem; opacity: 0.7;">Live map → ETA → Confirm receipt</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="cs-card">
+                    <h4 class="fw-bold mb-3">🌾 Farmer Listing Flow</h4>
+                    <div class="cs-flow" style="flex-direction: column;">
+                        <div class="cs-flow-step" style="flex-direction: row; text-align: left; gap: 12px;">
+                            <div class="cs-flow-circle" style="margin: 0;">1</div>
+                            <div><strong>Create Listing</strong><br><span style="font-size: 0.8rem; opacity: 0.7;">Voice input → Select crop → Set price</span></div>
+                        </div>
+                        <div class="cs-flow-arrow"><i class="feather-chevron-down"></i></div>
+                        <div class="cs-flow-step" style="flex-direction: row; text-align: left; gap: 12px;">
+                            <div class="cs-flow-circle" style="margin: 0;">2</div>
+                            <div><strong>Set Delivery</strong><br><span style="font-size: 0.8rem; opacity: 0.7;">Location pin → Quantity → Date</span></div>
+                        </div>
+                        <div class="cs-flow-arrow"><i class="feather-chevron-down"></i></div>
+                        <div class="cs-flow-step" style="flex-direction: row; text-align: left; gap: 12px;">
+                            <div class="cs-flow-circle" style="margin: 0;">3</div>
+                            <div><strong>Receive Matches</strong><br><span style="font-size: 0.8rem; opacity: 0.7;">Buyer requests → Review → Accept</span></div>
+                        </div>
+                        <div class="cs-flow-arrow"><i class="feather-chevron-down"></i></div>
+                        <div class="cs-flow-step" style="flex-direction: row; text-align: left; gap: 12px;">
+                            <div class="cs-flow-circle" style="margin: 0;">4</div>
+                            <div><strong>Complete Sale</strong><br><span style="font-size: 0.8rem; opacity: 0.7;">Delivery → Confirmation → Payment</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     17. SKETCHES
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">17</p>
+            <h2 class="cs-section-title">Sketches</h2>
+            <p class="cs-section-desc">Early pencil sketches exploring layout, information architecture, and interaction patterns before digital prototyping.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="cs-screen-mockup" style="min-height: 300px;">
+                    <div class="screen-placeholder">
+                        <div class="screen-icon"><i class="feather-edit-3"></i></div>
+                        <p class="cs-screen-label">Wireframe Sketch</p>
+                        <p style="font-size: 0.8rem;">Marketplace Layout</p>
+                    </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 0.85rem; color: var(--apple-text-secondary);">Initial layout exploration showing product cards, search bar, and category navigation.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="cs-screen-mockup" style="min-height: 300px;">
+                    <div class="screen-placeholder">
+                        <div class="screen-icon"><i class="feather-compass"></i></div>
+                        <p class="cs-screen-label">Wireframe Sketch</p>
+                        <p style="font-size: 0.8rem;">Navigation Flow</p>
+                    </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 0.85rem; color: var(--apple-text-secondary);">User flow sketch mapping the journey from onboarding to first order.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="cs-screen-mockup" style="min-height: 300px;">
+                    <div class="screen-placeholder">
+                        <div class="screen-icon"><i class="feather-message-square"></i></div>
+                        <p class="cs-screen-label">Wireframe Sketch</p>
+                        <p style="font-size: 0.8rem;">Interaction Design</p>
+                    </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 0.85rem; color: var(--apple-text-secondary);">Voice input and gesture interaction patterns for mobile-first design.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     18. MAJOR SCREENS
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section" style="background: var(--apple-bg-secondary);">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">18</p>
+            <h2 class="cs-section-title">Major Screens</h2>
+            <p class="cs-section-desc">High-level screen designs representing the primary user experience surfaces.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="cs-research-card">
+                    <div class="cs-research-header" style="background: linear-gradient(135deg, var(--apple-accent), #5856d6);">
+                        <p class="cs-research-header-title">Home Screen</p>
+                        <p class="cs-research-header-sub">Browse & Discover</p>
+                    </div>
+                    <div class="cs-research-body" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center; opacity: 0.5;">
+                            <i class="feather-home" style="font-size: 2.5rem;"></i>
+                            <p style="margin-top: 8px; font-size: 0.85rem;">Search bar, categories, recommendations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="cs-research-card">
+                    <div class="cs-research-header" style="background: linear-gradient(135deg, #34c759, #248a3d);">
+                        <p class="cs-research-header-title">Product Detail</p>
+                        <p class="cs-research-header-sub">Listing & Order</p>
+                    </div>
+                    <div class="cs-research-body" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center; opacity: 0.5;">
+                            <i class="feather-image" style="font-size: 2.5rem;"></i>
+                            <p style="margin-top: 8px; font-size: 0.85rem;">Photo, price, quantity, order button</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="cs-research-card">
+                    <div class="cs-research-header" style="background: linear-gradient(135deg, #ff9500, #ff6b00);">
+                        <p class="cs-research-header-title">Order Tracking</p>
+                        <p class="cs-research-header-sub">Live Status</p>
+                    </div>
+                    <div class="cs-research-body" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center; opacity: 0.5;">
+                            <i class="feather-map-pin" style="font-size: 2.5rem;"></i>
+                            <p style="margin-top: 8px; font-size: 0.85rem;">Live map, ETA, delivery confirmation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     19. SCREENS
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-section">
+    <div class="cs-section-inner">
+        <div class="cs-section-header">
+            <p class="cs-section-number">19</p>
+            <h2 class="cs-section-title">Screens</h2>
+            <p class="cs-section-desc">Pixel-perfect final screen designs, built with Apple's design principles: clarity, deference, and depth.</p>
+        </div>
+        <div class="cs-screen-mockup" style="min-height: 450px; border: 2px solid var(--apple-border);">
+            <div style="text-align: center; max-width: 500px;">
+                <div style="display: inline-block; background: white; border-radius: 16px; padding: 32px; box-shadow: var(--apple-shadow); text-align: left; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                        <div style="width: 40px; height: 40px; background: var(--apple-gradient); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">A</div>
+                        <div>
+                            <p style="font-weight: 700; font-size: 1rem;">Agridoer</p>
+                            <p style="font-size: 0.75rem; opacity: 0.6;">Agricultural Marketplace</p>
+                        </div>
+                    </div>
+                    <div style="background: var(--apple-bg-secondary); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                        <p style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 8px;">SEARCH</p>
+                        <p style="font-size: 0.95rem;">🔍 Browse maize, vegetables, livestock...</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="background: #f5f5f7; border-radius: 12px; padding: 16px; text-align: center;">
+                            <p style="font-size: 0.75rem; opacity: 0.6;">Maize</p>
+                            <p style="font-weight: 700;">$2.40/kg</p>
+                        </div>
+                        <div style="background: #f5f5f7; border-radius: 12px; padding: 16px; text-align: center;">
+                            <p style="font-size: 0.75rem; opacity: 0.6;">Tomatoes</p>
+                            <p style="font-weight: 700;">$3.10/kg</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px; padding: 16px; background: var(--apple-gradient); border-radius: 12px; color: white; text-align: center;">
+                        <p style="font-weight: 700;">+ Place New Order</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4 mt-4">
+            <div class="col-md-3">
+                <div class="cs-card" style="text-align: center;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 12px; background: var(--apple-bg-secondary); border-radius: 16px; display: flex; align-items: center; justify-content: center;"><i class="feather-home"></i></div>
+                    <p class="fw-bold" style="font-size: 0.9rem;">Home</p>
+                    <p style="font-size: 0.75rem; opacity: 0.6;">Browse & search</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="cs-card" style="text-align: center;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 12px; background: var(--apple-bg-secondary); border-radius: 16px; display: flex; align-items: center; justify-content: center;"><i class="feather-map-pin"></i></div>
+                    <p class="fw-bold" style="font-size: 0.9rem;">Map View</p>
+                    <p style="font-size: 0.75rem; opacity: 0.6;">Nearby farmers</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="cs-card" style="text-align: center;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 12px; background: var(--apple-bg-secondary); border-radius: 16px; display: flex; align-items: center; justify-content: center;"><i class="feather-shopping-cart"></i></div>
+                    <p class="fw-bold" style="font-size: 0.9rem;">Orders</p>
+                    <p style="font-size: 0.75rem; opacity: 0.6;">Track & manage</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="cs-card" style="text-align: center;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 12px; background: var(--apple-bg-secondary); border-radius: 16px; display: flex; align-items: center; justify-content: center;"><i class="feather-user"></i></div>
+                    <p class="fw-bold" style="font-size: 0.9rem;">Profile</p>
+                    <p style="font-size: 0.75rem; opacity: 0.6;">Account & settings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     CTA SECTION
+     ══════════════════════════════════════════════════════════════ -->
+<section class="cs-cta">
+    <div class="container text-center">
+        <h2>Interested in a Custom Solution?</h2>
+        <p>Our engineering and design team can build and scale your next big idea with Apple-inspired design excellence.</p>
+        <a href="/contact" class="cs-cta-btn">BOOK A CONSULTATION</a>
+    </div>
+</section>
+
+{% endblock %}

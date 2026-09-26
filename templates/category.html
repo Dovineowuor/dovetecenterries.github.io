@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Category: {{ category }} - Dovetec Enterprises{% endblock %}
+{% block seo_desc %}Browse all articles in the "{{ category }}" category at Dovetec Enterprises. Explore technology insights, software engineering tips, and IT solutions.{% endblock %}
+{% block seo_keys %}{{ category }}, software engineering, IT solutions, technology, Nairobi{% endblock %}
+{% block og_title %}Category: {{ category }} - Dovetec Enterprises{% endblock %}
+{% block og_desc %}Browse all articles in the "{{ category }}" category.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Category: {{ category }} - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}Browse all articles in the "{{ category }}" category.{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --card-bg: rgba(255, 255, 255, 0.7);
+        --accent-gradient: linear-gradient(135deg, #2b5f57 0%, #4a90e2 100%);
+    }
+
+    body {
+        background-color: #f8faff;
+    }
+
+    .category-hero {
+        padding: 6rem 0 4rem;
+        background: var(--accent-gradient);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 4rem;
+    }
+
+    .category-hero::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: url("{% static 'images/world_map.png' %}") center/cover no-repeat;
+        opacity: 0.1;
+        mix-blend-mode: overlay;
+    }
+
+    .glass-header {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        padding: 3rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .article-card-futuristic {
+        background: var(--card-bg);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 20px;
+        padding: 2rem;
+        height: 100%;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+
+    .article-card-futuristic:hover {
+        transform: translateY(-8px);
+        background: white;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        border-color: var(--brand-primary);
+    }
+
+    .article-card-futuristic h3 {
+        font-weight: 800;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: #1a1a1a;
+        line-height: 1.4;
+    }
+
+    .article-card-futuristic p {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .category-pill {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        background: #f0f4f8;
+        color: #2b5f57;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 1.25rem;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar-widget {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .pill-link {
+        display: inline-block;
+        padding: 0.5rem 1.25rem;
+        margin: 0.25rem;
+        background: #f8f9fa;
+        color: #444;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .pill-link:hover, .pill-link.active {
+        background: var(--brand-primary);
+        color: white;
+        transform: scale(1.05);
+        text-decoration: none;
+    }
+
+    .meta-data {
+        margin-top: auto;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: #999;
+    }
+
+    .read-more-btn {
+        color: var(--brand-primary);
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .read-more-btn:hover {
+        color: #1a1a1a;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="category-hero">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10" data-aos="zoom-in">
+                <div class="glass-header">
+                    <span class="text-uppercase fw-bold opacity-75 small letter-spacing-2">Exploration Center</span>
+                    <h1 class="display-4 fw-800 mt-2 mb-3 text-white">{{ category }}</h1>
+                    <div class="d-flex justify-content-center gap-4 mt-4">
+                        <div class="text-center">
+                            <span class="d-block fw-800 h4 mb-0">{{ articles|length }}</span>
+                            <span class="small opacity-75">Articles</span>
+                        </div>
+                        <div class="vr opacity-25"></div>
+                        <div class="text-center">
+                            <span class="d-block fw-800 h4 mb-0">Active</span>
+                            <span class="small opacity-75">Status</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container pb-10">
+    <div class="row g-5">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <div class="row g-4">
+                {% for article in articles %}
+                <div class="col-md-12" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+                    <div class="article-card-futuristic">
+                        <div class="d-flex flex-column flex-md-row gap-4 align-items-start">
+                            <div class="flex-grow-1">
+                                <span class="category-pill">{{ category }}</span>
+                                <h3><a href="{% url 'blog_detail' article.slug %}" class="text-dark text-decoration-none">{{ article.title }}</a></h3>
+                                <p class="mb-4">{{ article.content|striptags|truncatewords:45 }}</p>
+                                <div class="meta-data">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="feather-calendar"></i>
+                                        <span>{{ article.created_at|date:"M d, Y" }}</span>
+                                    </div>
+                                    <a href="{% url 'blog_detail' article.slug %}" class="read-more-btn">
+                                        Explore Article <i class="feather-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5" data-aos="fade-up">
+                    <div class="bg-white p-5 rounded-4 shadow-sm border">
+                        <i class="feather-inbox display-1 text-muted mb-3 opacity-25"></i>
+                        <h3>Perspective Required</h3>
+                        <p class="text-muted">No articles found in this category yet. Be the first to start a conversation.</p>
+                        <a href="{% url 'add_blog' %}" class="btn btn-primary mt-3">Contribute Insight</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 2rem;">
+                <!-- Categories Widget -->
+                <div class="sidebar-widget shadow-sm" data-aos="fade-left">
+                    <h5 class="fw-800 mb-4 border-bottom pb-3">Global Hubs</h5>
+                    <div class="category-list">
+                        {% for cat in all_categories %}
+                            <a href="{% url 'category' cat %}" class="pill-link {% if cat == category %}active{% endif %}">
+                                {{ cat }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Trending/Tags Widget -->
+                <div class="sidebar-widget shadow-sm" data-aos="fade-left" data-aos-delay="100">
+                    <h5 class="fw-800 mb-4 border-bottom pb-3">Vector Tags</h5>
+                    <div class="tag-cloud">
+                        {% for tag_obj in all_tags %}
+                            <a href="{% url 'tag' tag_obj.name %}" class="pill-link">
+                                #{{ tag_obj.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Quick Action -->
+                <div class="bg-dark rounded-4 p-4 text-white shadow-lg overflow-hidden position-relative" data-aos="fade-left" data-aos-delay="200">
+                    <div class="position-absolute top-0 end-0 opacity-10" style="font-size: 8rem; right: -2rem; top: -1rem;">
+                        <i class="feather-zap"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Contribute</h5>
+                    <p class="small opacity-75 mb-4">Have an insight that belongs in "{{ category }}"? Share it with the community.</p>
+                    <a href="{% url 'add_blog' %}" class="btn btn-primary btn-sm px-4">POST NOW</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

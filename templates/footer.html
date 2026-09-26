@@ -1,0 +1,102 @@
+<!-- Footer Component
+<footer>
+{% load static %}
+    <!-- Logo  -->
+    <div class="py-3 py-md-4 py-xl-5 border-bottom">
+      <div class="container">
+        <div class="row gy-3 gy-sm-0 align-items-sm-center">
+          <div class="col-12 col-sm-6">
+            <div class="footer-logo-wrapper">
+              <a href="{% url 'home' %}">
+                <img src="{% static 'img/logo.png' %}" alt="Dovetec Enterprises" width="175" height="57">
+                <!-- <h3 class="text-primary">Dovetec Enterprises</h3> -->
+              </a>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6">
+            <div class="social-media-wrapper">
+              <ul class="m-0 list-unstyled d-flex justify-content-sm-spacebetween gap-3">
+                <li><a href="https://www.youtube.com/@CodewithDove" class="link-opacity-50-hover link-secondary"><i class="fab fa-youtube"></i></a></li>
+                <li><a href="https://facebook.com/dovine.festo.3" class="link-opacity-50-hover link-secondary"><i class="fab fa-facebook"></i></a></li>
+                <li><a href="https://x.com/doveowuor" class="link-opacity-50-hover link-secondary"><i class="fab fa-twitter"></i></a></li>
+                <li><a href="https://www.linkedin.com/company/86193612/" class="link-opacity-50-hover link-secondary"><i class="fab fa-linkedin"></i></a></li>
+                <li><a href="https://instagram.com/techdarasa" class="link-opacity-50-hover link-secondary"><i class="fab fa-instagram"></i></a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Widgets - Component -->
+    <section class="py-4 py-md-5 py-xl-6">
+      <div class="container">
+        <div class="row gy-3">
+          <div class="col-6 col-md-3">
+            <div class="link-wrapper mb-3 mb-md-4 mb-xl-5">
+              <h4 class="mb-2 font-weight-bold fs-5">Shop</h4>
+              <ul class="m-0 list-unstyled">
+                <li class="mb-1"><a href="{% url 'shop' %}" class="link-secondary text-muted font-weight-bold">Products</a></li>
+                <li class="mb-1"><a href="{% url 'category_list' %}" class="link-secondary text-muted font-weight-bold">Categories</a></li>
+                <li class="mb-1"><a href="{% url 'cart' %}" class="link-secondary text-muted font-weight-bold">Cart</a></li>
+                <li><a href="{% url 'contact_us' %}" class="link-secondary text-muted font-weight-bold">Contact Us</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="link-wrapper mb-3 mb-md-4 mb-xl-5">
+              <h4 class="mb-2 font-weight-bold fs-5">Account</h4>
+              <ul class="m-0 list-unstyled">
+                <li class="mb-1"><a href="{% url 'login_view' %}" class="link-secondary text-muted font-weight-bold">Login</a></li>
+                <li class="mb-1"><a href="{% url 'register_view' %}" class="link-secondary text-muted font-weight-bold">Register</a></li>
+                <li class="mb-1"><a href="{% url 'profile' %}" class="link-secondary text-muted font-weight-bold">Profile</a></li>
+                <li class="mb-1"><a href="{% url 'logout_view' %}" class="link-secondary text-muted font-weight-bold">Logout</a></li>
+                <li><a href="{% url 'see_blog' %}" class="link-secondary text-muted font-weight-bold">Blogs</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="link-wrapper mb-3 mb-md-4 mb-xl-5">
+              <h4 class="mb-2 font-weight-bold fs-5">Resources</h4>
+              <ul class="m-0 list-unstyled">
+                <li class="mb-1"><a href="{% url 'about_us' %}" class="link-secondary text-muted font-weight-bold">About Us</a></li>
+                <li class="mb-1"><a href="{% url 'services' %}" class="link-secondary text-muted font-weight-bold">Services</a></li>
+                <li class="mb-1"><a href="{% url 'team' %}" class="link-secondary text-muted font-weight-bold">Team</a></li>
+                <li class="mb-1"><a href="{% url 'privacy_policy' %}" class="link-secondary text-muted font-weight-bold">Privacy Policy</a></li>
+                <li><a href="{% url 'terms_and_conditions' %}" class="link-secondary text-muted font-weight-bold">Terms & Conditions</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="link-wrapper mb-3 mb-md-4 mb-xl-5">
+              <h4 class="mb-2 font-weight-bold fs-5">Help</h4>
+              <ul class="m-0 list-unstyled text-secondary">
+                <li class="mb-1 text-muted"><a href="{% url 'contact_us' %}" class="link-secondary text-muted font-weight-bold">Contact Support</a></li>
+                <li class="mb-1 text-muted"><a href="{% url 'help_center' %}" class="link-secondary text-muted font-weight-bold">Help Center</a></li>
+                <li class="mb-1 text-muted"><a href="{% url 'feedback' %}" class="link-secondary text-muted font-weight-bold">Feedback</a></li>
+                <li class="mb-1 text-muted"><a href="{% url 'see_blog' %}" class="link-secondary text-muted font-weight-bold">Articles</a></li>
+                <li><a href="{% url 'community' %}" class="link-secondary text-muted font-weight-bold">Community</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <!-- Copyright - Component -->
+    <div class="py-2 py-md-2 py-xl-5 border-top">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <div class="copyright-wrapper mb-1 fs-7 text-md-center text-muted">
+                &copy; <script>document.write(new Date().getFullYear());</script>. Dovetec Enterprises All Rights Reserved.
+            </div>
+            <div class="credit-wrapper text-secondary fs-8 text-md-center">
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+</footer> -->

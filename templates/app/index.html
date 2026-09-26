@@ -1,0 +1,653 @@
+{% extends "base.html" %}
+{% load static %}
+{% load ad_tags %}
+
+{% block title %}Home - Dovetec Enterprises | Software Engineering, IT Solutions & Consulting{% endblock %}
+{% block seo_desc %}Leading technology company in Nairobi, Kenya. Dovetec Enterprises delivers software engineering, IT solutions, digital transformation, and consulting services. Empowering businesses across East Africa.{% endblock %}
+{% block seo_keys %}Dovetec Enterprises, software engineering, IT solutions, digital transformation, consulting, Nairobi, Kenya, East Africa{% endblock %}
+{% block og_title %}Dovetec Enterprises - Software Engineering & IT Solutions{% endblock %}
+{% block og_desc %}Leading technology company in Nairobi, Kenya. Empowering businesses across East Africa with software engineering and IT solutions.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Dovetec Enterprises - Software Engineering & IT Solutions{% endblock %}
+{% block twitter_desc %}Leading technology company in Nairobi, Kenya. Empowering businesses across East Africa.{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Uniform Card System ── */
+  .uniform-card {
+    background: #ffffff;
+    border-radius: 16px;
+    height: 480px; /* Fixed uniform height */
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: visible; /* Needed for avatar overlays */
+    box-shadow: 4px 4px 0px #2b5f5785;
+  }
+
+  .uniform-card:hover {
+    border-color: #2b5f57;
+    box-shadow: 8px 8px 0px #2b5f5785;
+    transform: translate(-4px, -4px);
+  }
+
+  /* ── Blog Banner & Author Avatar ── */
+  .card-banner {
+    position: relative;
+    height: 200px;
+    width: 100%;
+    border-radius: 14px 14px 0 0;
+    overflow: hidden;
+  }
+  .card-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .author-avatar-badge {
+    position: absolute;
+    top: 45px; /* Banner is 200px, so 200-30 = 170px for the exact overlap */
+    left: 25px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 12px #2b5f5789;
+    overflow: hidden;
+    z-index: 10;
+    background: #fff;
+  }
+  .author-avatar-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── Testimonial Avatar Overlay & Expansion ── */
+  .testimonial-avatar-badge {
+    position: absolute;
+    top: -25px;
+    right: -10px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 15px #2b5f57;
+    overflow: hidden;
+    z-index: 10;
+    background: #fff;
+  }
+  .testimonial-avatar-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card-content {
+    padding: 30px 20px 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  .testimonial-quote {
+    font-style: italic;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    max-height: 150px;
+    overflow: hidden;
+    transition: all 0.5s ease;
+  }
+
+  /* Expansion logic via overlay */
+  .testimonial-v2:hover .testimonial-quote {
+    max-height: 500px;
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    border-radius: 0 0 16px 16px;
+    overflow-y: auto;
+    background-color: #fff;
+    
+  }
+
+  .card-footer {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+    margin-top: auto;
+  }
+
+  .card-title-link {
+    color: #000;
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    text-decoration: none;
+    display: block;
+    margin: 10px 0;
+    position: relative;
+    z-index: 30;
+    pointer-events: auto;
+  }
+  .card-title-link:hover { color: #2b5f57; }
+
+  .read-more-chalk {
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #2b5f57;
+    text-decoration: underline;
+    position: relative;
+    z-index: 30;
+    pointer-events: auto;
+  }
+</style>
+
+<script>
+  // Force click passing through Owl Carousel drag layer if needed
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      const links = document.querySelectorAll('.owl-carousel a');
+      links.forEach(link => {
+        link.addEventListener('click', function(e) {
+          // If the link has a valid href, let it redirect natively
+          if(this.getAttribute('href') && this.getAttribute('href') !== '#') {
+             e.stopPropagation();
+          }
+        });
+      });
+    }, 1000);
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="hero overlay vh-100" data-stellar-background-ratio="0.5"
+  style="background-image: url({% static 'images/hero_bg.png' %}); background-position: 0% 39px; background-repeat: no-repeat; background-size: cover;">
+  <div class="container">
+    <div class="row align-items-center justify-content-between">
+      <div class="col-lg-12">
+        <div class="row justify-content-start align-items-start mt-4">
+          <div class="col-lg-7 intro p-3 rounded text-start">
+            <h1 data-aos-delay="0">We Curiate Transformative Futureproof Technological Solutions
+            </h1>
+            <p class="text-white mb-4" data-aos-delay="10">At Dovetec Enterprises, we craft
+              cutting-edge tech solutions that adapt to your needs. With expertise in emerging tech and industry
+              trends, we drive business growth with innovative strategies. Stay ahead with us for a competitive edge
+              in tomorrow's digital world.
+              .</p>
+            <p data-aos-delay="200"><a href="/contact" class="btn btn-primary">Get In
+                Touch</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custome Hero -->
+<section id="solution" class="section bg-light py-lg-0 pt-0 pb-5 mt-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 order-md-2 order-1">
+        <div class="d-flex justify-content-center justify-content-md-end">
+          <picture>
+            <source media="(min-resolution: 2dppx)" srcset="{% static 'images/img_custom_software.png' %}">
+            <img src="{% static 'images/img_custom_software.png' %}" class="img-fluid" width="486" height="395"
+              loading="lazy" alt="Custom Software">
+          </picture>
+        </div>
+      </div>
+      <div class="col-md-6 order-md-1 order-2 text-center text-md-left">
+        <h2>Custom Software Services and Solutions</h2>
+        <p>At the heart of creating exceptional software solutions lies collaboration. With a team of 10+ dedicated
+          professionals, we work tirelessly to bring value to your business. Our certified developers, test
+          engineers, and business analysts ensure excellence in every service we provide.</p>
+        <a href="/contact" class="btn btn-primary">Get Free Consultation</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ./Custome Hero -->
+<!-- Sub-Hero Sect -->
+<section id="feature">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-6 col-md-12 col-sm-12">
+        <div class="text-wrapper">
+          <div>
+            <h2 class="row justify-content-between align-items-start" data-wow-delay="0.3s">We Help Grow Your
+              Business</h2>
+            <p class="mb-4">At Dovetec Enterprises, we specialize in providing innovative solutions tailored to your
+              business needs, ensuring your growth and success in the digital landscape.</p>
+            <a href="/about" class="btn btn-primary btn-common">More About Us</a>
+          </div>
+        </div>
+      </div>
+      <!-- ./Services Sect -->
+      <div class="col-lg-6 col-md-12 col-sm-12 padding-none feature-bg">
+        <div class="feature-thumb">
+          <div class="feature-item wow fadeInDown animated" data-wow-duration="1000ms" data-wow-delay="300ms">
+            <div class="icon">
+              <i class="feather-info"></i>
+            </div>
+            <div class="feature-content">
+              <h3>What We Do</h3>
+              <p>At Dovetec Enterprises, we specialize in providing innovative solutions tailored to your business
+                needs, ensuring your growth and success in the digital landscape.</p>
+            </div>
+          </div>
+          <div class="feature-item wow fadeInDown animated" data-wow-duration="1000ms" data-wow-delay="500ms">
+            <div class="icon">
+              <i class="feather-users"></i>
+            </div>
+            <div class="feature-content">
+              <h3>Meet Our Team</h3>
+              <p>Meet the dedicated team of experts at Dovetec Enterprises committed to delivering top-notch
+                solutions and personalized services to meet your business objectives.</p>
+            </div>
+          </div>
+          <div class="feature-item wow fadeInDown animated" data-wow-duration="1000ms" data-wow-delay="700ms">
+            <div class="icon">
+              <i class="feather-award"></i>
+            </div>
+            <div class="feature-content">
+              <h3>Our Creations</h3>
+              <p>At Dovetec Enterprises, we take pride in our portfolio of successful projects that reflect our
+                dedication to excellence and innovation in every endeavor.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ./Sub-Hero Sect -->
+
+<!-- Services Sect -->
+<div class="section services bg-light">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col text-center" data-aos-delay="0">
+        <h2 class="heading">Services</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="row">
+        <div class="col-lg-4 mb-4 mb-lg-0">
+          <a href="#" class="service-block d-flex glassmorphic-effect">
+            <span class="wrap-icon">
+              <span class="feather-command"></span>
+            </span>
+            <div class="text">
+              <h2 class="mb-2">Planning</h2>
+              <p>During the Planning phase, we meticulously analyze your project requirements, define objectives,
+                and outline a comprehensive strategy to ensure a successful outcome.</p>
+            </div>
+          </a>
+        </div>
+        <div class="col-lg-4 mb-4 mb-lg-0">
+          <a href="#" class="service-block d-flex glassmorphic-effect">
+            <span class="wrap-icon">
+              <span class="feather-send"></span>
+            </span>
+            <div class="text">
+              <h2 class="mb-2">Launch</h2>
+              <p>Upon Launch, we deploy your solution seamlessly, providing ongoing support and maintenance to
+                optimize performance and ensure continued success.</p>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-lg-4 mb-4 mb-lg-0">
+          <a href="#" class="service-block d-flex glassmorphic-effect">
+            <span class="wrap-icon">
+              <span class="feather-check-square"></span>
+            </span>
+            <div class="text">
+              <h2 class="mb-2">Support</h2>
+              <p>Our Support service is dedicated to ensuring your satisfaction and success. We provide ongoing
+                assistance, training, and guidance to help you get the most out of your solution.</p>
+            </div>
+          </a>
+        </div>
+
+
+        <div class="col-lg-4 mb-4 mb-lg-0">
+          <a href="#" class="service-block d-flex glassmorphic-effect glassmorphic-effect">
+            <span class="wrap-icon">
+              <span class="feather-shopping-cart"></span>
+            </span>
+            <div class="text">
+              <h2 class="mb-2">E-commerce Solutions</h2>
+              <p>Our E-commerce Solutions empower businesses to thrive in the digital marketplace. From intuitive
+                user
+                interfaces to secure payment gateways, we create seamless online shopping experiences that drive
+                sales
+                and customer satisfaction.</p>
+            </div>
+          </a>
+        </div>
+
+
+        <div class="col-lg-4 mb-4 mb-lg-0">
+          <a href="#" class="service-block d-flex glassmorphic-effect">
+            <span class="wrap-icon">
+              <span class="feather-phone"></span>
+            </span>
+            <div class="text">
+              <h2 class="mb-2">Mobile Development</h2>
+              <p>Our Mobile Development service empowers businesses to reach their customers on the go. From iOS to
+                Android, we create user-friendly and high-performance mobile applications that enhance engagement
+                and drive results.</p>
+            </div>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <!-- ./Services Sect -->
+
+  <div class="section bg-light py-lg-0 pt-0 pb-5 mt-5">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6 mb-5 mb-lg-0" data-aos-delay="0">
+          <img src="{% static 'images/about-min.jpg' %}" alt="Image" class="img-fluid overlap-img">
+        </div>
+        <div class="col-lg-4 mr-auto ml-auto" data-aos-delay="10">
+          <div class="py-lg-5">
+            <h3 class="mb-4">Your digital presence should be <span class="text-primary">unstoppable</span> force
+            </h3>
+            <p>Dovetec Enterprises is a pioneering technology company dedicated to curating transformative,
+              future-proof solutions. With a focus on innovation and excellence, we specialize in delivering
+              cutting-edge software and digital products that solve complex workforce challenges. Our team is driven
+              by a passion for creating unparalleled technological advancements that empower businesses and
+              organizations to thrive in the digital age. Through strategic partnerships, client-focused strategies,
+              and a commitment to excellence, we strive to be the forefront of technological innovation, helping our
+              clients succeed in today's dynamic marketplace. in Bookmarksgrove right at the coast of the Semantics,
+              a large language
+              ocean.</p>
+            <div class="mb-4 count-numbers">
+              <div class="row">
+                <div class="col-6">
+                  <span class="counter">
+                    <span class="number" data-number="97">0</span>%
+                  </span>
+                  <span class="d-block">Success rate</span>
+                </div>
+                <div class="col-6">
+                  <span class="counter">
+                    <span class="number" data-number="15">0</span><span class="number">+</span>
+                  </span>
+                  <span class="d-block">Happy Customers</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Our Clients -->
+
+  <div class="site-section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+          <h4 class="font-weight-bold">Our Partners</h4>
+          <p>
+            Discover the power of innovation with Dovetec Enterprises. Our clients aren't just partners; they're
+            pioneers in their industries, empowered by cutting-edge solutions tailored to their unique needs. Join a
+            community driven by excellence, where success isn't just a goal – it's an expectation. Experience the
+            difference with Dovetec Enterprises and unlock your full potential today.
+          </p>
+        </div>
+      </div>
+
+      <div class="owl-logos owl-carousel">
+        <div class="item m-2">
+          <img src="{% static 'images/logo-trinity.png' %}" alt="Image" class="img-fluid">
+        </div>
+        <div class="item m-2">
+          <img src="{% static 'images/logo-techdarasa.png' %}" alt="Image" class="img-fluid">
+        </div>
+        <div class="item m-2">
+          <img src="{% static 'images/logo-oddibites.png' %}" alt="Image" class="img-fluid">
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ./Our Clients -->
+  <!-- Video Promotion -->
+  <section class="video-promo section-padding" style="background-image: url('{% static 'images/bg-video.jpg' %}');">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row justify-content-center align-items-center my-5">
+        <div class="col-md-12 col-sm-12 py-5">
+          <div class="video-promo-content text-center wow fadeInUp animated my-5" data-wow-delay="0.3s">
+            <a class="video-popup-btn" data-toggle="modal" data-target="#videoModal">
+              <img class="w-80 video-play icon-play-circle-o" src="{% static 'images/play-circle.svg' %}"
+                alt="Video Play">
+
+            </a>
+            <h2 class="mt-3 wow zoomIn animated" data-wow-duration="1000ms" data-wow-delay="100ms"
+              style="background-color: transparent; color: #fff;">Watch Video</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ./Video Promotion -->
+
+  <!-- Video Modal -->
+  <div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-labelledby="videoModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/KCcrhGTAm6I"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ./Video Modal -->
+  <!-- ./Video Promotion -->
+
+  <!-- Portfolio -->
+
+  <!-- ./Portfolio -->
+
+  <!-- Ads Slot before Blog Posts -->
+  <div class="container py-4">
+    <div class="row">
+      <div class="col-12">
+        {% render_ad count=2 %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Blogs and Articles -->
+  <div class="section recent-posts" data-aos-delay="0">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h2 class="heading text-white">Latest Updates</h2>
+        </div>
+      </div>
+
+      <div class="owl-3-slider owl-carousel">
+        {% for article in articles %}
+        <div class="item m-2">
+          <div class="uniform-card blog-v2">
+            <!-- Banner & Avatar Overlay -->
+            <div class="card-banner">
+              {% if article.image %}
+              <img src="{{ article.image.url }}" alt="{{ article.title }}">
+              {% else %}
+              <img src="{% static 'images/hero_bg.png' %}" alt="{{ article.title }}">
+              {% endif %}
+            </div>
+
+            <div class="author-avatar-badge">
+              {% if article.author.image %}
+              <img src="{{ article.author.image.url }}" alt="{{ article.author.user.username }}">
+              {% else %}
+              <img src="{% static 'images/person_1-min.png' %}" alt="Author">
+              {% endif %}
+            </div>
+
+            <!-- Content -->
+            <div class="card-content">
+              <div>
+                <span class="text-muted small">By {{ article.author.user.get_full_name|default:article.author.user.username }}</span>
+                <a href="{% url 'blog_detail' article.slug %}" class="card-title-link">{{ article.title }}</a>
+                <div class="article-content-snippet small text-muted">
+                  {{ article.content|safe|striptags|truncatewords:45}}
+                </div>
+              </div>
+              
+              <div class="card-footer">
+                <a href="{% url 'blog_detail' article.slug %}" class="read-more-chalk text-decoration-none">Read Article →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="testimonials-v2 section" data-aos-delay="0">
+    <div class="container">
+      <div class="row mb-3">
+        <div class="col text-center">
+          <h2 class="heading">Testimonials</h2>
+          <p>Discover the Voice of Success: Hear What Our Clients Have to Say</p>
+        </div>
+        <div class="owl-4-slider dark owl-carousel">
+          <!-- Testimonial 1 -->
+          <div class="item m-2">
+            <div class="uniform-card testimonial-v2">
+              <div class="testimonial-avatar-badge">
+                <img src="{% static 'images/person_1-min.png' %}" alt="Mark Lenny">
+              </div>
+              
+              <div class="card-content">
+                <div>
+                  <h4 class="mb-1 fw-bold">Mark Lenny</h4>
+                  <span class="text-muted small">Entrepreneur</span>
+                  <hr class="my-3">
+                  <div class="testimonial-quote">
+                    &ldquo;Working with Dovetec Enterprises has been a game-changer for our business. Their expertise in digital
+                    solutions has helped us streamline our operations and expand our reach. Their dedication to our success is
+                    unparalleled, and we're grateful for their partnership.&rdquo;
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <span class="small text-success fw-bold">Verified Success</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 2 -->
+          <div class="item m-2">
+            <div class="uniform-card testimonial-v2">
+              <div class="testimonial-avatar-badge">
+                <img src="{% static 'images/person_2-min.png' %}" alt="Everustus K.">
+              </div>
+              
+              <div class="card-content">
+                <div>
+                  <h4 class="mb-1 fw-bold">Everustus K.</h4>
+                  <span class="text-muted small">Founder Zoobee Stores</span>
+                  <hr class="my-3">
+                  <div class="testimonial-quote">
+                    &ldquo;Dovetec Enterprises transformed our e-commerce platform, Zoobee, with their innovative solutions.
+                    From enhancing user experience to optimizing our digital marketing strategies, they've significantly
+                    boosted our online sales and customer engagement.&rdquo;
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <span class="small text-success fw-bold">Verified Partner</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 3 -->
+          <div class="item m-2">
+            <div class="uniform-card testimonial-v2">
+              <div class="testimonial-avatar-badge">
+                <img src="{% static 'images/person_1-min.png' %}" alt="Mr. Johnson">
+              </div>
+              
+              <div class="card-content">
+                <div>
+                  <h4 class="mb-1 fw-bold">Mr. Johnson</h4>
+                  <span class="text-muted small">Principal, Trinity School</span>
+                  <hr class="my-3">
+                  <div class="testimonial-quote">
+                    &ldquo;Dovetec Enterprises has been an invaluable partner for our school. Their digital solutions have
+                    modernized our communication channels and enhanced our online visibility. Thanks to their efforts,
+                    we've been able to better engage with our students and parents.&rdquo;
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <span class="small text-success fw-bold">Education Impact</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- End Testimonials -->
+
+    <div class="cta-section py-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <div class="cta">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h2 data-aos-delay="0">Ready to Get In Touch?</h2>
+                  <p data-aos-delay="10">
+                    Feel free to reach out to us to discuss how our services can benefit your business. Whether you
+                    have
+                    questions, need more information, or want to start a project, we're here to help.
+                  </p>
+                </div>
+                <div class="col-md-6 text-center text-md-right">
+                  <a href="/contact" class="btn btn-primary  mb-2 mb-md-0" data-aos-delay="200">Contact
+                    us</a>
+                  <a href="/contact" class="btn btn-primary " data-aos-delay="300">Product
+                    Demo</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endblock %}

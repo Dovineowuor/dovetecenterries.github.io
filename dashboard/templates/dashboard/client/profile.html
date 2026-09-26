@@ -1,0 +1,119 @@
+{% extends 'dashboard/client/client_base.html' %}
+
+{% block client_content %}
+<div class="mb-4" data-aos="fade-down">
+    <h1 class="h3 fw-bold text-dark mb-1">My Profile</h1>
+    <p class="text-muted mb-0">Your account and contact details.</p>
+</div>
+
+<div class="row g-4" data-aos="fade-up">
+    <div class="col-lg-4">
+        <!-- Profile Card -->
+        <div class="bg-white rounded-4 shadow-sm p-4 text-center">
+            {% if profile.image %}
+            <img src="{{ profile.image.url }}" alt="Profile Image"
+                 class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+            {% else %}
+            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3"
+                 style="width: 120px; height: 120px;">
+                <i data-feather="user" style="width: 64px; height: 64px;" class="text-muted"></i>
+            </div>
+            {% endif %}
+            <h4 class="fw-bold mb-1">{{ user.get_full_name }}</h4>
+            <p class="text-muted small mb-2">{{ user.email }}</p>
+            <span class="badge bg-info-subtle text-info-emphasis px-3 py-2 rounded-pill">
+                Role: {{ user.role|title }}
+            </span>
+        </div>
+
+        <!-- Verification Status -->
+        <div class="bg-white rounded-4 shadow-sm p-4 mt-4">
+            <h5 class="fw-bold mb-3">Account Status</h5>
+            <table class="table table-borderless small mb-0">
+                <tr>
+                    <td class="text-muted">Email Verified:</td>
+                    <td>
+                        {% if profile.is_verified %}
+                        <span class="badge bg-success-subtle text-success-emphasis">
+                            <i data-feather="check" style="width:16px;"></i> Yes
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis">
+                            <i data-feather="alert-triangle" style="width:16px;"></i> Pending
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Member Since:</td>
+                    <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Bio ID:</td>
+                    <td class="text-muted">{{ profile.hashed_id|truncatechars:20 }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- Personal Information -->
+        <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
+            <h4 class="fw-bold mb-3">Personal Information</h4>
+            <table class="table table-borderless mb-0">
+                <tr>
+                    <th class="text-muted" style="width: 150px;">Full Name</th>
+                    <td>{{ user.get_full_name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-muted">Email Address</th>
+                    <td>{{ user.email }}</td>
+                </tr>
+                <tr>
+                    <th class="text-muted">Username</th>
+                    <td>{{ user.username|default:"—" }}</td>
+                </tr>
+                <tr>
+                    <th class="text-muted">Role</th>
+                    <td>{{ user.get_role_display }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Contact Information -->
+        {% if profile %}
+        <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
+            <h4 class="fw-bold mb-3">Contact & Bio</h4>
+            <table class="table table-borderless mb-0">
+                <tr>
+                    <th class="text-muted" style="width: 150px;">Title</th>
+                    <td>{{ profile.title|default:"—" }}</td>
+                </tr>
+                {% if profile.bio %}
+                <tr>
+                    <th class="text-muted">Bio</th>
+                    <td>{{ profile.bio|linebreaks }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-4 shadow-sm p-4">
+            <h4 class="fw-bold mb-3">Account Actions</h4>
+            <div class="d-grid gap-2">
+                <a href="#" class="btn btn-outline-primary text-start">
+                    <i data-feather="edit-2" style="width:16px;"></i> Edit Profile
+                </a>
+                <a href="#" class="btn btn-outline-secondary text-start">
+                    <i data-feather="key" style="width:16px;"></i> Change Password
+                </a>
+                <a href="{% url 'logout_view' %}" class="btn btn-outline-danger text-start">
+                    <i data-feather="log-out" style="width:16px;"></i> Logout from all sessions
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

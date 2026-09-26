@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Help Center — Dovetec Enterprises{% endblock %}
+{% block seo_desc %}Get help with Dovetec Enterprises products and services. Browse FAQs, contact support, and find answers about software engineering and IT solutions.{% endblock %}
+{% block seo_keys %}help center, support, FAQ, Dovetec Enterprises, technical support{% endblock %}
+{% block og_title %}Help Center — Dovetec Enterprises{% endblock %}
+{% block og_desc %}Get help with Dovetec Enterprises products and services. Browse FAQs and contact support.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .help-hero {
+        background: radial-gradient(circle at top right, rgba(43, 95, 87, 0.07), transparent 50%),
+            radial-gradient(circle at bottom left, rgba(43, 95, 87, 0.05), transparent 50%),
+            #f8f9fc;
+        padding: 140px 0 80px;
+    }
+
+    .help-card {
+        background: white;
+        border-radius: 24px;
+        padding: 2.5rem;
+        border: 1px solid rgba(0,0,0,0.04);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+        transition: all 0.35s ease;
+        height: 100%;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .help-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+        border-color: rgba(43, 95, 87,0.2);
+        color: inherit;
+    }
+
+    .help-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+        background: rgba(43, 95, 87, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2b5f57;
+        font-size: 1.6rem;
+        margin-bottom: 1.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .help-card:hover .help-icon {
+        background: #2b5f57;
+        color: white;
+    }
+
+    .faq-item {
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .faq-item .accordion-button {
+        font-weight: 700;
+        background: white;
+        color: #1a1a2e;
+        border-radius: 16px;
+        box-shadow: none;
+    }
+
+    .faq-item .accordion-button:not(.collapsed) {
+        color: #2b5f57;
+        background: rgba(43, 95, 87, 0.04);
+    }
+
+    .faq-item .accordion-body {
+        color: #6c757d;
+        line-height: 1.7;
+    }
+
+    .contact-card {
+        background: linear-gradient(135deg, #2b5f57, #2b5f57);
+        border-radius: 30px;
+        padding: 3.5rem;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<div class="help-hero">
+    <div class="container text-center">
+        <div class="row justify-content-center" data-aos="fade-up">
+            <div class="col-lg-7">
+                <span class="badge bg-soft-primary text-primary px-4 py-2 mb-3 fw-bold">HELP CENTER</span>
+                <h1 class="display-4 fw-800 mb-3">How can we <span class="text-primary">help you?</span></h1>
+                <p class="lead text-muted mb-5">Find answers to common questions or reach out to our support team.</p>
+                <div class="input-group input-group-lg shadow-sm overflow-hidden" style="max-width: 550px; margin: 0 auto;">
+                    <span class="input-group-text bg-white border-0 ps-4"><i class="feather-search text-muted"></i></span>
+                    <input type="text" class="form-control border-0 bg-white py-3" placeholder="Search for answers...">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Topics -->
+<div class="container py-7">
+    <div class="row g-4 justify-content-center mb-7">
+        {% for topic in topics|default:"" %}
+        <div class="col-lg-4 col-md-6" data-aos="fade-up">
+            <a href="{{ topic.url }}" class="help-card">
+                <div class="help-icon"><i class="feather-{{ topic.icon }}"></i></div>
+                <h5 class="fw-bold mb-2">{{ topic.title }}</h5>
+                <p class="text-muted small mb-0">{{ topic.description }}</p>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
+            <a href="{% url 'shop' %}" class="help-card">
+                <div class="help-icon"><i class="feather-shopping-cart"></i></div>
+                <h5 class="fw-bold mb-2">Orders & Shipping</h5>
+                <p class="text-muted small mb-0">Track your order, manage deliveries and understand our shipping policy.</p>
+            </a>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <a href="#faq" class="help-card">
+                <div class="help-icon"><i class="feather-refresh-cw"></i></div>
+                <h5 class="fw-bold mb-2">Returns & Refunds</h5>
+                <p class="text-muted small mb-0">Learn about our 14-day return policy and how to initiate a refund request.</p>
+            </a>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <a href="#contact" class="help-card">
+                <div class="help-icon"><i class="feather-credit-card"></i></div>
+                <h5 class="fw-bold mb-2">Payments & Security</h5>
+                <p class="text-muted small mb-0">M-Pesa, PayPal, and all our payment options are secured end-to-end.</p>
+            </a>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <a href="{% url 'community' %}" class="help-card">
+                <div class="help-icon"><i class="feather-users"></i></div>
+                <h5 class="fw-bold mb-2">Community & Forums</h5>
+                <p class="text-muted small mb-0">Connect with peer innovators in our Dovetec tech community forums.</p>
+            </a>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+            <a href="{% url 'see_blog' %}" class="help-card">
+                <div class="help-icon"><i class="feather-book-open"></i></div>
+                <h5 class="fw-bold mb-2">Guides & Resources</h5>
+                <p class="text-muted small mb-0">Technical articles, how-tos, and deep dives into our product ecosystem.</p>
+            </a>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+            <a href="#contact" class="help-card">
+                <div class="help-icon"><i class="feather-headphones"></i></div>
+                <h5 class="fw-bold mb-2">Live Support</h5>
+                <p class="text-muted small mb-0">Our team is available Mon–Fri, 9am–6pm EAT to assist you directly.</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- FAQ -->
+    <div id="faq" class="row justify-content-center mb-7">
+        <div class="col-lg-9" data-aos="fade-up">
+            <h2 class="fw-800 text-center mb-2">Frequently Asked <span class="text-primary">Questions</span></h2>
+            <p class="text-center text-muted mb-5">Quick answers to the questions we hear most often.</p>
+
+            <div class="accordion" id="faqAccordion">
+                <div class="faq-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            How do I track my order?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">After placing your order, you will receive a confirmation email with your order reference number. You can use this to track your delivery status from your dashboard under "My Orders".</div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            What payment methods do you accept?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">We accept M-Pesa (Safaricom STK Push), PayPal, Visa, and Mastercard. All transactions are secured with end-to-end encryption.</div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            What is your return and refund policy?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">We offer a 14-day no-questions-asked return window from the date of delivery. Contact our support team at <a href="mailto:support@dovetec.tech">support@dovetec.tech</a> to initiate a return.</div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            How do I subscribe to the Dovetec newsletter?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">You can subscribe using any of the subscription forms across our site, including the newsletter page. You'll receive a verification email — simply click the link to confirm your subscription.</div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                            How do I write an article for the Dovetec blog?
+                        </button>
+                    </h2>
+                    <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">Registered and verified members can contribute articles via the blog hub. Navigate to the <a href="{% url 'see_blog' %}">Insights</a> page and click "Write an Article" to get started.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact CTA -->
+    <div id="contact" class="row justify-content-center" data-aos="zoom-in">
+        <div class="col-lg-9">
+            <div class="contact-card text-center">
+                <i class="feather-message-circle" style="font-size: 3rem; opacity: 0.8; display: block; margin-bottom: 1.5rem;"></i>
+                <h2 class="fw-800 display-5 mb-3">Still need help?</h2>
+                <p class="lead opacity-80 mb-5">Our Innovation Support team is here for you. We typically respond within 2 business hours.</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="mailto:support@dovetec.tech" class="btn btn-warning btn-lg px-5 py-3 fw-900 border-0 shadow-lg">
+                        <i class="feather-mail me-2"></i> Email Support
+                    </a>
+                    <a href="{% url 'community' %}" class="btn btn-outline-light btn-lg px-5 py-3 fw-900">
+                        <i class="feather-users me-2"></i> Ask the Community
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Portfolio - Dovetec Enterprises | Case Studies & Projects{% endblock %}
+{% block seo_desc %}Explore our portfolio of successful projects and case studies at Dovetec Enterprises. Software engineering, IT solutions, and digital transformation success stories.{% endblock %}
+{% block seo_keys %}portfolio, case studies, projects, software engineering, IT solutions, Dovetec Enterprises, Nairobi{% endblock %}
+{% block og_title %}Portfolio - Dovetec Enterprises{% endblock %}
+{% block og_desc %}Explore our portfolio of successful projects and case studies.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Portfolio - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}Explore our portfolio of successful projects and case studies.{% endblock %}
+{% block content %}
+<!-- /*
+* Template Name: Dovetec Enterprises
+* Template Author: dovetecenterprises.tech
+* Tempalte URI: https://dovetecenterprises.tech/
+*/ -->
+
+<div class="hero overlay pt-0" data-stellar-background-ratio="0.5"
+  style="background-image: url({% static 'images/hero_bg.png' %}); background-position: 0% 39px; background-repeat: no-repeat; background-size: cover;">
+  <div class="container pb-6">
+    <div class="row align-items-center justify-content-between">
+      <div class="col-lg-12">
+        <div class="row align-items-center">
+          <div class="col-lg-7 intro p-3 rounded text-start">
+            <span class="section-label text-white mb-2" data-aos="fade-up">Dovetec Portfolio</span>
+            <h1 class="display-3 fw-800 text-white mb-4" data-aos="fade-up" data-aos-delay="100">Our Project Showcases
+            </h1>
+            <p class="text-white-50 lead mb-5" data-aos="fade-up" data-aos-delay="200">
+              Explore our portfolio of innovative products and solutions that redefine workforce complexities through
+              technology and creative strategy.
+            </p>
+            <p data-aos="fade-up" data-aos-delay="300">
+              <a href="/contact" class="btn btn-primary px-5 py-3 fw-bold">Get In Touch</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Flagship Showcase -->
+<section class="site-section bg-light pt-0 mt-5">
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8 text-center" data-aos="fade-up">
+        <h2 class="display-5 fw-800">Flagship Projects</h2>
+        <p class="text-muted">Our most impactful digital transformations and product launches.</p>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-6">
+      <!-- Flagship 1: Agridoer -->
+      <div class="col-lg-8" data-aos="fade-right">
+        <div class="card border-0 h-100 text-white position-relative overflow-hidden unified-project-card"
+          style="min-height: 500px;">
+          <img src="{% static 'images/img_h_1-min.png' %}" class="card-img h-100"
+            style="object-fit: cover; opacity: 0.9;" alt="Agridoer">
+          <div class="project-logo-overlay">
+            <img src="{% static 'images/portfolio/agridoer.png' %}" alt="Agridoer Logo" class="img-fluid">
+          </div>
+          <div class="featured-card-content">
+            <span class="featured-card-label">SaaS & Agriculture</span>
+            <h2 class="bold-visible-text mb-4">Agridoer: The Future of Agricultural Logistics</h2>
+            <div class="d-flex gap-3">
+              <a href="/case-study" class="btn btn-primary px-4">VIEW CASE STUDY</a>
+              <a href="https://agridoer.dovetecenterprises.site" target="_blank" class="btn btn-glass px-4"><i
+                  class="feather-external-link"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flagship 2: Tech Darasa -->
+      <div class="col-lg-4" data-aos="fade-left">
+        <div class="card border-0 h-100 text-white position-relative overflow-hidden unified-project-card">
+          <img src="{% static 'images/img_v_4-min.png' %}" class="card-img h-100"
+            style="object-fit: cover; opacity: 0.8;" alt="Tech Darasa">
+          <div class="project-logo-overlay" style="top: 1rem; left: 1rem; padding: 0.8rem;">
+            <img src="{% static 'images/logo-techdarasa.png' %}" alt="Tech Darasa Logo" class="img-fluid"
+              style="max-height: 25px;">
+          </div>
+          <div class="featured-card-content p-4">
+            <span class="featured-card-label">EdTech Software</span>
+            <h3 class="bold-visible-text mb-3 h4">Tech Darasa: Interactive Learning Platform</h3>
+            <a href="https://techdarasa.dovetecenterprises.site" target="_blank"
+              class="btn btn-outline-light btn-sm">LAUNCH PLATFORM</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flagship 3: Dooomore -->
+      <div class="col-lg-12" data-aos="fade-up">
+        <div class="card border-0 text-white position-relative overflow-hidden unified-project-card"
+          style="height: 350px;">
+          <img src="{% static 'images/hero_bg.png' %}" class="card-img h-100" style="object-fit: cover; opacity: 0.7;"
+            alt="Dooomore">
+          <div class="featured-card-content">
+            <div class="row align-items-end">
+              <div class="col-md-8">
+                <span class="featured-card-label">Productivity Suite</span>
+                <h2 class="bold-visible-text mb-2">Dooomore: Unified Project Management</h2>
+                <p class="text-white-50 mb-0">Bridging the gap between teams through seamless collaboration.</p>
+              </div>
+              <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="https://dooomore.dovetecenterprises.site" target="_blank" class="btn btn-primary px-5">EXPLORE
+                  HUB</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="site-section" id="portfolio-section">
+  <div class="container">
+    <div class="filters" data-aos-delay="10">
+      <ul>
+        <li class="active" data-filter="*">All</li>
+        <li data-filter=".packaging">Packaging</li>
+        <li data-filter=".branding">Branding</li>
+        <li data-filter=".mockup">Mockup</li>
+        <li data-filter=".development">Development</li>
+        <li data-filter=".interior">Interior</li>
+        <li data-filter=".photography">Photography</li>
+        <li data-filter=".marketing">Marketing</li>
+      </ul>
+    </div>
+
+    <div class="filters-content mb-5" data-aos-delay="200">
+      <div class="row grid">
+        <!-- Sub-entry: TechDarasa -->
+        <div class="isotope-card col-sm-4 all development mockup branding">
+          <div class="unified-project-card">
+            <img src="{% static 'images/img_v_4-min.png' %}" alt="TechDarasa" class="img-fluid" />
+            <div class="featured-card-content p-4">
+              <span class="featured-card-label">Mockup</span>
+              <h5 class="bold-visible-text mb-0">TechDarasa Ecosystem</h5>
+            </div>
+          </div>
+        </div>
+
+        <div class="isotope-card col-sm-4 all mockup">
+          <a href="{% static 'images/img_h_1-min.png' %}" data-fancybox="gal">
+            <img src="{% static 'images/img_h_1-min.png' %}" alt="Image" class="img-fluid" />
+            <div class="contents">
+              <h3>Dovetec Enterprises</h3>
+              <div class="cat">Branding</div>
+            </div>
+          </a>
+        </div>
+        <div class="isotope-card col-sm-4 all photography">
+          <a href="{% static 'images/img_h_8-min.png' %}" data-fancybox="gal">
+            <img src="{% static 'images/img_h_8-min.png' %}" alt="Image" class="img-fluid" />
+            <div class="contents">
+              <h3>Photography</h3>
+              <div class="cat">Corporate Pictures</div>
+            </div>
+          </a>
+        </div>
+        <div class="isotope-card col-sm-4 all marketing interior">
+          <a href="{% static 'images/img_h_6-min.png' %}" data-fancybox="gal">
+            <img src="{% static 'images/img_h_6-min.png' %}" alt="Image" class="img-fluid" />
+            <div class="contents">
+              <h3>TechDarasa Banner</h3>
+              <div class="cat">Branding and Marketing</div>
+            </div>
+          </a>
+        </div>
+        <div class="isotope-card col-sm-4 all design development">
+          <a href="{% static 'images/img_h_3-min.jpg' %}" data-fancybox="gal">
+            <img src="{% static 'images/img_h_3-min.jpg' %}" alt="Image" class="img-fluid" />
+            <div class="contents">
+              <h3>Oddibites</h3>
+              <div class="cat">Mockup</div>
+            </div>
+          </a>
+        </div>
+        <div class="isotope-card col-sm-4 all packaging development branding">
+          <a href="{% static 'images/img_h_4-min.png' %}" data-fancybox="gal">
+            <img src="{% static 'images/img_h_4-min.png' %}" alt="Image" class="img-fluid" />
+            <div class="contents">
+              <h3>TechDarasa Logo</h3>
+              <div class="cat">Development</div>
+            </div>
+          </a>
+        </div>
+        <div class="isotope-card col-sm-4 all Interior">
+          <a href="{% static 'images/img_h_5-min.jpg' %}" data-fancybox="gal">
+            <img src="{% static 'images/img_h_5-min.jpg' %}" alt="Image" class="img-fluid" />
+            <div class="contents">
+              <h3>Interior Design</h3>
+              <div class="cat">Interior Design</div>
+            </div>
+          </a>
+        </div>
+        <div class="isotope-card col-sm-4 all branding">
+          <a href="{% static 'images/img_v_1-min.png' %}" data-fancybox="gal">
+            <img src="{% static 'images/img_v_1-min.png' %}" alt="Image" class="img-fluid" />
+            <div class="contents">
+              <h3>CodeWithDove</h3>
+              <div class="cat">Branding and essentials</div>
+            </div>
+          </a>
+        </div>
+        <div class="isotope-card col-sm-4 all photography">
+          <a href="{% static 'images/img_v_2-min.png' %}" data-fancybox="gal">
+            <img src="{% static 'images/img_v_2-min.png' %}" alt="Image" class="img-fluid" />
+            <div class="contents">
+              <h3>TechDarasa Media</h3>
+              <div class="cat">Photography</div>
+            </div>
+          </a>
+        </div>
+
+        <div class="isotope-card col-sm-4 all photography">
+          <a href="{% static 'images/img_v_8-min.jpg' %}" data-fancybox="gal">
+            <img src="{% static 'images/img_v_8-min.jpg' %}" alt="Image" class="img-fluid" />
+            <div class="contents">
+              <h3>Photography</h3>
+              <div class="cat">Photography</div>
+            </div>
+          </a>
+        </div>
+        <div class="isotope-card col-sm-4 all branding">
+          <a href="{% static 'images/macbookmock.jpg' %}" data-fancybox="gal">
+            <img src="{% static 'images/macbookmock.jpg' %}" alt="Image" class="img-fluid" />
+            <div class="contents">
+              <h3>Branding And Essentials</h3>
+              <div class="cat">Photography</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- section -->
+
+<style>
+  button.btn.btn-link.align-items-center.justify-content-center.d-flex.flex-wrap {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    align-items: center !important;
+    flex-wrap: wrap;
+    text-wrap: wrap;
+    padding-top: 37px;
+    padding-bottom: 12px;
+    padding-left: 30px;
+    padding-right: 30px;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+  }
+</style>
+<div class="accordion" id="accordionExample">
+  <div class="card p-3 border-box">
+    <div class="card-header" id="headingOne">
+      <h2 class="mb-0">
+        <button class="btn btn-link align-items-center text-decoration-none" type="button" data-toggle="collapse"
+          data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <img src="{% static 'images/logo-no-background.png' %}" alt="Dovetec Enterprises Overview"
+            style="width: 60%" />
+          Dovetec Enterprises Overview
+          <img src="{% static 'images/plus-circle.svg' %}" alt="expand" />
+        </button>
+      </h2>
+    </div>
+
+    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+      <div class="card-body">
+        Dovetec Enterprises is a dynamic and innovative company that
+        specializes in providing cutting-edge solutions in the technology
+        sector. With a focus on creativity, reliability, and excellence, we
+        strive to exceed our clients' expectations and deliver unparalleled
+        value. Our diverse portfolio of products and services caters to a
+        wide range of industries, including education, healthcare, finance,
+        and more.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

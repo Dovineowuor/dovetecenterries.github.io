@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% load static %}
+
+{% block title %}Search Results for "{{ query }}" - Dovetec Enterprises{% endblock %}
+{% block seo_desc %}Search results for "{{ query }}" at Dovetec Enterprises. Find articles on software engineering, IT solutions, and technology consulting.{% endblock %}
+{% block seo_keys %}search, {{ query }}, software engineering, IT solutions, technology{% endblock %}
+{% block og_title %}Search Results for "{{ query }}" - Dovetec Enterprises{% endblock %}
+{% block og_desc %}Search results for "{{ query }}" at Dovetec Enterprises.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Search Results for "{{ query }}" - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}Search results for "{{ query }}" at Dovetec Enterprises.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10 mb-4">
+        <h1 class="h2 mb-4">Search results for <mark>{{ query }}</mark></h1>
+      </div>
+      <div class="col-lg-10">
+        {% if articles %}
+        <!-- Display search results -->
+        {% for article in articles %}
+        <article class="card mb-4">
+          <div class="row card-body">
+            <div class="col-md-4 mb-4 mb-md-0">
+              <div class="position-relative" style="height: 200px; overflow: hidden;">
+                <picture>
+                  {% with article.image.url|cut:'.' as img_path %}
+                  <source type="image/webp" 
+                          srcset="{{ img_path }}_460x200.webp 1x, 
+                                 {{ img_path }}_920x400.webp 2x">
+                  <img src="{{ article.image.url }}" 
+                       class="card-img h-100 w-100" 
+                       alt="{{ article.title }}"
+                       style="object-fit: cover;"
+                       loading="lazy"
+                       width="460"
+                       height="200">
+                  {% endwith %}
+                </picture>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <h3 class="h4 mb-3">
+                <a class="post-title" href="{% url 'post_detail' article.slug %}">{{ article.title }}</a>
+              </h3>
+              <ul class="card-meta list-inline">
+                <li class="list-inline-item">
+                  <a href="{% url 'author_detail' article.author.id %}" class="card-meta-author d-flex align-items-center">
+                    <div class="me-2" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden;">
+                      <picture>
+                        {% with article.author.profile_picture.url|cut:'.' as profile_img %}
+                        <source type="image/webp" 
+                                srcset="{{ profile_img }}_64x64.webp 2x, 
+                                       {{ profile_img }}_32x32.webp 1x">
+                        <img src="{{ article.author.profile_picture.url }}" 
+                             alt="{{ article.author.name }}"
+                             class="w-100 h-100"
+                             loading="lazy"
+                             width="32"
+                             height="32">
+                        {% endwith %}
+                      </picture>
+                    </div>
+                    <span>{{ article.author.name }}</span>
+                  </a>
+                </li>
+                <li class="list-inline-item">
+                  <i class="ti-timer"></i>{{ article.read_time }} Min To Read
+                </li>
+                <li class="list-inline-item">
+                  <i class="ti-calendar"></i>{{ article.date|date:"d M, Y" }}
+                </li>
+                <li class="list-inline-item">
+                  <ul class="card-meta-tag list-inline">
+                    {% for tag in article.tags.all %}
+                    <li class="list-inline-item">
+                      {% if tag.slug %}
+                      <a href="{% url 'tag_detail' tag.slug %}">{{ tag.name }}</a>
+                      {% else %}
+                      {{ tag.name }}
+                      {% endif %}
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              </ul>
+              <p>{{ article.summary }}</p>
+              <a href="{% url 'post_detail' article.slug %}" class="btn btn-outline-primary">Read More</a>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <nav aria-label="Search results pagination">
+            <ul class="pagination justify-content-center">
+              {% if articles.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?query={{ query }}&page={{ articles.previous_page_number }}"
+                  aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              {% else %}
+              <li class="page-item disabled">
+                <span class="page-link" aria-disabled="true">&laquo;</span>
+              </li>
+              {% endif %}
+
+              {% for num in articles.paginator.page_range %}
+                {% if articles.number == num %}
+                <li class="page-item active"><a class="page-link">{{ num }}</a></li>
+                {% elif num > articles.number|add:-3 and num < articles.number|add:3 %}
+                <li class="page-item"><a class="page-link" href="?query={{ query }}&page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+              {% endfor %}
+
+              {% if articles.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?query={{ query }}&page={{ articles.next_page_number }}" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+              {% else %}
+              <li class="page-item disabled">
+                <span class="page-link" aria-disabled="true">&raquo;</span>
+              </li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+
+        {% else %}
+        <!-- No search results found -->
+        <h2 class="h5">No search results found for <mark>{{ query }}</mark></h2>
+        <div class="col-lg-10 text-center">
+          <div style="max-width: 400px; margin: 0 auto 2rem;">
+            <picture>
+              <source type="image/webp" srcset="{% static 'img/not_found.webp' %}">
+              <img src="{% static 'img/not_found.svg' %}" 
+                   alt="No Search Found" 
+                   class="img-fluid"
+                   loading="lazy"
+                   width="400"
+                   height="300">
+            </picture>
+          </div>
+          <p class="mb-4">Retry with another keyword.</p>
+          <!-- Search Form -->
+          <form class="search-form" action="{% url 'search' %}" method="GET">
+            <div class="input-group" style="max-width: 500px; margin: 0 auto;">
+              <input type="text" 
+                     class="form-control" 
+                     name="query" 
+                     placeholder="Search" 
+                     value="{{ query }}" 
+                     required
+                     aria-label="Search articles">
+              <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

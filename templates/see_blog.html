@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static %}
+{% load ad_tags %}
+
+{% block title %}Dovetec Insights Archive - Technology & Strategy | Software Engineering{% endblock %}
+{% block seo_desc %}Browse the Dovetec Insights Archive. Technology insights, software engineering articles, and strategic thinking from Kenya's leading tech blog.{% endblock %}
+{% block seo_keys %}Dovetec Insights, technology, software engineering, IT solutions, Nairobi, Kenya, strategy{% endblock %}
+{% block og_title %}Dovetec Insights Archive{% endblock %}
+{% block og_desc %}Browse the Dovetec Insights Archive. Technology insights and strategic thinking.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Dovetec Insights Archive{% endblock %}
+{% block twitter_desc %}Browse the Dovetec Insights Archive. Technology insights and strategic thinking.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .archive-hero {
+        background: radial-gradient(circle at 0% 0%, rgba(43, 95, 87, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 100% 100%, rgba(13, 71, 161, 0.05) 0%, transparent 50%);
+        padding: 120px 0 60px;
+    }
+
+    .article-masonry-card {
+        border: none;
+        border-radius: 20px;
+        background: white;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+        overflow: hidden;
+    }
+
+    .article-masonry-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(13, 71, 161, 0.1);
+    }
+
+    .category-link {
+        color: #1f443e;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.75rem;
+        text-decoration: none;
+    }
+
+    .filter-pill {
+        padding: 8px 20px;
+        border-radius: 50px;
+        border: 1px solid #eee;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .filter-pill:hover,
+    .filter-pill.active {
+        background: #2b5f57;
+        color: white;
+        border-color: #2b5f57;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="archive-hero mt-5">
+    <div class="container">
+        <div class="row align-items-center mb-6">
+            <div class="col-lg-7" data-aos="fade-right">
+                <h1 class="display-4 fw-800 mb-3">Knowledge <span class="text-primary">Repository</span></h1>
+                <p class="lead text-muted">Deep dives into software architecture, strategic innovation, and the future
+                    of digital commerce.</p>
+            </div>
+            <div class="col-lg-5 text-lg-end" data-aos="fade-left">
+                <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                    <a href="#" class="filter-pill active">All Articles</a>
+                    <a href="{% url 'tags' %}" class="filter-pill">Browse Tags</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-6">
+            {% for blog in article_objs %}
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+                <div class="article-masonry-card h-100">
+                    <a href="{% url 'blog_detail' blog.slug %}" class="d-block overflow-hidden">
+                        {% if blog.image %}
+                        <img src="{{ blog.image.url }}" class="card-img-top" style="height: 250px; object-fit: cover;"
+                            alt="{{ blog.title }}">
+                        {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <i class="feather-image text-muted display-4"></i>
+                        </div>
+                        {% endif %}
+                    </a>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <a href="{% url 'category' category=blog.category %}" class="category-link">{{ blog.category }}</a>
+                        </div>
+                        <h4 class="fw-bold mb-3">
+                            <a href="{% url 'blog_detail' blog.slug %}"
+                                class="text-dark text-decoration-none hover-primary">
+                                {{ blog.title }}
+                            </a>
+                        </h4>
+                        <p class="text-muted small mb-4 lh-base">
+                            {{ blog.seo_description|truncatechars:120 }}
+                        </p>
+
+                        <div class="d-flex align-items-center justify-content-between mt-auto">
+                            <div class="d-flex align-items-center">
+                                {% if blog.user.profile.image %}
+                                <img src="{{ blog.user.profile.image.url }}" class="rounded-circle me-2"
+                                    style="width: 32px; height: 32px; object-fit: cover;">
+                                {% endif %}
+                                <span class="small text-muted">{{ blog.user.get_full_name|default:blog.user.username }}</span>
+                            </div>
+                            <small class="text-muted">{{ blog.created_at|date:"M d" }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 py-8 text-center" data-aos="fade-up">
+                <div class="opacity-20 mb-4">
+                    <i class="feather-box display-1"></i>
+                </div>
+                <h3>The archives are currently empty.</h3>
+                <p class="text-muted">Our analysts are busy preparing the next wave of insights. Check back soon.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary px-4 mt-3">Return Home</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination Support -->
+        {% if is_paginated %}
+        <nav class="pb-6">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link rounded-circle mx-1"
+                        href="?page={{ page_obj.previous_page_number }}"><i class="feather-chevron-left"></i></a></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link rounded-circle mx-1">{{ page_obj.number }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link rounded-circle mx-1"
+                        href="?page={{ page_obj.next_page_number }}"><i class="feather-chevron-right"></i></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        <!-- Sponsor Deck -->
+        <div class="border-top pt-6 text-center">
+            <h6 class="text-uppercase tracking-widest text-muted small mb-4">Sponsored Nodes</h6>
+            {% render_ad count=2 %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'forum/community_base.html' %}
+
+{% block title %}Community Directory | Community Hub | Dovetec Enterprises{% endblock %}
+{% block hero_title %}Community Directory{% endblock %}
+{% block hero_text %}Connect with professionals across East Africa.{% endblock %}
+
+{% block search_placeholder %}Search members by name, role, or bio...{% endblock %}
+
+{% block community_content %}
+{% if query %}
+<p class="small text-muted mb-3">Showing members matching <strong>{{ query }}</strong> ({{ member_count }})</p>
+{% else %}
+<p class="small text-muted mb-3">{{ member_count }} member{{ member_count|pluralize }} across the community</p>
+{% endif %}
+
+<div class="row g-3 mb-4">
+    {% for member in members %}
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="discussion-card">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                {% if member.image %}
+                <img src="{{ member.image.url }}" alt="{{ member.name }}" class="member-avatar" style="padding:0;">
+                {% else %}
+                <div class="member-avatar" aria-hidden="true">{{ member.name|make_list|first|upper }}</div>
+                {% endif %}
+                <div style="min-width:0;">
+                    <h5 style="margin-bottom:0.15rem; margin-top:0;">{{ member.name }}</h5>
+                    <span class="category-pill" style="margin-bottom:0;">{{ member.title }}</span>
+                </div>
+            </div>
+            {% if member.bio %}
+            <p>{{ member.bio|truncatewords:22 }}</p>
+            {% endif %}
+            <div class="card-footer">
+                <span class="meta-chip"><i class="feather-map-pin"></i> East Africa</span>
+                <span class="meta-chip"><i class="feather-calendar"></i> Joined {{ member.joined|date:"M Y" }}</span>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="empty-state">
+            <i class="feather-users"></i>
+            <h3>No members found</h3>
+            <p>{% if query %}Try a different search term.{% else %}Members will appear here as they join the community.{% endif %}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

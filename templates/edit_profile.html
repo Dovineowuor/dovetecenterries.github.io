@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Edit Profile" %} - Dovetec Enterprises{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.1);
+        border: none;
+    }
+
+    .hero.overlay::before {
+        height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero overlay pt-0"
+    style="background-image: url('{% static 'images/hero_bg.png' %}'); background-position: 0% 39px; background-repeat: no-repeat; background-size: cover; height: 300px; display: flex; align-items: center;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="text-white" data-aos="fade-up">{% trans "Edit Your Profile" %}</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <!-- Navigation Sidebar -->
+            <div class="col-lg-4 mb-5" data-aos="fade-right">
+                <div class="card shadow border-0 rounded-4 overflow-hidden">
+                    <div class="card-header bg-primary py-4 text-center">
+                        <div class="profile-img-wrapper position-relative d-inline-block">
+                            {% if user.profile.image %}
+                            <img src="{{ user.profile.image.url }}" alt="{{ user.get_full_name }}"
+                                class="rounded-circle border border-4 border-white shadow"
+                                style="width: 100px; height: 100px; object-fit: cover;">
+                            {% else %}
+                            <div class="rounded-circle border border-4 border-white shadow bg-white d-flex align-items-center justify-content-center"
+                                style="width: 100px; height: 100px;">
+                                <i class="fas fa-user fa-3x text-primary"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <h5 class="text-white mt-3 mb-0">{{ user.get_full_name }}</h5>
+                        <p class="text-white-50 small mb-0">{{ user.email }}</p>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <a href="{% url 'profile' %}"
+                                class="list-group-item list-group-item-action px-4 py-3 d-flex align-items-center">
+                                <i class="fas fa-id-card me-3"></i> {% trans "Overview" %}
+                            </a>
+                            <a href="{% url 'edit_profile' %}"
+                                class="list-group-item list-group-item-action active px-4 py-3 d-flex align-items-center">
+                                <i class="fas fa-user-edit me-3"></i> {% trans "Edit Profile" %}
+                            </a>
+                            <a href="{% url 'see_blog' %}"
+                                class="list-group-item list-group-item-action px-4 py-3 d-flex align-items-center">
+                                <i class="fas fa-feather-alt me-3"></i> {% trans "My Articles" %}
+                            </a>
+                            <a href="{% url 'logout_view' %}"
+                                class="list-group-item list-group-item-action px-4 py-3 d-flex align-items-center text-danger">
+                                <i class="fas fa-sign-out-alt me-3"></i> {% trans "Logout" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <div class="col-lg-8" data-aos="fade-left">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4 rounded-3 border-0 shadow-sm"
+                    role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <div class="card shadow border-0 rounded-4 p-4 p-md-5 mb-5">
+                    <h3 class="mb-4 fw-bold">{% trans "Update Details" %}</h3>
+
+                    <form method="POST" action="{% url 'edit_profile' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row g-4">
+                            <!-- Basic Information -->
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">{% trans "First Name" %}</label>
+                                    <input type="text" name="first_name" class="form-controlpx-4 bg-light border-0"
+                                        value="{{ user.first_name }}" placeholder="{% trans 'Enter first name' %}"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">{% trans "Last Name" %}</label>
+                                    <input type="text" name="last_name" class="form-controlpx-4 bg-light border-0"
+                                        value="{{ user.last_name }}" placeholder="{% trans 'Enter last name' %}"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">{% trans "Email Address" %}</label>
+                                    <input type="email" name="email" class="form-controlpx-4 bg-light border-0"
+                                        value="{{ user.email }}" placeholder="{% trans 'Enter email address' %}"
+                                        required>
+                                </div>
+                            </div>
+
+                            <!-- Profile Image -->
+                            <div class="col-md-12 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">{% trans "Profile Image" %}</label>
+                                    <div class="input-group">
+                                        <input type="file" name="image" class="form-control bg-light border-0px-4"
+                                            id="inputGroupFile02">
+                                    </div>
+                                    <small class="text-muted mt-1 d-block px-3">{% trans "Recommended size: 600x600px. Standard image formats only." %}</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mt-4 pt-2">
+                                <button type="submit" class="btn btn-primary px-5 py-3 fw-bold shadow-sm">
+                                    <i class="fas fa-save me-2"></i> {% trans "Save Changes" %}
+                                </button>
+                                <a href="{% url 'profile' %}" class="btn btn-link text-decoration-none text-muted ms-3">
+                                    {% trans "Cancel" %}
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

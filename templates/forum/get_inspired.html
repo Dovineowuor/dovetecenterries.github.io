@@ -1,0 +1,72 @@
+{% extends 'forum/community_base.html' %}
+
+{% block title %}Get Inspired | Community Hub | Dovetec Enterprises{% endblock %}
+{% block hero_title %}Get Inspired{% endblock %}
+{% block hero_text %}Stories, case studies, and ideas to fuel your next project.{% endblock %}
+
+{% block community_content %}
+{% if query %}
+<p class="small text-muted mb-3">Showing inspiration for <strong>{{ query }}</strong></p>
+{% endif %}
+
+<h3 class="section-heading" style="margin-top:0;">Case Studies</h3>
+<div class="row g-3 mb-4">
+    {% for cs in case_studies %}
+    <div class="col-12 col-md-6">
+        <a href="{% url 'case_study_detail' slug=cs.slug %}" class="discussion-card">
+            <span class="category-pill">{{ cs.category.name|default:"Case Study" }}{% if cs.featured %} · Featured{% endif %}</span>
+            <h5>{{ cs.name }}</h5>
+            <p>{{ cs.tagline|default:cs.description|truncatewords:20 }}</p>
+            <div class="card-footer">
+                <span class="meta-chip"><i class="feather-award"></i> View case study</span>
+                <span class="meta-chip">
+                    <i class="feather-calendar"></i>
+                    {% if cs.published_at %}{{ cs.published_at|date:"M d, Y" }}{% else %}{{ cs.created_at|date:"M d, Y" }}{% endif %}
+                </span>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="empty-state">
+            <i class="feather-compass"></i>
+            <h3>No case studies yet</h3>
+            <p>Published case studies will appear here to spark your next idea.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<h3 class="section-heading">Stories & Ideas</h3>
+<div class="row g-3 mb-4">
+    {% for story in stories %}
+    <div class="col-12 col-md-6 col-xl-4">
+        <a href="{% url 'blog_detail' story.slug %}" class="discussion-card">
+            <span class="category-pill">{{ story.category|default:"Story" }}</span>
+            <h5>{{ story.title }}</h5>
+            <p>{{ story.seo_description|default:story.content|striptags|truncatewords:18 }}</p>
+            <div class="card-footer">
+                <span class="meta-chip"><i class="feather-calendar"></i> {{ story.created_at|date:"M d, Y" }}</span>
+                {% if story.featured %}<span class="meta-chip"><i class="feather-star"></i> Featured</span>{% endif %}
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="empty-state">
+            <i class="feather-book-open"></i>
+            <h3>No stories yet</h3>
+            <p>Published stories and ideas will show up here.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not case_studies and not stories %}
+<div class="text-center mt-3">
+    <a href="{% url 'case_studies' %}" class="btn" style="background: var(--brand-primary); color: white; border-radius: 100px; font-weight: 600; text-decoration: none;">
+        Browse all case studies <i class="feather-arrow-right ms-2"></i>
+    </a>
+</div>
+{% endif %}
+{% endblock %}

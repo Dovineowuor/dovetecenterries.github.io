@@ -1,0 +1,102 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between flex-wrap align-items-center mb-4" data-aos="fade-down">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-1"><i data-feather="inbox" class="me-2"></i>Collected Responses</h1>
+        <p class="text-muted mb-0">
+            <b>{{ inquiry.name }}</b> · {{ inquiry.email }} · {{ inquiry.get_service_display }}
+            — {{ questionnaire.title }}
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'funnel_questionnaire' questionnaire.inquiry_id %}" class="btn btn-sm btn-outline-secondary">
+            <i data-feather="edit-3"></i> Edit Questions
+        </a>
+        <a href="?format=csv" class="btn btn-sm btn-success">
+            <i data-feather="download"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+<div class="alert {% if questionnaire.status == 'completed' %}alert-success{% else %}alert-warning{% endif %} rounded-4 d-flex align-items-center" data-aos="fade-up">
+    <i data-feather="{% if questionnaire.status == 'completed' %}check-circle{% else %}clock{% endif %}" class="me-2"></i>
+    Status: <b class="mx-1">{{ questionnaire.get_status_display }}</b> —
+    {{ questionnaire.answered_count }} of {{ questionnaire.question_count }} questions answered
+    {% if questionnaire.completed_at %}(submitted {{ questionnaire.completed_at|date:"M d, Y h:i A" }}){% endif %}
+</div>
+
+{% for question in questions %}
+<div class="bg-white rounded-4 shadow-sm p-4 mb-3" data-aos="fade-up">
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <b>{{ forloop.counter }}. {{ question.text }}</b>
+            {% if question.required %}<span class="text-danger">*</span>{% endif %}
+            <small class="text-muted d-block">{{ question.get_question_type_display }}</small>
+        </div>
+        {% with answer=question.client_answer %}
+        {% if answer %}
+        <form method="post" class="d-flex gap-1">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete_answer">
+            <input type="hidden" name="answer_id" value="{{ answer.id }}">
+            <button class="btn btn-sm btn-outline-danger" title="Delete this response">
+                <i data-feather="trash-2" style="width:14px;"></i>
+            </button>
+        </form>
+        {% else %}
+        <span class="badge bg-warning-subtle text-warning-emphasis">Not answered</span>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    {% with answer=question.client_answer %}
+    {% if answer %}
+    <form method="post" class="mt-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit_answer">
+        <input type="hidden" name="answer_id" value="{{ answer.id }}">
+        <div class="input-group">
+            <textarea name="answer" rows="2" class="form-control" placeholder="Client's response — you can correct it here...">{{ answer.answer|default:'' }}</textarea>
+            <button class="btn btn-outline-primary">Save Correction</button>
+        </div>
+        <small class="text-muted mt-1 d-block">Last answered: {{ answer.updated_at|date:"M d, Y h:i A" }}</small>
+    </form>
+    {% else %}
+    <div class="p-3 bg-light rounded-2 mt-2 text-muted fst-italic">— awaiting client response —</div>
+    {% endif %}
+    {% endwith %}
+</div>
+{% empty %}
+<div class="bg-white rounded-4 shadow-sm p-5 text-center" data-aos="fade-up">
+    <p class="text-muted mb-0">This questionnaire has no questions yet.
+    <a href="{% url 'funnel_questionnaire' questionnaire.inquiry_id %}">Add some questions</a> first.</p>
+</div>
+{% endfor %}
+
+<!-- Response / activity timeline over time -->
+<div class="bg-white rounded-4 shadow-sm p-4 mt-4" data-aos="fade-up">
+    <h6 class="fw-bold mb-3"><i data-feather="activity"></i> Activity timeline</h6>
+    <p class="small text-muted">
+        Responses and lifecycle events are logged as they happen. Client emails include
+        context directives (discovery, onboarding, …).
+    </p>
+    {% for event in activity %}
+    <div class="border-start border-3 border-{% if event.action == 'completed' %}success{% elif event.action == 'sent' or event.action == 'reopened' %}primary{% elif event.action == 'answered' or event.action == 'updated' %}info{% else %}secondary{% endif %} ps-3 mb-3">
+        <div class="d-flex justify-content-between gap-2 flex-wrap">
+            <small class="fw-bold">{{ event.get_action_display }}</small>
+            <small class="text-muted">{{ event.created_at|date:"M d, Y h:i A" }}
+                {% if event.actor %}· {{ event.actor.email }}{% else %}· client{% endif %}
+            </small>
+        </div>
+        {% if event.question %}<div class="small">{{ event.question.text|truncatechars:120 }}</div>{% endif %}
+        {% if event.content %}<div class="small text-muted">{{ event.content }}</div>{% endif %}
+        {% if event.answer_snapshot %}
+        <div class="small p-2 bg-light rounded-2 mt-1"><b>Snapshot:</b> {{ event.answer_snapshot|truncatechars:200 }}</div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p class="text-muted mb-0 small">No activity logged yet — send the survey or collect a response to start the timeline.</p>
+    {% endfor %}
+</div>
+{% endblock %}

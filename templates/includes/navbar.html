@@ -1,0 +1,258 @@
+{% load static %}
+{% load i18n %}
+
+<div class="site-mobile-menu site-navbar-target">
+    <div class="site-mobile-menu-header">
+        <div class="site-mobile-menu-close">
+            <span class="icofont-close js-menu-toggle"></span>
+        </div>
+    </div>
+    <div class="site-mobile-menu-body"></div>
+</div>
+
+<!-- Fixed Navbar Wrapper -->
+<div id="site-header" class="site-header-fixed">
+    <nav class="site-nav chalkmorphic-effect m-3">
+        <div class="logo ml-3">
+            <a href="{% url 'home' %}" class="text-primary fw-bold">Dovetec Enterprises<span
+                    class="text-primary">.</span></a>
+        </div>
+
+        <div class="row align-items-center">
+            <div class="col-12 site-navigation text-center">
+                <ul class="js-clone-nav d-none d-lg-inline-block text-left site-menu">
+                    <!-- Main Links -->
+                    <li class="{% if request.path == '/' %}active{% endif %}">
+                        <a href="{% url 'home' %}">{% trans "Home" %}</a>
+                    </li>
+
+                    <li
+                        class="has-children {% if '/services' in request.path or '/portfolio' in request.path %}active{% endif %}">
+                        <a class="text-primary" href="#">{% trans "Solutions" %}</a>
+                        <ul class="dropdown shadow-sm border-0">
+                            <li><a href="{% url 'services' %}">{% trans "Our Services" %}</a></li>
+                            <li><a href="{% url 'portfolio' %}">{% trans "Portfolio" %}</a></li>
+                            <li><a href="{% url 'products' %}">{% trans "Products" %}</a></li>
+                            <li><a href="{% url 'feature_board' %}">{% trans "Feature Requests" %}</a></li>
+                            <li><a href="{% url 'portfolio_masonry' %}">{% trans "Masonry View" %}</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="{% if '/blog' in request.path %}active{% endif %}">
+                        <a href="{% url 'see_blog' %}">
+                            {% trans "Insights" %}</a>
+                    </li>
+                    <li class="{% if '/shop' in request.path %}active{% endif %}">
+                        <a href="{% url 'shop' %}">
+                            {% trans "Shop" %}</a>
+                    </li>
+                    <li class="{% if '/community' in request.path %}active{% endif %}">
+                        <a href="{% url 'community' %}">
+                            {% trans "Community" %}</a>
+                    </li>
+
+                    <li
+                        class="has-children {% if '/about' in request.path or '/contact' in request.path or '/case-study' in request.path %}active{% endif %}">
+                        <a class="text-primary" href="#">{% trans "Company" %}</a>
+                        <ul class="dropdown shadow-sm border-0">
+                            <li><a href="{% url 'about_us' %}">{% trans "About Us" %}</a></li>
+                            <li><a href="{% url 'team' %}">{% trans "Our Team" %}</a></li>
+                            <li><a href="{% url 'contact_us' %}">{% trans "Contact" %}</a></li>
+                            <li><a href="{% url 'careers' %}">{% trans "Careers" %}</a></li>
+                        </ul>
+                    </li>
+
+                    <li
+                        class="has-children {% if '/case-study' in request.path %}active{% endif %}">
+                        <a class="text-primary" href="{% url 'case_studies' %}">{% trans "Case Studies" %}</a>
+                        <ul class="dropdown shadow-sm border-0" style="min-width: 400px; padding: 16px;">
+                            {% for cs in latest_case_studies %}
+                            <li style="margin-bottom: 8px;">
+                                <a href="{% url 'case_study_detail' cs.slug %}" style="text-decoration: none; color: inherit;">
+                                    <div style="display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 12px; transition: background 0.2s; cursor: pointer;"
+                                         onmouseover="this.style.background='rgba(43,95,87,0.05)'" onmouseout="this.style.background='transparent'">
+                                        <div style="width: 48px; height: 48px; min-width: 48px; background: linear-gradient(135deg, #2b5f57, #3d8a7f); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.9rem; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;">
+                                            {{ cs.name|first|upper }}
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 700; font-size: 0.85rem; color: #1d1d1f; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; letter-spacing: -0.01em;">{{ cs.name }}</div>
+                                            <div style="font-size: 0.7rem; color: #86868b; margin-top: 2px;">{{ cs.tagline|default:cs.category.name|default:"" }}</div>
+                                        </div>
+                                        <i data-feather="arrow-right" style="width: 16px; height: 16px; color: #2b5f57; flex-shrink: 0;"></i>
+                                    </div>
+                                </a>
+                            </li>
+                            {% endfor %}
+                            <li style="border-top: 1px solid rgba(0,0,0,0.06); margin-top: 8px; padding-top: 8px;">
+                                <a href="{% url 'case_studies' %}" style="font-size: 0.8rem; color: #2b5f57; text-decoration: none; font-weight: 600; display: block; text-align: center;">View All Case Studies <i data-feather="arrow-right" style="width: 14px; height: 14px; display: inline; vertical-align: middle;"></i></a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- Right Side Actions -->
+                <ul class="js-clone-nav d-none d-lg-inline-block text-left site-menu float-right menu-absolute mr-3">
+                    <!-- Language Selector -->
+                    <li class="has-children dropdown language-selector">
+                        <a href="#" class="text-primary"><i data-feather="globe"
+                                style="width: 18px; height: 18px;"></i></a>
+                        <ul class="dropdown shadow border-0 p-3" style="min-width: 200px;">
+                            <li class="dropdown-header px-0 mb-2 font-weight-bold text-dark">{% trans "Language" %}</li>
+                            <li>
+                                <div class="input-group input-group-sm mb-2">
+                                    <span class="input-group-text bg-light border-0"><i data-feather="search"
+                                            style="width: 12px; height: 12px;"></i></span>
+                                    <input type="text" id="langSearch" class="form-control border-0 bg-light"
+                                        placeholder="{% trans 'Search...' %}" style="font-size: 0.75rem;">
+                                </div>
+                            </li>
+                            <div class="lang-list-scroll" style="max-height: 200px; overflow-y: auto;">
+                                {% get_available_languages as LANGUAGES %}
+                                {% get_language_info_list for LANGUAGES as languages %}
+                                {% for language in languages %}
+                                <li class="lang-opt" data-name="{{ language.name_local|lower }}">
+                                    <a class="dropdown-item rounded py-1 px-2 d-flex align-items-center {% if language.code == LANGUAGE_CODE %}bg-light text-primary{% endif %}"
+                                        href="{% url 'set_language' %}?language={{ language.code }}&next={{ request.path }}">
+                                        <span class="small">{{ language.name_local }}</span>
+                                        <span class="ms-auto x-small text-muted">{{ language.code|upper }}</span>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </div>
+                        </ul>
+                    </li>
+
+                    <!-- Authentication -->
+                    {% if user.is_authenticated %}
+                    <li class="has-children dropdown">
+                        <a href="#" class="nav-link text-primary font-weight-bold">
+                            <i data-feather="user" class="me-1" style="width: 18px; height: 18px;"></i>
+                            {{ user.first_name|default:user.email|truncatechars:12 }}
+                        </a>
+                        <ul class="dropdown shadow border-0">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i data-feather="user" class="me-2"
+                                        style="width: 14px;"></i> {% trans "My Profile" %}</a></li>
+                            <li><a class="dropdown-item" class="text-primary" href="#"><i data-feather="shopping-cart" class="me-2"
+                                        style="width: 14px;"></i> {% trans "My Orders" %}</a></li>
+                            <li><a class="dropdown-item" class="text-primary" href="#"><i data-feather="heart" class="me-2"
+                                        style="width: 14px;"></i> {% trans "Wishlist" %}</a></li>
+                            {% if user.is_superuser or user.is_staff %}
+                            <li><a class="dropdown-item" href="{% url 'dashboard' %}"><i data-feather="grid"
+                                        class="me-2" style="width: 14px;"></i> {% trans "Dashboard" %}</a></li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{% url 'edit_profile' %}"><i data-feather="edit"
+                                        class="me-2" style="width: 14px;"></i> {% trans "Edit Profile" %}</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">
+                                    <i data-feather="log-out" class="me-2" style="width: 14px;"></i>
+                                    {% trans "Logout" %}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li><a href="{% url 'login_view' %}"
+                            class="btn btn-primary px-4 py-2 font-weight-bold text-white shadow-sm">
+                            {% trans "Login" %}
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <a href="#" class="burger light ml-auto site-menu-toggle js-menu-toggle d-block d-lg-none m-1"
+                    data-toggle="collapse" data-target="#main-navbar">
+                    <span></span>
+                </a>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Language search functionality
+        const langSearch = document.getElementById('langSearch');
+        if (langSearch) {
+            langSearch.addEventListener('input', function (e) {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll('.lang-opt').forEach(opt => {
+                    const name = opt.getAttribute('data-name');
+                    opt.style.display = name.includes(term) ? 'block' : 'none';
+                });
+            });
+        }
+    });
+</script>
+
+<style>
+    .site-nav .logo a {
+        font-size: 1.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .site-menu>li>a {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .dropdown-item {
+        font-size: 0.85rem;
+        transition: background 0.2s;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+        color: #28a745 !important;
+    }
+
+    .x-small {
+        font-size: 0.65rem;
+    }
+
+    .bg-light {
+        background-color: #f4f7f6 !important;
+    }
+
+    .rounded-pill {
+        border-radius: 50% !important;
+    }
+
+    /* ── Chalkmorphic Navbar ── */
+    .site-header-fixed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .chalkmorphic-effect {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .site-header-fixed.scrolled .chalkmorphic-effect {
+        background: #ffffff;
+        transform: translate(-2px, -2px);
+    }
+
+    .site-header-fixed.scrolled {
+        padding-top: 5px;
+    }
+
+    /* Navbar overlays hero — no body offset needed */
+</style>
+
+<script>
+    // Add shadow to navbar on scroll
+    window.addEventListener('scroll', function () {
+        const header = document.getElementById('site-header');
+        if (header) {
+            header.classList.toggle('scrolled', window.scrollY > 10);
+        }
+    });
+</script>

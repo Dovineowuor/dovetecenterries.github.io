@@ -1,0 +1,46 @@
+{% extends 'dashboard/client/client_base.html' %}
+
+{% block client_content %}
+<div class="mb-4" data-aos="fade-down">
+    <h1 class="h3 fw-bold text-dark mb-1">My Questionnaires</h1>
+    <p class="text-muted mb-0">Custom requirement forms for your service requests.</p>
+</div>
+
+{% for questionnaire in questionnaires %}
+<div class="bg-white rounded-4 shadow-sm p-4 mb-3" data-aos="fade-up">
+    <div class="d-flex justify-content-between flex-wrap align-items-center">
+        <div>
+            <h5 class="fw-bold mb-1">{{ questionnaire.title }}</h5>
+            <p class="text-muted small mb-1">Service: {{ questionnaire.inquiry.get_service_display }} ·
+               Requested: {{ questionnaire.inquiry.created_at|date:"M d, Y" }}</p>
+            {% if questionnaire.intro %}
+            <p class="text-muted small mb-0 fst-italic">{{ questionnaire.intro|truncatechars:120 }}</p>
+            {% endif %}
+        </div>
+        <div class="text-end">
+            <span class="badge {% if questionnaire.status == 'completed' %}bg-success-subtle text-success-emphasis{% elif questionnaire.status == 'sent' or questionnaire.status == 'in_progress' %}bg-primary-subtle text-primary-emphasis{% else %}bg-secondary-subtle text-secondary-emphasis{% endif %} mb-2 d-block px-3 py-2">
+                {{ questionnaire.get_status_display }}
+            </span>
+            {% if questionnaire.is_editable_by_client %}
+            <a href="{% url 'client_questionnaire_fill' questionnaire.id %}" class="btn btn-primary btn-sm">
+                <i data-feather="edit-3" style="width:14px;"></i>
+                {% if questionnaire.answered_count %}Continue{% else %}Fill In{% endif %}
+            </a>
+            {% else %}
+            <a href="{% url 'client_questionnaire_fill' questionnaire.id %}" class="btn btn-outline-secondary btn-sm">
+                <i data-feather="eye" style="width:14px;"></i> Review
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="progress mt-2" style="height: 6px;">
+        <div class="progress-bar bg-success" style="width: {{ questionnaire.progress_percent }}%;"></div>
+    </div>
+</div>
+{% empty %}
+<div class="bg-white rounded-4 shadow-sm p-5 text-center" data-aos="fade-up">
+    <i data-feather="clipboard" class="text-muted opacity-50" style="width: 48px; height: 48px;"></i>
+    <p class="text-muted mt-2 mb-0">No questionnaires yet. Once our team reviews your service request, a custom requirements form will appear here.</p>
+</div>
+{% endfor %}
+{% endblock %}

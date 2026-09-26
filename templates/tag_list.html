@@ -1,0 +1,73 @@
+{% load static %}
+<section class="section">
+  <div class="py-4"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mb-5 mb-lg-0">
+        <h1 class="h2 mb-4">Tags</h1>
+        
+        <!-- Display Tags -->
+        <ul class="list-inline mb-4">
+          {% for tag in tags %}
+          <li class="list-inline-item">
+            <a href="{% url 'tag_detail' tag.name %}">{{ tag.name }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+
+        <h3 class="h4">Latest Articles by Tag</h3>
+        {% for tag in tags %}
+        <div class="tag-section mb-4">
+          <h4>{{ tag.name }}</h4>
+          <ul class="list-unstyled">
+            {% for article in tag.latest_articles %}
+            <li>
+              <a href="{% url 'post_detail' article.id %}">{{ article.title }}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      </div>
+
+      <aside class="col-lg-4 sidebar-inner">
+        <!-- Latest Articles -->
+        <div class="widget">
+          <h4 class="widget-title">Latest Articles</h4>
+          <ul class="list-unstyled">
+            {% for article in latest_articles %}
+            <li>
+              <a href="{% url 'post_detail' article.id %}">{{ article.title }}</a>
+              <small>{{ article.date|date:"d M, Y" }}</small>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Authors Filtered by Tags -->
+        <div class="widget">
+          <h4 class="widget-title">Authors</h4>
+          <ul class="list-unstyled">
+            {% for author in filtered_authors %}
+            <li>
+              <a href="{% url 'author_detail' author.id %}">{{ author.name }}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Trending Tags -->
+        <div class="widget">
+          <h4 class="widget-title">Trending Tags</h4>
+          <ul class="list-inline">
+            {% for trending_tag in trending_tags %}
+            <li class="list-inline-item">
+              <a href="{% url 'tag_detail' trending_tag.name %}">{{ trending_tag.name }}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,564 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Dovetec Control Center - internal admin and CRM dashboard for Dovetec Enterprises.">
+    <title>Dovetec Control Center - {{ page_title|default:"Dashboard" }}</title>
+
+    <!-- Browser tab favicon -->
+    <link rel="shortcut icon" href="{% static 'icons/favicon.ico' %}" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'icons/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'icons/favicon-16x16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'icons/apple-touch-icon.png' %}">
+    <meta name="theme-color" content="#1F6256">
+
+    <!-- Premium Dashboard Stylings (Bootstrap 5.3 + Custom) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="{% static 'css/brand-overrides.css' %}" rel="stylesheet">
+
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <style>
+        :root {
+            --admin-primary: #052f29;
+            --admin-dark: #031e1c;
+            --admin-light: #f8fafc;
+            --admin-border: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--admin-light);
+            font-family: 'Inter', -apple-system, sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+            padding-top: 60px;
+            /* Space for fixed topnav */
+        }
+
+        /* Glassmorphic Top Navbar */
+        .dash-topnav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--admin-border);
+            z-index: 1040;
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            justify-content: space-between;
+        }
+
+        .sidebar-toggle {
+            display: none;
+        }
+
+        .sidebar-backdrop {
+            display: none;
+        }
+
+        .dash-logo {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--admin-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            /* Below topnav */
+            bottom: 0;
+            left: 0;
+            width: 260px;
+            background-color: #ffffff;
+            border-right: 1px solid var(--admin-border);
+            overflow-y: auto;
+            z-index: 1030;
+            padding-top: 1.5rem;
+            padding-bottom: 3rem;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Main Content Wrapper */
+        .main-content {
+            margin-left: 260px;
+            padding: 2.5rem;
+            min-height: calc(100vh - 60px);
+        }
+
+        .sidebar .sidebar-heading {
+            font-size: 0.75rem;
+            letter-spacing: 1.2px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 0.75rem;
+            padding: 0 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .sidebar .sidebar-heading:first-child {
+            margin-top: 0;
+        }
+
+        .sidebar .nav-link {
+            font-weight: 600;
+            color: #475569;
+            padding: 0.65rem 1.5rem;
+            margin: 0.2rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+        }
+
+        .sidebar .nav-link:hover {
+            color: var(--admin-primary);
+            background: #eff6ff;
+            transform: translateX(4px);
+        }
+
+        .sidebar .nav-link.active {
+            color: #ffffff;
+            background-color: var(--admin-primary);
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .sidebar .nav-link.active .feather {
+            color: #ffffff !important;
+        }
+
+        /* Dashboard Global Styles */
+        .card {
+            border-radius: 12px;
+            border: 1px solid var(--admin-border);
+            transition: 0.3s all;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .table-custom {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--admin-border);
+        }
+
+        .table-custom thead th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--admin-border);
+            padding: 1rem;
+        }
+
+        .table-custom tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            color: #334155;
+            border-bottom: 1px solid var(--admin-border);
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .btn-action {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover {
+            transform: scale(1.05);
+        }
+
+        /* Floating Notifications */
+        .toast-container {
+            z-index: 2000;
+        }
+
+        @media (max-width: 991.98px) {
+            .dash-topnav {
+                padding: 0 1rem;
+            }
+
+            .sidebar-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+            }
+
+            .dash-logo span {
+                display: none;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.2s ease-in-out;
+                width: min(280px, calc(100vw - 3rem));
+                z-index: 1050;
+            }
+
+            .sidebar.is-open {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop.is-visible {
+                display: block;
+                position: fixed;
+                inset: 60px 0 0;
+                background: rgba(3, 30, 28, 0.42);
+                z-index: 1045;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem 1rem;
+            }
+
+            body.sidebar-open {
+                overflow: hidden;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .dash-topnav .secure-session {
+                display: none;
+            }
+
+            .main-content {
+                padding: 1rem 0.75rem;
+            }
+
+            .dashboard-toolbar {
+                align-items: flex-start !important;
+                gap: 0.75rem;
+            }
+
+            .dashboard-toolbar .btn-toolbar {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Global Floating Alert Messages (Brought from core) -->
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3"
+        style="z-index: 2000; margin-top: 60px;">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="toast show bg-white shadow-lg border-0 rounded-4 mb-2" role="alert" aria-live="assertive"
+            aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+            <div
+                class="toast-header border-0 rounded-top-4 {% if message.tags == 'error' %}bg-danger text-white{% elif message.tags == 'success' %}bg-success text-white{% else %}bg-primary text-white{% endif %}">
+                <i data-feather="bell" class="me-2" style="width: 16px;"></i>
+                <strong class="me-auto text-capitalize">System Notice</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+            <div class="toast-body p-3 font-weight-medium text-dark">
+                {{ message }}
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Glassmorphic Top Navbar -->
+    <nav class="dash-topnav shadow-sm">
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary border-0 sidebar-toggle" type="button" id="sidebarToggle"
+                aria-controls="dashboardSidebar" aria-expanded="false" aria-label="Open navigation menu">
+                <i data-feather="menu" aria-hidden="true"></i>
+            </button>
+            <a href="{% url 'dashboard' %}" class="dash-logo">
+            <div class="bg-primary text-white d-flex align-items-center justify-content-center rounded-3 shadow-sm"
+                style="width: 32px; height: 32px;">
+                <i data-feather="command" style="width: 18px;"></i>
+            </div>
+            Dovetec <span class="text-secondary fw-normal">Control</span>
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <span class="secure-session badge bg-light text-dark border px-3 py-2 fw-medium shadow-sm">
+                <i data-feather="shield" class="text-success me-1" style="width: 12px; margin-top:-2px;"></i> Secure
+                Admin Session
+            </span>
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark fw-bold"
+                    id="adminMenu" data-bs-toggle="dropdown" aria-expanded="false"
+                    aria-label="Account menu">
+                    {% if request.user.profile.image %}
+                    <img src="{{ request.user.profile.image.url }}" alt="{{ request.user.get_full_name|default:request.user.email }}"
+                        width="35" height="35" class="rounded-circle border object-fit-cover" style="object-fit: cover;">
+                    {% else %}
+                    <span class="rounded-circle border d-inline-flex align-items-center justify-content-center bg-primary text-white fw-bold"
+                        style="width: 35px; height: 35px; font-size: 0.85rem;" aria-hidden="true">
+                        {{ request.user.first_name|default:request.user.email|slice:":1"|upper }}
+                    </span>
+                    {% endif %}
+                    <span class="ms-2 d-none d-md-inline lh-1 text-start">
+                        <span class="d-block small fw-bold">{{ request.user.get_full_name|default:request.user.username|default:"Account" }}</span>
+                        <span class="d-block text-muted fw-normal" style="font-size: 0.7rem;">{{ request.user.email }}</span>
+                    </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3 p-2" aria-labelledby="adminMenu" style="min-width: 240px;">
+                    <li class="px-2 py-1 mb-1">
+                        <div class="d-flex align-items-center gap-2">
+                            {% if request.user.profile.image %}
+                            <img src="{{ request.user.profile.image.url }}" alt="" width="40" height="40"
+                                class="rounded-circle" style="object-fit: cover;">
+                            {% else %}
+                            <span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-primary text-white fw-bold"
+                                style="width: 40px; height: 40px; font-size: 0.95rem;">
+                                {{ request.user.first_name|default:request.user.email|slice:":1"|upper }}
+                            </span>
+                            {% endif %}
+                            <div class="lh-sm">
+                                <div class="fw-bold small">{{ request.user.get_full_name|default:request.user.username|default:"Administrator" }}</div>
+                                <div class="text-muted" style="font-size: 0.72rem;">{{ request.user.email }}</div>
+                            </div>
+                        </div>
+                    </li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                        <a class="dropdown-item fw-medium py-2 rounded-2" href="{% url 'edit_profile' %}">
+                            <i data-feather="user" class="me-2" style="width:16px;"></i>Edit Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item fw-medium py-2 rounded-2" href="{% url 'profile' %}">
+                            <i data-feather="id-card" class="me-2" style="width:16px;"></i>Public Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item fw-medium py-2 rounded-2" href="{% url 'home' %}">
+                            <i data-feather="external-link" class="me-2" style="width:16px;"></i>Public Site
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item fw-medium py-2 rounded-2" href="{% url 'dashboard' %}">
+                            <i data-feather="layout" class="me-2" style="width:16px;"></i>Dashboard Home
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                        <a class="dropdown-item fw-medium py-2 rounded-2 text-danger" href="{% url 'logout_view' %}">
+                            <i data-feather="log-out" class="me-2" style="width:16px;"></i>Secure Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+    <aside class="sidebar" id="dashboardSidebar" aria-label="Dashboard navigation">
+        <h6 class="sidebar-heading">Main Hub</h6>
+        <div class="nav flex-column mb-3">
+            <a class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" href="{% url 'dashboard' %}">
+                <i data-feather="grid" class="{% if request.path != '/dashboard/' %}text-secondary{% endif %}"></i>
+                Dashboard
+            </a>
+        </div>
+
+        <h6 class="sidebar-heading">CRM System</h6>
+        <div class="nav flex-column mb-3">
+            <a class="nav-link {% if 'crm/tickets' in request.path %}active{% endif %}"
+                href="{% url 'ticket_queue' %}">
+                <i data-feather="life-buoy" class="{% if 'crm/tickets' not in request.path %}text-secondary{% endif %}"></i>
+                Tickets
+                {% if open_ticket_count %}
+                <span class="badge bg-danger rounded-pill ms-auto">{{ open_ticket_count }}</span>
+                {% endif %}
+            </a>
+            <a class="nav-link {% if 'clients' in request.path %}active{% endif %}"
+                href="{% url 'dashboard_clients' %}">
+                <i data-feather="users" class="{% if 'clients' not in request.path %}text-secondary{% endif %}"></i>
+                Clients Database
+            </a>
+            <a class="nav-link {% if 'inquiries' in request.path %}active{% endif %}"
+                href="{% url 'dashboard_inquiries' %}">
+                <i data-feather="inbox" class="{% if 'inquiries' not in request.path %}text-secondary{% endif %}"></i>
+                Service Inquiries
+            </a>
+            <a class="nav-link {% if 'funnel' in request.path %}active{% endif %}"
+                href="{% url 'dashboard_funnel' %}">
+                <i data-feather="filter" class="{% if 'funnel' not in request.path %}text-secondary{% endif %}"></i>
+                Sales Funnel
+            </a>
+            <a class="nav-link {% if 'crm/projects' in request.path %}active{% endif %}"
+                href="{% url 'dashboard_projects' %}">
+                <i data-feather="briefcase" class="{% if 'crm/projects' not in request.path %}text-secondary{% endif %}"></i>
+                Projects
+            </a>
+            <a class="nav-link {% if 'crm/questionnaires' in request.path %}active{% endif %}"
+                href="{% url 'questionnaire_list' %}">
+                <i data-feather="clipboard" class="{% if 'crm/questionnaires' not in request.path %}text-secondary{% endif %}"></i>
+                Questionnaires
+            </a>
+            <a class="nav-link {% if 'crm/templates' in request.path %}active{% endif %}"
+                href="{% url 'template_list' %}">
+                <i data-feather="layers" class="{% if 'crm/templates' not in request.path %}text-secondary{% endif %}"></i>
+                Template Library
+            </a>
+            <a class="nav-link {% if 'notifications' in request.path %}active{% endif %}"
+                href="{% url 'notification_list' %}">
+                <i data-feather="bell" class="{% if 'notifications' not in request.path %}text-secondary{% endif %}"></i>
+                Notifications
+                {% if unread_notifications %}
+                <span class="badge bg-warning rounded-pill ms-auto text-dark">{{ unread_notifications }}</span>
+                {% endif %}
+            </a>
+        </div>
+
+        <h6 class="sidebar-heading">Marketing</h6>
+        <div class="nav flex-column mb-3">
+            <a class="nav-link {% if 'newsletters' in request.path %}active{% endif %}"
+                href="{% url 'dashboard_newsletters' %}">
+                <i data-feather="send" class="{% if 'newsletters' not in request.path %}text-secondary{% endif %}"></i>
+                Newsletters
+            </a>
+        </div>
+
+        <h6 class="sidebar-heading">CMS System</h6>
+        <div class="nav flex-column mb-3">
+            {% if perms.app.view_mediaasset %}
+            <a class="nav-link {% if '/media/' in request.path %}active{% endif %}" href="{% url 'dashboard_media' %}">
+                <i data-feather="image" class="{% if '/media/' not in request.path %}text-secondary{% endif %}"></i> Media Library
+            </a>
+            {% endif %}
+            <a class="nav-link {% if 'forums' in request.path %}active{% endif %}" href="{% url 'dashboard_forums' %}">
+                <i data-feather="message-square"
+                    class="{% if 'forums' not in request.path %}text-secondary{% endif %}"></i> Community Forums
+            </a>
+            <a class="nav-link {% if 'products' in request.path %}active{% endif %}"
+                href="{% url 'dashboard_products' %}">
+                <i data-feather="shopping-bag"
+                    class="{% if 'products' not in request.path %}text-secondary{% endif %}"></i> Products Catalog
+            </a>
+            <a class="nav-link {% if 'articles' in request.path %}active{% endif %}"
+                href="{% url 'dashboard_articles' %}">
+                <i data-feather="file-text"
+                    class="{% if 'articles' not in request.path %}text-secondary{% endif %}"></i> Blog & Articles
+            </a>
+            <a class="nav-link {% if 'adverts' in request.path %}active{% endif %}"
+                href="{% url 'dashboard_adverts' %}">
+                <i data-feather="monitor" class="{% if 'adverts' not in request.path %}text-secondary{% endif %}"></i>
+                Advertisements
+            </a>
+            <a class="nav-link {% if 'engagements' in request.path %}active{% endif %}"
+                href="{% url 'cms_engagements' %}">
+                <i data-feather="message-circle" class="{% if 'engagements' not in request.path %}text-secondary{% endif %}"></i>
+                Comment Moderation
+            </a>
+            <a class="nav-link {% if 'cms/features' in request.path %}active{% endif %}"
+                href="{% url 'dashboard_features' %}">
+                <i data-feather="map" class="{% if 'cms/features' not in request.path %}text-secondary{% endif %}"></i>
+                Feature Board
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content bg-light">
+        <!-- Header Toolbar -->
+        <div class="dashboard-toolbar d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-10"
+            data-aos="fade-down">
+            <h1 class="h3 fw-bold text-dark mb-0">{{ page_title|default:"Control Center" }}</h1>
+            <div class="btn-toolbar mb-2 mb-md-0 d-flex gap-2" data-aos="fade-left">
+                {% block header_actions %}
+                <button type="button" class="btn btn-sm btn-outline-secondary shadow-sm px-3 fw-medium bg-white">
+                    <i data-feather="download" style="width: 14px; margin-right: 5px; margin-top:-2px;"></i> Export Data
+                </button>
+                {% endblock %}
+            </div>
+        </div>
+
+        <!-- Page Implementation -->
+        {% block dashboard_content %}{% endblock %}
+
+        <!-- Footer -->
+        <footer class="mt-5 pt-3 pb-2 text-center text-muted small border-top border-secondary border-opacity-10">
+            Dovetec Enterprises &copy; {% now "Y" %} - Secure Administrative Console
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Init Plugins
+        feather.replace();
+        AOS.init({ duration: 800, once: true });
+
+        // Auto-init toasts
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show());
+
+        const sidebar = document.getElementById('dashboardSidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+        function closeSidebar() {
+            sidebar.classList.remove('is-open');
+            sidebarBackdrop.classList.remove('is-visible');
+            document.body.classList.remove('sidebar-open');
+            sidebarToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        function toggleSidebar() {
+            const isOpen = sidebar.classList.toggle('is-open');
+            sidebarBackdrop.classList.toggle('is-visible', isOpen);
+            document.body.classList.toggle('sidebar-open', isOpen);
+            sidebarToggle.setAttribute('aria-expanded', String(isOpen));
+        }
+
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        sidebarBackdrop.addEventListener('click', closeSidebar);
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeSidebar();
+        });
+        sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeSidebar));
+    </script>
+    {% block dashboard_scripts %}{% endblock %}
+</body>
+
+</html>

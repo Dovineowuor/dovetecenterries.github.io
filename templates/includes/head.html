@@ -1,0 +1,65 @@
+{% load static %}
+{% block seo_default %}{% endblock %}
+
+<!-- Meta Tags -->
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+<!-- Basic SEO Meta Tags -->
+<meta name="description" content="{% block seo_desc %}{{ default_meta_description }}{% endblock %}">
+<meta name="keywords" content="{% block seo_keys %}Custom Software Development, Tech Consulting, IT Solutions, Business Automation, Cloud Migration, Nairobi, Kenya, East Africa{% endblock %}">
+<meta name="author" content="{{ site_author }}">
+<meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+
+<!-- Geo Meta Tags for SEO Localization -->
+<meta name="geo.region" content="{{ geo_region }}">
+<meta name="geo.placename" content="{{ geo_placename }}">
+<meta name="geo.position" content="{{ geo_position }}">
+<meta name="ICBM" content="{{ geo_position }}">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="{% block canonical_url %}{{ site_url }}{% endblock %}">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:title" content="{% block og_title %}{{ default_meta_title }}{% endblock %}">
+<meta property="og:description" content="{% block og_desc %}{{ default_meta_description }}{% endblock %}">
+<meta property="og:url" content="{% block og_url %}{{ site_url }}{% endblock %}">
+<meta property="og:image" content="{% block og_image %}{{ site_url }}{% static 'images/logo-dovetek.png' %}{% endblock %}">
+<meta property="og:site_name" content="{{ site_name }}">
+<meta property="og:type" content="{% block og_type %}{{ default_og_type }}{% endblock %}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
+<meta name="twitter:site" content="@DovetecEnterprises">
+<meta name="twitter:title" content="{% block twitter_title %}{{ default_meta_title }}{% endblock %}">
+<meta name="twitter:description" content="{% block twitter_desc %}{{ default_meta_description }}{% endblock %}">
+<meta name="twitter:image" content="{% block twitter_image %}{{ site_url }}{% static 'images/logo-dovetek.png' %}{% endblock %}">
+
+<!-- Web Manifest & Favicon -->
+<link rel="manifest" href="{% static 'manifest.json' %}">
+<link rel="shortcut icon" href="{% static 'icons/favicon.ico' %}" type="image/x-icon">
+
+<!-- Preload critical resources -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+<!-- Stylesheets -->
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="{% static 'css/brand-overrides.css' %}">
+<link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+<link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}">
+<link rel="stylesheet" href="{% static 'fonts/feather/style.css' %}">
+<link rel="stylesheet" href="{% static 'fonts/flaticon/font/flaticon.css' %}">
+<link rel="stylesheet" href="{% static 'css/jquery.fancybox.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/aos.css' %}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap">
+<link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
+
+<!-- Title -->
+<title>{% block title %}{{ default_meta_title }}{% endblock %}</title>

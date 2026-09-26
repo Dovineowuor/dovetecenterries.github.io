@@ -1,0 +1,43 @@
+# Note: the Vercel CLI only honours `.vercelignore` (plus a small built-in
+# default list). Patterns in `.gitignore` are NOT applied to the upload, so
+# everything that must not ship has to be listed here.
+
+# --- Python / tooling artifacts ---
+.git
+.venv
+node_modules
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.vscode/
+
+# --- Local database & secrets (never upload credentials) ---
+db.sqlite3
+*.db.sqlite3
+.env
+.env.*
+.env.local
+*.crt
+*.key
+*.pem
+
+# --- Local samples / dev-only helpers ---
+temp.wav
+test.wav
+classroom.jpg
+project_init.sh
+benchmark.py
+
+# --- Source static tree (redundant in the deployment) ---
+# `static/` is the Django source tree (STATICFILES_DIRS). It is collected into
+# `staticfiles/`, and `vercel.json` serves `/static/(.*)` -> `/staticfiles/$1`.
+# Every path in `static/` also exists in `staticfiles/`, so excluding it removes
+# ~48 MiB from the upload without changing a single asset visitors receive.
+# This keeps us below the Hobby plan's 100 MB static-file upload limit.
+static/
+
+# --- Repo-only docs & tooling that the runtime does not need ---
+.github/
+docs/
+devops/

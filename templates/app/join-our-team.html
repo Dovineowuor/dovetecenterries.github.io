@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .join-hero {
+        padding: 140px 0 80px;
+        background: linear-gradient(rgba(15, 38, 34, 0.82), rgba(15, 38, 34, 0.9)), url('/static/images/hero_bg.png');
+        background-size: cover;
+        background-position: center;
+        color: #fff;
+        text-align: center;
+    }
+    .join-benefit {
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 20px;
+        padding: 1.75rem;
+        height: 100%;
+        transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .join-benefit:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+    }
+    .join-benefit .icon-pill {
+        width: 52px; height: 52px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(31, 98, 86, 0.1); color: #1F6256; margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="join-hero">
+    <div class="container">
+        <h1 class="display-5 fw-bold mb-3" data-aos="fade-up">Join Our Team</h1>
+        <p class="lead mx-auto mb-4" style="max-width: 640px;" data-aos="fade-up" data-aos-delay="100">
+            We're always looking for talented engineers, designers, and thinkers to build the future of technology in Kenya and beyond.
+        </p>
+        <a href="{% url 'careers' %}" class="btn btn-primary btn-lg fw-bold px-4 me-2" data-aos="fade-up" data-aos-delay="200">View Open Roles</a>
+        <a href="{% url 'contact_us' %}" class="btn btn-outline-light btn-lg fw-bold px-4" data-aos="fade-up" data-aos-delay="300">Contact Us</a>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4 mb-5">
+        <div class="col-md-4" data-aos="fade-up">
+            <div class="join-benefit">
+                <div class="icon-pill"><i class="feather-trending-up"></i></div>
+                <h3 class="h5">Grow With Us</h3>
+                <p class="text-muted mb-0">Work on real products for real clients — LMS platforms, e-commerce, fintech integrations — with mentorship at every step.</p>
+            </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="join-benefit">
+                <div class="icon-pill"><i class="feather-users"></i></div>
+                <h3 class="h5">Collaborative Culture</h3>
+                <p class="text-muted mb-0">Small teams, honest code reviews, and a flat hierarchy where good ideas win — regardless of title.</p>
+            </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="join-benefit">
+                <div class="icon-pill"><i class="feather-globe"></i></div>
+                <h3 class="h5">Impact at Scale</h3>
+                <p class="text-muted mb-0">Ship software used across Kenya and East Africa. Your work reaches schools, businesses, and communities.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center" data-aos="fade-up">
+            <h2 class="h3 mb-3">Ready to Build the Future?</h2>
+            <p class="text-muted mb-4">Browse current openings on our careers page, or send us your CV directly — we keep great candidates on file.</p>
+            <a href="{% url 'careers' %}" class="btn btn-primary fw-bold px-4 me-2">See Open Positions</a>
+            <a href="mailto:careers@dovetecenterprises.site" class="btn btn-outline-primary fw-bold px-4">Email Your CV</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

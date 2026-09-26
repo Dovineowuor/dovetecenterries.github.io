@@ -1,0 +1,60 @@
+{% extends 'dashboard/client/client_base.html' %}
+
+{% block client_content %}
+<div class="mb-4" data-aos="fade-down">
+    <h1 class="h3 fw-bold text-dark mb-1">My Articles</h1>
+    <p class="text-muted mb-0">Articles you have written and their publication status.</p>
+</div>
+
+<div class="bg-white rounded-4 shadow-sm p-4" data-aos="fade-up">
+    <table class="table table-hover table-borderless align-middle mb-0">
+        <thead class="border-bottom">
+            <tr>
+                <th class="text-muted fw-bold">Title</th>
+                <th class="text-muted fw-bold">Status</th>
+                <th class="text-muted fw-bold">Created</th>
+                <th class="text-muted fw-bold">Views</th>
+                <th class="text-muted fw-bold">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr>
+                <td class="fw-medium">{{ article.title|truncatechars:50 }}</td>
+                <td>
+                    {% if article.status == 'published' %}
+                    <span class="badge bg-success-subtle text-success-emphasis">{{ article.get_status_display }}</span>
+                    {% elif article.status == 'draft' %}
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ article.get_status_display }}</span>
+                    {% elif article.status == 'scheduled' %}
+                    <span class="badge bg-warning-subtle text-warning-emphasis">{{ article.get_status_display }}</span>
+                    {% elif article.status == 'archived' %}
+                    <span class="badge bg-info-subtle text-info-emphasis">{{ article.get_status_display }}</span>
+                    {% else %}
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ article.status|title }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ article.created_at|date:"M d, Y" }}</td>
+                <td>{{ article.view_count|default:"—" }}</td>
+                <td>
+                    {% if article.status == 'published' and article.slug %}
+                    <a href="{% url 'blog_detail' article.slug %}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                        <i data-feather="eye" style="width:14px;"></i> View
+                    </a>
+                    {% else %}
+                    <span class="text-muted small fst-italic">Not published</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                    <i data-feather="file-text" class="text-muted opacity-50" style="width: 48px; height: 48px;"></i>
+                    <p class="mt-2 mb-0">You haven't written any articles yet.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

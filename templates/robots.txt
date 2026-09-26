@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /profile/
+Disallow: /login/
+Disallow: /register/
+Disallow: /add-blog/
+Disallow: /update-blog/
+Disallow: /confirm-delete/
+Disallow: /search/
+Disallow: /verify-otp/
+Disallow: /verify-email/
+Disallow: /forget-password/
+Disallow: /reset-password/
+Disallow: /newsletter/
+Disallow: /subscribe/
+Disallow: /feedback/
+Disallow: /report/
+Disallow: /shop/cart/
+Disallow: /test-session/
+
+Sitemap: {{ site_url }}sitemap.xml

@@ -1,0 +1,13 @@
+<div class="reply-form mt-3">
+    <form action="{% url 'add_reply' comment.id %}" method="post">
+        {% csrf_token %}
+        <!-- Textarea with Bootstrap Styling -->
+        <div class="form-group">
+            <label for="reply-content-{{ comment.id }}">Add Reply</label>
+            <textarea id="reply-content-{{ comment.id }}" name="content" class="form-control" rows="3" placeholder="Write your reply here..." required></textarea>
+        </div>
+
+        <!-- Submit Button with Bootstrap Styling -->
+        <button type="submit" class="btn btn-primary btn-sm">Reply</button>
+    </form>
+</div>

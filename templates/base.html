@@ -1,0 +1,178 @@
+{% load static %}
+{% load seo_tags %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+    <!-- Title -->
+    <title>{% block title %}{% firstof page_title default_meta_title "Dovetec Enterprises" %}{% endblock %}</title>
+
+    <!-- Basic SEO Meta Tags -->
+    <meta name="description" content="{% block seo_desc %}{% firstof seo_desc default_meta_description %}{% endblock %}">
+    <meta name="keywords" content="{% block seo_keys %}Custom Software Development, Tech Consulting, IT Solutions, Business Automation, Cloud Migration, Nairobi, Kenya, East Africa{% endblock %}">
+    <meta name="author" content="{{ site_author }}">
+    <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+    <meta name="theme-color" content="#1F6256">
+
+    <!-- Geo Meta Tags for SEO Localization -->
+    <meta name="geo.region" content="{{ geo_region }}">
+    <meta name="geo.placename" content="{{ geo_placename }}">
+    <meta name="geo.position" content="{{ geo_position }}">
+    <meta name="ICBM" content="{{ geo_position }}">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}">
+
+    <!-- Language alternates -->
+    <link rel="alternate" hreflang="en" href="{% block hreflang %}{{ request.build_absolute_uri }}{% endblock %}">
+    <link rel="alternate" hreflang="x-default" href="{{ site_url }}">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="{% block og_title %}{% firstof og_title page_title default_meta_title %}{% endblock %}">
+    <meta property="og:description" content="{% block og_desc %}{% firstof og_desc seo_desc default_meta_description %}{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% if og_image %}{{ og_image|abs_url:request }}{% else %}{{ default_og_image|abs_url:request }}{% endif %}{% endblock %}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="{{ site_name }}">
+    <meta property="og:locale" content="{% block og_locale %}en_KE{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}{{ default_og_type }}{% endblock %}">
+    {% block og_extra %}{% endblock %}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
+    <meta name="twitter:site" content="@DovetecEnterprises">
+    <meta name="twitter:title" content="{% block twitter_title %}{% firstof og_title page_title default_meta_title %}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_desc %}{% firstof og_desc seo_desc default_meta_description %}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% if og_image %}{{ og_image|abs_url:request }}{% else %}{{ default_og_image|abs_url:request }}{% endif %}{% endblock %}">
+
+    <!-- Structured Data (JSON-LD) -->
+    {% block jsonld %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Dovetec Enterprises",
+        "url": "{{ site_url }}",
+        "logo": "{{ default_og_image|abs_url:request }}",
+        "description": "Software engineering, IT solutions and digital transformation company in Nairobi, Kenya.",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Nairobi",
+            "addressCountry": "KE"
+        },
+        "areaServed": ["Kenya", "East Africa"],
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer support",
+            "availableLanguage": ["English", "Swahili"]
+        }
+    }
+    </script>
+    {% endblock %}
+
+    <!-- Web Manifest & Favicon -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="shortcut icon" href="{% static 'icons/favicon.ico' %}" type="image/x-icon">
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/brand-overrides.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}">
+    <link rel="stylesheet" href="{% static 'fonts/feather/style.css' %}">
+    <link rel="stylesheet" href="{% static 'fonts/flaticon/font/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.fancybox.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/aos.css' %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
+
+    <!-- Force-hide legacy preloader before paint (prevents stuck spinner) -->
+    <style>
+        .loader, #overlayer { display: none !important; visibility: hidden !important; pointer-events: none !important; opacity: 0 !important; }
+    </style>
+
+    <!-- Custom Page-specific CSS -->
+    {% block extra_css %}
+    {% endblock %}
+</head>
+
+<body>
+    <input type="hidden" id="csrf" value="{{ csrf_token }}" />
+    {% include 'includes/navbar.html' %}
+    <!-- Global Floating Toast Alerts -->
+    {% if messages %}
+    <div aria-live="polite" aria-atomic="true" class="position-fixed p-3" style="top: 100px; right: 20px; z-index: 1050;">
+        {% for message in messages %}
+        <div class="toast show animate__animated animate__fadeInRight mb-2" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 320px; border-radius: 12px; border: none; background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0,0,0,0.15);">
+            <div class="toast-header border-0 bg-transparent py-2 px-3">
+                <div class="rounded-circle bg-{% if message.tags == 'success' %}success{% elif message.tags == 'error' or message.tags == 'danger' %}danger{% else %}primary{% endif %} me-2" style="width: 10px; height: 10px;"></div>
+                <strong class="me-auto text-uppercase small font-weight-bold text-muted" style="letter-spacing: 1px; font-size: 10px;">{{ message.tags|default:'Notice' }}</strong>
+                <button type="button" class="btn-close ms-2" data-bs-dismiss="toast" aria-label="Close" style="font-size: 10px;"></button>
+            </div>
+            <div class="toast-body py-3 px-3 text-dark">
+                {{ message }}
+            </div>
+            <div class="progress" style="height: 3px; border-radius: 0 0 12px 12px; background-color: rgba(0,0,0,0.05);">
+                <div class="progress-bar bg-{% if message.tags == 'success' %}success{% elif message.tags == 'error' or message.tags == 'danger' %}danger{% else %}primary{% endif %}" role="progressbar" style="width: 100%;" id="progress-{{ forloop.counter }}"></div>
+            </div>
+        </div>
+        <script>
+            (function() {
+                const bar = document.getElementById('progress-{{ forloop.counter }}');
+                bar.style.transition = 'width 5s linear';
+                setTimeout(() => bar.style.width = '0%', 100);
+                setTimeout(() => {
+                    const toast = bar.closest('.toast');
+                    if(toast) {
+                        toast.classList.remove('animate__fadeInRight');
+                        toast.classList.add('animate__fadeOutRight');
+                        setTimeout(() => toast.remove(), 1000);
+                    }
+                }, 5000);
+            })();
+        </script>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+    <!-- Native JavaScript & AOS initialization happens in custom.js -->
+
+    {% block extra_js %}
+    <script src="{% static 'js/main.js' %}" defer></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6316366075859223"
+     crossorigin="anonymous"></script>
+    <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+    <script src="{% static 'js/jquery-migrate-3.0.0.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'js/aos.js' %}"></script>
+    <script src="{% static 'js/imagesloaded.pkgd.js' %}"></script>
+    <script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'js/jquery.animateNumber.min.js' %}"></script>
+    <script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+    <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+    <script src="{% static 'js/jquery.fancybox.min.js' %}"></script>
+    <script src="{% static 'js/custom.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script>feather.replace();</script>
+    {% endblock %}
+</body>
+</html>

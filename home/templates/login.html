@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block start %}
+
+<div class="container-fluid px-3">
+    <div class="row min-vh-100">
+        <div class="col-md-8 col-lg-6 col-xl-5 d-flex align-items-center">
+            <div class="w-100 py-5 px-md-5 px-xl-6 position-relative">
+                <div class="mb-5">
+                    <h3 class="display-4 font-weight-bold">Welcome Back</h3>
+                    <p class="text-muted">Sign in to continue</p>
+                </div>
+
+                {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post" class="form-validate">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.username.id_for_label }}">Username or Email</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.username.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group mb-4">
+                        <div class="row">
+                            <div class="col">
+                                <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+                            </div>
+                            <div class="col-auto">
+                                <a href="{% url 'forgot_password' %}" class="form-text small text-primary">Forgot password?</a>
+                            </div>
+                        </div>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.password.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Submit -->
+                    <button type="submit" class="btn btn-lg btn-block btn-primary">Sign in</button>
+                    
+                    <hr class="my-4">
+                    
+                    <p class="text-center">
+                        <small class="text-muted text-center">
+                            Don't have an account yet?
+                            <a href="{% url 'register_view' %}" class="text-primary">Sign Up</a>
+                        </small>
+                    </p>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-6 col-xl-7 d-none d-md-block">
+            <!-- Login page image -->
+            <div class="bg-cover h-100 mr-n3" style="background-image: url(https://images.pexels.com/photos/1995730/pexels-photo-1995730.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940);"></div>
+        </div>
+    </div>
+</div>
+
+  {% endblock %}

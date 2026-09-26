@@ -1,0 +1,76 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block header_actions %}
+<a href="{% url 'dashboard_add' 'adverts' 'advertisement' %}?next={{ request.path }}"
+    class="btn btn-sm btn-primary shadow-sm px-3 me-2">
+    <i data-feather="plus" style="width: 14px; margin-right: 5px; margin-top:-2px;"></i> New Ad Campaign
+</a>
+<a href="{% url 'admin:adverts_advertisement_changelist' %}" class="btn btn-sm btn-outline-secondary shadow-sm px-3">
+    <i data-feather="settings" style="width: 14px; margin-right: 5px; margin-top:-2px;"></i> Advanced Admin
+</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="table-responsive bg-white p-4 rounded-4 shadow-sm" data-aos="fade-up">
+    <table class="table table-hover table-borderless align-middle mb-0">
+        <thead class="border-bottom">
+            <tr>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Ad Image</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Title</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Target URL</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Created</th>
+                <th class="text-muted font-weight-bold text-end" style="padding-bottom: 15px;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ad in adverts %}
+            <tr>
+                <td>
+                    {% if ad.main_image %}
+                    <img src="{{ ad.main_image.url }}" alt="Ad Image" class="rounded shadow-sm"
+                        style="height: 50px; width: auto; max-width: 100px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-light text-muted rounded d-flex align-items-center justify-content-center shadow-sm"
+                        style="width: 50px; height: 50px;">
+                        <i data-feather="image" style="width:20px;"></i>
+                    </div>
+                    {% endif %}
+                </td>
+                <td class="font-weight-bold">
+                    <a href="{% url 'dashboard_edit' 'adverts' 'advertisement' ad.id %}?next={{ request.path }}"
+                        class="text-dark text-decoration-none">{{ ad.title }}</a>
+                </td>
+                <td>
+                    <a href="{{ ad.url }}" target="_blank"
+                        class="text-info text-decoration-none small text-truncate d-inline-block"
+                        style="max-width: 150px;">
+                        <i data-feather="link" style="width: 12px;"></i> {{ ad.url }}
+                    </a>
+                </td>
+                <td class="text-muted small">{{ ad.created_at|date:"M d, Y" }}</td>
+                <td class="text-end">
+                    <a href="{% url 'dashboard_edit' 'adverts' 'advertisement' ad.id %}?next={{ request.path }}"
+                        class="btn btn-sm btn-outline-primary px-3 shadow-sm">Manage</a>
+                    <a href="{% url 'dashboard_delete' 'adverts' 'advertisement' ad.id %}?next={{ request.path }}"
+                        class="btn btn-sm btn-outline-danger px-3 shadow-sm ms-1"><i data-feather="trash-2"
+                            style="width: 14px;"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                    <div class="mb-3"><i data-feather="monitor" class="text-muted opacity-50"
+                            style="width: 48px; height: 48px;"></i></div>
+                    No active advertisements managing via CMS.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mt-4 pb-4">
+    <span class="text-muted small">Showing all {{ adverts.count }} advertisements.</span>
+</div>
+{% endblock %}

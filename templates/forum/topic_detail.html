@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ topic.name }} - Dovetec Forum | Software Engineering{% endblock %}
+{% block seo_desc %}Discuss {{ topic.name }} at the Dovetec Forum. Technology insights and software engineering discussions from Kenya's leading tech community.{% endblock %}
+{% block seo_keys %}{{ topic.name }}, software engineering, IT solutions, Dovetec Forum, Nairobi{% endblock %}
+{% block og_title %}{{ topic.name }} - Dovetec Forum{% endblock %}
+{% block og_desc %}Discuss {{ topic.name }} at the Dovetec Forum.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}{{ topic.name }} - Dovetec Forum{% endblock %}
+{% block twitter_desc %}Discuss {{ topic.name }} at the Dovetec Forum.{% endblock %}
+
+{% block content %}
+<div class="hero overlay pt-0 hero-static-bg" style="height: 250px; display: flex; align-items: center;">
+    <div class="container text-center">
+        <h1 class="text-white mb-0" data-aos="fade-up">{{ topic.name }}</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center bg-transparent p-0 mt-2">
+                <li class="breadcrumb-item"><a href="{% url 'community' %}"
+                        class="text-white-50 small text-decoration-none">{% trans "Forum" %}</a></li>
+                <li class="breadcrumb-item active text-white small" aria-current="page">{{ topic.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold mb-0">{% trans "Recent Discussions" %}</h3>
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="{% url 'add_blog' %}" class="btn btn-primary px-4 btn-sm me-3">
+                            <i data-feather="plus" class="me-1" style="width: 14px;"></i> {% trans "Share Idea" %}
+                        </a>
+                        {% include 'includes/social_sharing.html' with title=topic.name %}
+                    </div>
+                </div>
+
+                <div class="posts-wrapper">
+                    {% for post in posts %}
+                    <div class="card border-0 shadow-sm rounded-4 mb-3 p-3 post-card" data-aos="fade-up">
+                        <div class="d-flex align-items-start">
+                            <img src="{% if post.user.profile.image %}{{ post.user.profile.image.url }}{% else %}{% static 'images/person_1.jpg' %}{% endif %}"
+                                class="rounded-circle me-3" style="width: 48px; height: 48px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1 fw-bold"><a href="{% url 'post_detail' post.slug %}"
+                                        class="text-dark text-decoration-none">{{ post.title }}</a></h5>
+                                <div class="d-flex align-items-center text-muted small">
+                                    <span class="me-3"><i data-feather="user" class="me-1" style="width: 12px;"></i> 
+                                        {{ post.user.get_full_name|default:post.user.email }}</span>
+                                    <span class="me-3"><i data-feather="calendar" class="me-1" style="width: 12px;"></i>
+                                        {{ post.created_at|date:"M d, Y" }}</span>
+                                    <span><i data-feather="message-circle" class="me-1" style="width: 12px;"></i> 
+                                        {{ post.comments.count }} {% trans "comments" %}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 bg-light rounded-4 border-dashed">
+                        <i data-feather="info" class="text-muted mb-3" style="width: 32px; height: 32px;"></i>
+                        <p class="text-muted mb-0">{% trans "No posts in this topic yet. Be the first to start a conversation!" %}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 sticky-top" style="top: 100px;">
+                    <h5 class="fw-bold mb-3">{% trans "About this Topic" %}</h5>
+                    <p class="text-muted small">{{ topic.description|default:"No description available." }}</p>
+                    <hr>
+                    <div class="stats">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">{% trans "Total Posts" %}</span>
+                            <span class="fw-bold small">{{ posts.count }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .post-card {
+        transition: all 0.2s;
+    }
+
+    .post-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .08) !important;
+    }
+
+    .border-dashed {
+        border: 2px dashed #dee2e6;
+    }
+</style>
+{% endblock %}

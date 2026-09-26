@@ -1,0 +1,116 @@
+{% extends 'forum/community_base.html' %}
+
+{% block hero_title %}Community Hub{% endblock %}
+{% block hero_text %}Join thousands of professionals discussing technology, software engineering, and digital transformation. Your next breakthrough starts here.{% endblock %}
+
+{% block community_content %}
+<!-- Featured -->
+{% if featured_topic %}
+<div class="featured-discussion-card mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-md-8">
+            <span class="category-pill">Featured Discussion</span>
+            <h2 class="fw-800 mb-2" style="color: #1d1d1f;">{{ featured_topic.name }}</h2>
+            <p class="text-muted mb-3">{{ featured_topic.description|default:"Join our staff and community members in this month's focused dialogue."|truncatewords:25 }}</p>
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <span class="small text-muted"><i class="feather-calendar me-1"></i>{{ featured_topic.created_at|date:"M d, Y" }}</span>
+                <span class="small text-muted"><i class="feather-user me-1"></i>Dovetec Staff</span>
+            </div>
+            <a href="{% url 'topic_detail' topic_slug=featured_topic.slug %}" class="btn" style="background: var(--brand-primary); color: white; padding: 0.75rem 1.5rem; border-radius: 100px; font-weight: 600; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.9rem;">
+                JOIN THE CONVERSATION <i class="feather-message-square ms-2"></i>
+            </a>
+        </div>
+        {% if featured_topic.image %}
+        <div class="col-md-4"><img src="{{ featured_topic.image.url }}" class="img-fluid rounded-4 shadow-sm" alt="{{ featured_topic.name }}"></div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% if query %}
+<p class="small text-muted mb-3">Showing results for <strong>{{ query }}</strong>{% if active_tab and active_tab != 'all' %} in <strong>{{ active_tab }}</strong>{% endif %}</p>
+{% endif %}
+
+<!-- Discussions Grid -->
+<div class="row g-3 mb-4">
+    {% for topic in recent_topics %}
+    <div class="col-12 col-md-6 col-xl-4">
+        <a href="{% url 'topic_detail' topic_slug=topic.slug %}" class="discussion-card">
+            <span class="category-pill">{{ topic.category.name|default:"General" }}</span>
+            <h5>{{ topic.name }}</h5>
+            <p>{{ topic.description|default:""|truncatewords:18 }}</p>
+            <div class="card-footer">
+                <span class="meta-chip"><i class="feather-message-circle"></i> Discuss</span>
+                <span class="meta-chip">{{ topic.created_at|timesince }} ago</span>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="empty-state">
+            <i class="feather-inbox"></i>
+            <h3>No discussions yet</h3>
+            <p>Be the first to start a conversation!</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Resources Section -->
+<h3 class="section-heading">Resources</h3>
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-lg-4">
+        <a href="{% url 'help_center' %}" class="resource-card">
+            <div class="card-icon" style="background: rgba(43,95,87,0.08);"><i class="feather-book" style="color: var(--brand-primary);"></i></div>
+            <h4>Knowledge Base</h4>
+            <p>Guides, tutorials, and documentation to help you master our platform.</p>
+        </a>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <a href="{% url 'community_product_updates' %}" class="resource-card">
+            <div class="card-icon" style="background: rgba(121,192,24,0.08);"><i class="feather-zap" style="color: #79C018;"></i></div>
+            <h4>Product Updates</h4>
+            <p>Latest features, improvements, and what's coming next.</p>
+            {% if newsletter_count %}<div class="card-meta">{{ newsletter_count }} update{{ newsletter_count|pluralize }}</div>{% endif %}
+        </a>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <a href="{% url 'community_get_inspired' %}" class="resource-card">
+            <div class="card-icon" style="background: rgba(254,142,56,0.08);"><i class="feather-compass" style="color: #FE8E38;"></i></div>
+            <h4>Get Inspired</h4>
+            <p>Stories, case studies, and ideas to fuel your next project.</p>
+            {% with inspired=case_study_count|default:0 %}
+            {% if inspired %}<div class="card-meta">{{ inspired }} case stud{{ inspired|pluralize:"y,ies" }}</div>{% endif %}
+            {% endwith %}
+        </a>
+    </div>
+</div>
+
+<!-- Connect Section -->
+<h3 class="section-heading">Connect</h3>
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-lg-4">
+        <a href="{% url 'contact_us' %}" class="resource-card">
+            <div class="card-icon" style="background: rgba(229,40,62,0.08);"><i class="feather-message-circle" style="color: #E5283E;"></i></div>
+            <h4>Support</h4>
+            <p>Get help from our team and community members anytime.</p>
+        </a>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <a href="{% url 'community_events' %}" class="resource-card">
+            <div class="card-icon" style="background: rgba(139,92,246,0.08);"><i class="feather-calendar" style="color: #8B5CF6;"></i></div>
+            <h4>Events</h4>
+            <p>Webinars, workshops, and community meetups.</p>
+            {% if upcoming_event_count %}<div class="card-meta">{{ upcoming_event_count }} upcoming</div>{% endif %}
+        </a>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <a href="{% url 'community_directory' %}" class="resource-card">
+            <div class="card-icon" style="background: rgba(59,130,246,0.08);"><i class="feather-users" style="color: #3B82F6;"></i></div>
+            <h4>Community Directory</h4>
+            <p>Connect with professionals across East Africa.</p>
+            {% if member_count %}<div class="card-meta">{{ member_count }} member{{ member_count|pluralize }}</div>{% endif %}
+        </a>
+    </div>
+</div>
+{% endblock %}

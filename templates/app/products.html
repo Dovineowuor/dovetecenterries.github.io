@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Innovation Shop - Dovetec Enterprises | Products & Services{% endblock %}
+{% block seo_desc %}Browse our products and services at Dovetec Enterprises. Software solutions, IT services, and consulting offerings from Kenya's leading tech company.{% endblock %}
+{% block seo_keys %}products, services, software, IT solutions, Dovetec Enterprises, Nairobi, Kenya{% endblock %}
+{% block og_title %}Innovation Shop - Dovetec Enterprises{% endblock %}
+{% block og_desc %}Browse our products and services at Dovetec Enterprises.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Innovation Shop - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}Browse our products and services at Dovetec Enterprises.{% endblock %}
+
+{% block extra_css %}
+<style>
+    .store-hero {
+        position: relative;
+        padding: 140px 0 100px;
+        background: linear-gradient(rgba(10, 20, 50, 0.7), rgba(10, 20, 50, 0.7)),
+        url("{% static 'images/bg-video.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: white;
+        overflow: hidden;
+    }
+
+    .store-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 50% 50%, rgba(26, 35, 126, 0.3) 0%, transparent 70%);
+    }
+
+    .hero-glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 30px;
+        padding: 3rem;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-badge {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .sticky-cart-btn {
+        position: fixed;
+        bottom: 40px;
+        right: 40px;
+        z-index: 999;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 15px 35px rgba(13, 71, 161, 0.4);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .sticky-cart-btn:hover {
+        transform: scale(1.1) rotate(10deg);
+    }
+
+    .sticky-cart-btn .badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translate(25%, -25%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Store Hero -->
+<section class="store-hero">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-10" data-aos="zoom-in">
+                <div class="hero-glass-card">
+                    <div class="d-flex justify-content-center gap-3 mb-4">
+                        <span class="stat-badge"><i class="feather-check-circle me-2 text-primary"></i>Verified
+                            Tech</span>
+                        <span class="stat-badge"><i class="feather-truck me-2 text-primary"></i>Express Delivery</span>
+                    </div>
+                    <h1 class="display-3 fw-800 text-white mb-4">The Innovation <span class="text-primary">Vault</span>
+                    </h1>
+                    <p class="lead opacity-90 mb-0 px-md-5">Explore our curated collection of cutting-edge hardware and
+                        bespoke digital solutions designed to accelerate your growth.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Store Body -->
+<div class="bg-light py-8">
+    <!-- Featured List Section -->
+    <div class="container mb-8">
+        {% include 'shop/product_list.html' %}
+    </div>
+
+    <!-- Product Grid Section -->
+    <div class="container py-5">
+        <div class="d-flex align-items-center justify-content-between mb-5" data-aos="fade-right">
+            <h2 class="fw-bold mb-0 text-dark">All Innovations</h2>
+            <div class="dropdown">
+                <button class="btn btn-white shadow-sm dropdown-togglepx-4" type="button" data-bs-toggle="dropdown">
+                    Filter Category
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4">
+                    <li><a class="dropdown-item" href="#">All Hardware</a></li>
+                    <li><a class="dropdown-item" href="#">Software Licenses</a></li>
+                    <li><a class="dropdown-item" href="#">Consultancy Packs</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden transition-hover">
+                    <div class="position-relative">
+                        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/img_v_4-min.png' %}{% endif %}"
+                            class="card-img-top" style="height: 280px; object-fit: cover;" alt="{{ product.name }}">
+                        <div class="position-absolute top-0 end-0 p-3">
+                            {% if product.stock > 0 %}
+                            <span class="badge bg-soft-success text-success px-3 py-2 fw-bold">Ready to Ship</span>
+                            {% else %}
+                            <span class="badge bg-soft-danger text-danger px-3 py-2 fw-bold">Backorder</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="fw-bold text-dark mb-1">{{ product.name }}</h5>
+                        <p class="text-muted small mb-3">{{ product.category.name|default:"Uncategorized" }}</p>
+                        <div class="d-flex align-items-center justify-content-between mt-auto">
+                            <span class="h5 fw-bold text-primary mb-0">Ksh {{ product.price }}</span>
+                            <form method="post" action="{% url 'add_to_cart' product.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-primary px-4" type="submit" {% if product.stock == 0 %}disabled{% endif %}>
+                                    <i class="feather-plus me-1"></i> Add
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-8">
+                <div class="opacity-20 mb-4">
+                    <i class="feather-shopping-bag display-1"></i>
+                </div>
+                <h3>Innovation is brewing.</h3>
+                <p class="text-muted">Our vault is currently being replenished. Check back soon for new arrivals.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Community Engagement -->
+<div class="container py-8">
+    {% include 'includes/community_cta.html' %}
+</div>
+
+<!-- Premium Newsletter Section -->
+<section class="py-8 bg-dark text-white position-relative overflow-hidden">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-6" data-aos="zoom-in">
+                <h2 class="display-5 fw-bold mb-3">VIP Innovation List</h2>
+                <p class="lead mb-5 opacity-70">Be the first to know about private drops, innovation strategies, and
+                    flash sales.</p>
+                <form method="POST" action="{% url 'subscribe' %}" class="row g-2">
+                    {% csrf_token %}
+                    <div class="col-md-9">
+                        <input type="email" name="email"
+                            class="form-control form-control-lg bg-white bg-opacity-10 border-0 text-white placeholder-light px-4"
+                            placeholder="Enter your email address" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">Join Now</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sticky Cart Access -->
+<a href="{% url 'cart' %}" class="btn btn-primary sticky-cart-btn btn-icon">
+    <i class="feather-shopping-bag h4 mb-0"></i>
+    {% if cart_count %}
+    <span class="badge bg-warning text-dark">{{ cart_count }}</span>
+    {% endif %}
+</a>
+{% endblock %}

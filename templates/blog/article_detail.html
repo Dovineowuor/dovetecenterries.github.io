@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    /* Article Hero Section */
+    .article-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 100px 0 60px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 3rem;
+    }
+    
+    .article-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') center/cover;
+        opacity: 0.1;
+        z-index: 1;
+    }
+    
+    .article-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .article-meta {
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+    
+    .article-meta span {
+        margin: 0 10px;
+    }
+    
+    .article-meta i {
+        margin-right: 5px;
+    }
+    
+    .article-title {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
+    
+    .article-excerpt {
+        font-size: 1.3rem;
+        max-width: 800px;
+        margin: 0 auto 2rem;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+    
+    .article-content {
+        max-width: 800px;
+        margin: 0 auto 4rem;
+        line-height: 1.8;
+        font-size: 1.1rem;
+        color: var(--text-color);
+    }
+    
+    .article-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 2rem 0;
+    }
+    
+    .article-content h2 {
+        margin: 2.5rem 0 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .article-content h3 {
+        margin: 2rem 0 1.2rem;
+        color: var(--secondary-color);
+    }
+    
+    .article-content p {
+        margin-bottom: 1.5rem;
+    }
+    
+    .article-tags {
+        margin: 2rem 0;
+        padding: 1.5rem 0;
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .tag {
+        display: inline-block;
+        background: var(--light-bg);
+        padding: 5px 15px;
+        border-radius: 20px;
+        margin: 0 5px 10px 0;
+        font-size: 0.9rem;
+        color: var(--text-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .tag:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .article-share {
+        margin: 2rem 0;
+    }
+    
+    .share-button {
+        display: inline-flex;
+        align-items: center;
+        background: #f5f5f5;
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin-right: 10px;
+        color: var(--text-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .share-button:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .share-button i {
+        margin-right: 5px;
+    }
+    
+    @media (max-width: 768px) {
+        .article-title {
+            font-size: 2rem;
+        }
+        
+        .article-excerpt {
+            font-size: 1.1rem;
+        }
+        
+        .article-content {
+            font-size: 1rem;
+            padding: 0 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Article Hero Section -->
+<section class="article-hero">
+    <div class="container">
+        <div class="article-meta">
+            <span><i class="far fa-calendar"></i> {{ article.published_date|date:"F j, Y" }}</span>
+            <span><i class="far fa-user"></i> By {{ article.author.get_full_name|default:article.author.username }}</span>
+            <span><i class="far fa-clock"></i> {{ article.read_time }} min read</span>
+        </div>
+        <h1 class="article-title">{{ article.title }}</h1>
+        {% if article.excerpt %}
+        <p class="article-excerpt">{{ article.excerpt }}</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Article Content -->
+<article class="article-content">
+    <div class="container">
+        {% if article.featured_image %}
+        <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" class="img-fluid">
+        {% endif %}
+        
+        <div class="article-body">
+            {{ article.content|safe }}
+        </div>
+        
+        {% if article.tags.all %}
+        <div class="article-tags">
+            <strong>Tags:</strong>
+            {% for tag in article.tags.all %}
+            <a href="{% url 'tag_articles' tag.slug %}" class="tag">#{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="article-share">
+            <strong>Share:</strong>
+            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ article.title|urlencode }}" target="_blank" class="share-button">
+                <i class="fab fa-twitter"></i> Twitter
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="share-button">
+                <i class="fab fa-facebook-f"></i> Facebook
+            </a>
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ article.title|urlencode }}" target="_blank" class="share-button">
+                <i class="fab fa-linkedin-in"></i> LinkedIn
+            </a>
+        </div>
+    </div>
+</article>
+
+<!-- Related Articles -->
+{% if related_articles %}
+<section class="related-articles py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">You Might Also Like</h2>
+        <div class="row">
+            {% for related in related_articles %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if related.featured_image %}
+                    <img src="{{ related.featured_image.url }}" class="card-img-top" alt="{{ related.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ related.title }}</h5>
+                        <p class="card-text">{{ related.excerpt|truncatewords:20 }}</p>
+                        <a href="{% url 'article_detail' related.slug %}" class="btn btn-outline-primary">Read More</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

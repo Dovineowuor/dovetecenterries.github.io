@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "User Profile" %} | Dovetec Enterprises{% endblock %}
+
+{% block extra_css %}
+<!-- Internal styles moved to brand-overrides.css to resolve linting errors -->
+{% endblock %}
+
+{% block content %}
+<!-- ── Profile Hero ────────────────────────────────────────────── -->
+<div class="hero overlay pt-0 hero-static-bg"
+    style="height: 300px; display: flex; align-items: center;">
+    <div class="container" data-aos="fade-up">
+        <div class="row align-items-center">
+            <div class="col-lg-12">
+                <h1 class="text-white display-5 fw-bold mb-0">{% trans "Your Workspace" %}</h1>
+                <p class="text-white-50 lead">{% trans "Manage your account, articles, and community engagement." %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section py-5 bg-light">
+    <div class="container">
+        <div class="row g-5">
+            <!-- ── Profile Sidebar ── -->
+            <div class="col-12 col-lg-4" data-aos="fade-right">
+                <div class="chalk-glass shadow-none border-0 p-0 overflow-hidden">
+                    <div class="bg-primary py-5 text-center position-relative">
+                        <!-- Glass shine effect -->
+                        <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); pointer-events:none;"></div>
+                        
+                        <div class="profile-img-wrapper position-relative d-inline-block">
+                            {% if user.profile.image %}
+                            <img src="{{ user.profile.image.url }}" alt="{{ user.get_full_name }}"
+                                class="rounded-circle border border-4 border-white shadow-lg mx-auto"
+                                style="width: 140px; height: 140px; object-fit: cover;">
+                            {% else %}
+                            <div class="rounded-circle border border-4 border-white shadow-lg bg-white d-flex align-items-center justify-content-center mx-auto"
+                                style="width: 140px; height: 140px;">
+                                <i class="feather-user h1 text-primary mb-0"></i>
+                            </div>
+                            {% endif %}
+                            <a href="{% url 'edit_profile' %}" class="btn btn-warning btn-sm position-absolute rounded-circle shadow" style="bottom: 5px; right: 5px; width:35px; height:35px; padding:0; display:flex; align-items:center; justify-content:center;">
+                                <i class="feather-edit-2 small"></i>
+                            </a>
+                        </div>
+                        <h4 class="text-white mt-4 mb-1 fw-800">{{ user.get_full_name|default:user.username }}</h4>
+                        <p class="text-white-50 small mb-0">{{ user.email }}</p>
+                    </div>
+                    
+                    <div class="p-4 profile-sidebar-nav">
+                        <div class="list-group list-group-flush bg-transparent border-0">
+                            <a href="{% url 'profile' %}"
+                                class="list-group-item list-group-item-action active px-4 py-3 d-flex align-items-center">
+                                <i class="feather-grid me-3"></i> {% trans "Overview" %}
+                            </a>
+                            <a href="{% url 'edit_profile' %}"
+                                class="list-group-item list-group-item-action px-4 py-3 d-flex align-items-center bg-transparent border-0">
+                                <i class="feather-user me-3 text-primary"></i> {% trans "Public Profile" %}
+                            </a>
+                            <a href="{% url 'see_blog' %}"
+                                class="list-group-item list-group-item-action px-4 py-3 d-flex align-items-center bg-transparent border-0">
+                                <i class="feather-file-text me-3 text-primary"></i> {% trans "My Articles" %}
+                            </a>
+                            <div class="dropdown-divider my-3 border-secondary border-opacity-10"></div>
+                            <a href="{% url 'logout_view' %}"
+                                class="list-group-item list-group-item-action px-4 py-3 d-flex align-items-center text-danger bg-transparent border-0">
+                                <i class="feather-log-out me-3"></i> {% trans "Sign Out" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Profile Main Content ── -->
+            <div class="col-12 col-lg-8" data-aos="fade-left">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4 chalk-glass border-0" role="alert">
+                    <i class="feather-info me-2 text-{% if message.tags == 'success' %}success{% else %}primary{% endif %}"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <!-- Account Identity Card -->
+                <div class="chalk-glass shadow-none border-0 p-5 mb-5 position-relative overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-center mb-5">
+                        <h3 class="mb-0 fw-800">{% trans "Account Information" %}</h3>
+                        <span class="badge bg-primary-soft text-primary px-3 py-2 fw-bold small">
+                            <i class="feather-shield me-1"></i> {% if user.is_active %}{% trans "Secure" %}{% else %}{% trans "Inactive" %}{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="row g-5">
+                        <div class="col-md-6 pb-3 border-bottom border-light">
+                            <label class="text-muted extra-small text-uppercase fw-800 mb-2" style="letter-spacing: 1px;">{% trans "Full Name" %}</label>
+                            <p class="h6 fw-bold mb-0">
+                                {{ user.get_full_name|default:"Not specified" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6 pb-3 border-bottom border-light">
+                            <label class="text-muted extra-small text-uppercase fw-800 mb-2" style="letter-spacing: 1px;">{% trans "Email" %}</label>
+                            <p class="h6 fw-bold mb-0">
+                                {{ user.email }}
+                            </p>
+                        </div>
+                        <div class="col-md-6 pb-3 border-bottom border-light">
+                            <label class="text-muted extra-small text-uppercase fw-800 mb-2" style="letter-spacing: 1px;">
+                                {% trans "Membership" %}
+                            </label>
+                            <p class="h6 fw-bold mb-0">
+                                <i class="feather-calendar me-1 text-primary"></i> 
+                                {{ user.created_at|date:"F d, Y"|default:"Recently Joined" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6 pb-3 border-bottom border-light">
+                            <label class="text-muted extra-small text-uppercase fw-800 mb-2" style="letter-spacing: 1px;">
+                                {% trans "User Role" %}
+                            </label>
+                            <p class="h6 fw-bold mb-0">
+                                <span class="badge bg-{% if user.is_staff %}warning{% else %}primary{% endif %} text-{% if user.is_staff %}dark{% else %}white{% endif %} pill px-3">
+                                    {% if user.is_superuser %}Admin{% elif user.is_staff %}Staff{% else %}Member{% endif %}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-5 text-end">
+                        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary pill px-4 fw-bold">
+                            {% trans "Edit Settings" %} <i class="feather-settings ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ── Stats & Achievements ── -->
+                <div class="row g-4">
+                    <div class="col-12 col-md-4" data-aos="fade-up" data-aos-delay="100">
+                        <div class="chalk-glass shadow-none border-0 text-center p-4 profile-stat-card">
+                            <div class="icon-box bg-primary-soft rounded-circle mx-auto mb-3" style="width: 50px; height: 50px; display:flex; align-items:center; justify-content:center;">
+                                <i class="feather-book-open text-primary"></i>
+                            </div>
+                            <div class="h3 fw-800 text-primary mb-1">0</div>
+                            <div class="text-muted extra-small text-uppercase fw-800" style="letter-spacing: 1px;">{% trans "Articles" %}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4" data-aos="fade-up" data-aos-delay="200">
+                        <div class="chalk-glass shadow-none border-0 text-center p-4 profile-stat-card">
+                            <div class="icon-box bg-success-soft rounded-circle mx-auto mb-3" style="width: 50px; height: 50px; display:flex; align-items:center; justify-content:center;">
+                                <i class="feather-message-square text-success"></i>
+                            </div>
+                            <div class="h3 fw-800 text-success mb-1">0</div>
+                            <div class="text-muted extra-small text-uppercase fw-800" style="letter-spacing: 1px;">{% trans "Engagements" %}</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4" data-aos="fade-up" data-aos-delay="300">
+                        <div class="chalk-glass shadow-none border-0 text-center p-4 profile-stat-card">
+                            <div class="icon-box bg-warning-soft rounded-circle mx-auto mb-3" style="width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; background-color: rgba(255, 193, 7, 0.1);">
+                                <i class="feather-star text-warning"></i>
+                            </div>
+                            <div class="h3 fw-800 text-warning mb-1">0</div>
+                            <div class="text-muted extra-small text-uppercase fw-800" style="letter-spacing: 1px;">{% trans "Rewards" %}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

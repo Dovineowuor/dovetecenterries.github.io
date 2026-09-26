@@ -1,0 +1,1093 @@
+from django import forms
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from froala_editor.fields import FroalaField
+from django.utils import timezone
+from django.utils.text import slugify
+import hashlib
+import uuid
+from dovetecenterprises import settings
+
+
+class MetadataMixin(models.Model):
+    """Abstract mixin providing SEO and social sharing metadata fields."""
+    meta_title = models.CharField(max_length=200, blank=True, help_text="Override meta title for SEO")
+    meta_description = models.CharField(max_length=500, blank=True, help_text="Override meta description for SEO")
+    canonical_url = models.URLField(max_length=500, blank=True, help_text="Canonical URL for SEO")
+    og_title = models.CharField(max_length=200, blank=True, help_text="Open Graph title")
+    og_description = models.CharField(max_length=500, blank=True, help_text="Open Graph description")
+    og_image = models.ImageField(upload_to='og_images/', blank=True, null=True, help_text="Open Graph image")
+    twitter_card = models.CharField(max_length=50, blank=True, help_text="Twitter card type (summary, summary_large_image)")
+    twitter_title = models.CharField(max_length=200, blank=True, help_text="Twitter title")
+    twitter_description = models.CharField(max_length=500, blank=True, help_text="Twitter description")
+    twitter_image = models.ImageField(upload_to='twitter_images/', blank=True, null=True, help_text="Twitter image")
+    published_at = models.DateTimeField(null=True, blank=True, help_text="Actual publication date")
+
+    class Meta:
+        abstract = True
+
+    def get_meta_title(self):
+        """Return the most appropriate title for this page."""
+        return self.meta_title or self.title if hasattr(self, 'title') else ''
+
+    def get_meta_description(self):
+        """Return the most appropriate description for this page."""
+        return self.meta_description or (self.seo_description[:160] if hasattr(self, 'seo_description') and self.seo_description else '')
+
+    def get_og_title(self):
+        """Return the Open Graph title."""
+        return self.og_title or self.get_meta_title()
+
+    def get_og_description(self):
+        """Return the Open Graph description."""
+        return self.og_description or self.get_meta_description()
+
+    def get_og_image(self):
+        """Return the Open Graph image URL."""
+        if self.og_image and self.og_image.url:
+            return self.og_image.url
+        return ''
+
+    def get_twitter_title(self):
+        """Return the Twitter card title."""
+        return self.twitter_title or self.get_meta_title()
+
+    def get_twitter_description(self):
+        """Return the Twitter card description."""
+        return self.twitter_description or self.get_meta_description()
+
+    def get_twitter_image(self):
+        """Return the Twitter card image URL."""
+        if self.twitter_image and self.twitter_image.url:
+            return self.twitter_image.url
+        return self.get_og_image()
+
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
+
+class User(AbstractBaseUser, PermissionsMixin):
+    """Custom user model using email as the unique identifier."""
+
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
+    username = models.CharField(max_length=30, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    date_joined = models.DateTimeField(default=timezone.now)
+    objects = UserManager()
+
+    class Meta:
+        permissions = [
+            ('access_dashboard', 'Can access the staff dashboard'),
+        ]
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name']
+
+    def save(self, *args, **kwargs):
+        if not self.username:
+            self.username = self.email.split('@')[0]
+        super().save(*args, **kwargs)
+
+    # ── Convenience helpers ─────────────────────────────────────
+    @property
+    def is_client(self):
+        """True for portal clients (not staff/admin accounts)."""
+        return not self.is_staff and not self.is_superuser
+
+    @property
+    def is_admin_role(self):
+        """True for Administrators group / superusers."""
+        return self.is_superuser or self.groups.filter(name='Administrators').exists()
+
+    @property
+    def display_name(self):
+        if self.username:
+            return self.username
+        return f"{self.first_name} {self.last_name}"
+
+    def __str__(self):
+        return self.email
+
+    def get_full_name(self):
+        """Return the first_name plus the last_name, with a space in between."""
+        full_name = f"{self.first_name} {self.last_name}"
+        return full_name.strip()
+
+    def get_short_name(self):
+        """Return the short name for the user."""
+        return self.first_name
+
+    @property
+    def display_name(self):
+        if self.username:
+            return self.username
+        return f"{self.first_name} {self.last_name}"
+
+    def __str__(self):
+        return self.email
+
+    def get_full_name(self):
+        """Return the first_name plus the last_name, with a space in between."""
+        full_name = f"{self.first_name} {self.last_name}"
+        return full_name.strip()
+
+    def get_short_name(self):
+        """Return the short name for the user."""
+        return self.first_name
+
+class Profile(models.Model):
+    """
+    Profile model extends the built-in User model with additional fields.
+    """
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    is_verified = models.BooleanField(default=False)
+    token = models.CharField(max_length=100, null=True, blank=True)
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    otp_timestamp = models.DateTimeField(null=True, blank=True)
+    hashed_id = models.CharField(max_length=64, unique=True, editable=False)
+    image = models.ImageField(upload_to='profile', blank=True, null=True)
+    title = models.CharField(max_length=100, blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+
+    def is_otp_expired(self):
+        """Check if the OTP is expired (10 minutes)."""
+        if self.otp_timestamp:
+            return timezone.now() > self.otp_timestamp + timezone.timedelta(minutes=10)
+        return True
+
+    def is_token_expired(self):
+        """Check if the token is expired (1 hour from user registration)."""
+        return timezone.now() > self.user.date_joined + timezone.timedelta(hours=1)
+
+    def save(self, *args, **kwargs):
+        """Override save method to generate hashed_id if not present."""
+        if not self.hashed_id:
+            self.hashed_id = hashlib.sha256(str(self.user.id).encode()).hexdigest()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.user.email
+
+class Tag(MetadataMixin):
+    """
+    Tag model for categorizing articles.
+    """
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=150, unique=True, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+
+class DiscussionTopic(models.Model):
+    """A community discussion topic that articles can be linked to."""
+    STATUS_OPEN = 'open'
+    STATUS_ACTIVE = 'active'
+    STATUS_CLOSED = 'closed'
+    STATUS_CHOICES = [
+        (STATUS_OPEN, 'Open'),
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_CLOSED, 'Closed'),
+    ]
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, unique=True, blank=False)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_OPEN, db_index=True)
+    author = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True, blank=True, related_name='discussion_topics')
+    is_pinned = models.BooleanField(default=False)
+    vote_count = models.PositiveIntegerField(default=0)
+    reply_count = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-is_pinned', '-vote_count', '-created_at']
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(self.title)[:200] or 'discussion'
+            slug = base
+            n = 2
+            while DiscussionTopic.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base}-{n}"
+                n += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    @property
+    def is_public(self):
+        return self.status == self.STATUS_OPEN
+
+
+class Article(models.Model):
+    """
+    Article model with fields for SEO and content editing using Froala.
+    
+    Args:
+        id (AutoField): Unique identifier for the article.
+        title (CharField): Title of the article.
+        content (FroalaField): Content of the article.
+        seo_description (TextField): Description for SEO purposes.
+        slug (SlugField): Unique slug for the article.
+        user (ForeignKey): Reference to the User who created the article.
+        image (ImageField): Featured image for the article.
+        created_at (DateTimeField): Timestamp when the article was created.
+        updated_at (DateTimeField): Timestamp when the article was last updated.
+        category (CharField): Category of the article.
+        tags (ManyToManyField): Tags associated with the article.
+        likes (PositiveIntegerField): Number of likes for the article.
+        dislikes (PositiveIntegerField): Number of dislikes for the article.
+        views (PositiveIntegerField): Number of views for the article.
+        author (ForeignKey): Reference to the Profile who created the article.
+        featured (BooleanField): Indicates if the article is featured.
+        
+    Methods:
+        __str__(): Returns a string representation of the article.
+        save(*args, **kwargs): Overrides the save method to generate a unique slug if not present.
+        hashed_id(): Generates a hashed_id for the article if ID exists.
+        generate_unique_slug(): Generates a unique slug for the
+    """
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=1000, unique=True)
+    content = FroalaField()
+    seo_description = models.TextField(max_length=500, blank=True, null=True)
+    slug = models.SlugField(max_length=1000, unique=True, null=True, blank=True)
+    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='blog', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    category = models.CharField(max_length=100, blank=True, null=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='articles')
+    likes = models.PositiveIntegerField(default=0)
+    dislikes = models.PositiveIntegerField(default=0)
+    views = models.PositiveIntegerField(default=0)
+    author = models.ForeignKey(Profile, blank=True, null=True, on_delete=models.CASCADE, related_name='articles')
+    featured = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=20, 
+        choices=[('draft', 'Draft'), ('scheduled', 'Scheduled'), ('published', 'Published'), ('archived', 'Archived')],
+        default='published'
+    )
+    scheduled_at = models.DateTimeField(null=True, blank=True, help_text="Future date to schedule publication")
+    deleted = models.BooleanField(default=False)
+    # Resource-specific fields
+    is_resource = models.BooleanField(default=False, help_text="Mark as a downloadable resource")
+    resource_type = models.CharField(max_length=20, choices=[
+        ('document', 'Document (PDF/Doc)'),
+        ('guide', 'Guide/Tutorial'),
+        ('template', 'Template'),
+        ('reference', 'Reference Material'),
+        ('tool', 'Tool/Software'),
+        ('video', 'Video'),
+        ('other', 'Other'),
+    ], default='other', blank=True, null=True, help_text="Type of resource")
+    resource_file = models.FileField(upload_to='resources', blank=True, null=True, help_text="Downloadable resource file")
+    resource_url = models.URLField(max_length=500, blank=True, help_text="External resource URL")
+    # Discussion-specific fields
+    is_discussion = models.BooleanField(default=False, help_text="Mark as a community discussion point")
+    discussion_topic = models.ForeignKey('DiscussionTopic', on_delete=models.SET_NULL, null=True, blank=True, related_name='articles', help_text="Associated discussion topic")
+    hashed_id = models.CharField(max_length=64, unique=True, editable=False, null=True, blank=True)
+    # Structured editorial and sharing metadata
+    meta_title = models.CharField(max_length=200, blank=True, help_text="Override meta title for SEO")
+    meta_description = models.CharField(max_length=500, blank=True, help_text="Override meta description for SEO")
+    canonical_url = models.URLField(max_length=500, blank=True, help_text="Canonical URL for SEO")
+    og_title = models.CharField(max_length=200, blank=True, help_text="Open Graph title")
+    og_description = models.CharField(max_length=500, blank=True, help_text="Open Graph description")
+    og_image = models.ImageField(upload_to='og_images/', blank=True, null=True, help_text="Open Graph image")
+    twitter_card = models.CharField(max_length=50, blank=True, help_text="Twitter card type (summary, summary_large_image)")
+    twitter_title = models.CharField(max_length=200, blank=True, help_text="Twitter title")
+    twitter_description = models.CharField(max_length=500, blank=True, help_text="Twitter description")
+    twitter_image = models.ImageField(upload_to='twitter_images/', blank=True, null=True, help_text="Twitter image")
+    published_at = models.DateTimeField(null=True, blank=True, help_text="Actual publication date")
+
+
+    class Meta:
+        abstract = False
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        """Override save method to handle slugs and instant publication."""
+        if not self.slug:
+            self.slug = self.generate_unique_slug()
+        
+        # If published manually but no schedule set, set to now
+        if self.status == 'published' and not self.scheduled_at:
+            self.scheduled_at = timezone.now()
+            
+        super().save(*args, **kwargs)
+
+
+    @property
+    def hashed_id(self):
+        """Generate a hashed_id for the article if ID exists."""
+        return hashlib.sha256(str(self.id).encode()).hexdigest() if self.id else None
+
+    def generate_unique_slug(self):
+        """Generate a unique slug for the article."""
+        slug = slugify(self.title)
+        unique_slug = slug
+        counter = 1
+        while Article.objects.filter(slug=unique_slug).exists():
+            unique_slug = f"{slug}-{counter}"
+            counter += 1
+        return unique_slug
+
+    def get_schema_org_json_ld(self):
+        """Generate schema.org Article JSON-LD markup."""
+        return {
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            'headline': self.title,
+            'image': self.og_image.url if self.og_image else (self.image.url if self.image else ''),
+            'author': {
+                '@type': 'Profile',
+                'name': self.author.user.get_full_name() if self.author else '',
+                'email': self.author.user.email if self.author else '',
+            },
+            'datePublished': self.created_at.isoformat() if self.created_at else '',
+            'dateModified': self.updated_at.isoformat() if self.updated_at else '',
+            'description': self.seo_description or self.meta_description or '',
+            'mainEntityOfPage': self.canonical_url or self.get_absolute_url(),
+        }
+
+    def get_absolute_url(self):
+        """Return the canonical URL for the article."""
+        return f"/blog-detail/{self.slug}/" if self.slug else '/'
+
+class Comment(models.Model):
+    """
+    Comment model represents a user's comment on an article.
+
+    Attributes:
+        article (ForeignKey): Reference to the related Article object.
+        user (ForeignKey): Reference to the User who made the comment.
+        content (TextField): The content of the comment.
+        created_at (DateTimeField): Timestamp when the comment was created.
+        hashed_id (CharField): Unique hashed identifier for the comment.
+        is_deleted (BooleanField): Indicates if the comment is soft deleted.
+
+    Methods:
+        __str__(): Returns a string representation of the comment.
+        save(*args, **kwargs): Overrides the save method to generate a hashed_id if it doesn't exist.
+        delete(*args, **kwargs): Overrides the delete method to perform a soft delete by setting is_deleted to True.
+    """
+    article = models.ForeignKey(Article, related_name='comments', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    hashed_id = models.CharField(max_length=64, unique=True, editable=False, null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)  # Soft delete field
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.article.title}"
+
+    def save(self, *args, **kwargs):
+        if not self.hashed_id:
+            self.hashed_id = hashlib.sha256(f"{self.article.id}-{self.user.id}".encode()).hexdigest()
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        self.is_deleted = True
+        self.save()
+
+class Reply(models.Model):
+    """
+    Reply model linked to a Comment.
+    """
+    comment = models.ForeignKey(Comment, related_name='replies', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    hashed_id = models.CharField(max_length=64, unique=True, editable=False, null=True, blank=True)
+
+    def __str__(self):
+        return f"Reply by {self.user.username} on comment {self.comment.id}"
+
+    def save(self, *args, **kwargs):
+        """Override save method to generate hashed_id if not present."""
+        if not self.hashed_id:
+            self.hashed_id = hashlib.sha256(f"{self.comment.id}-{self.user.id}".encode()).hexdigest()
+        super().save(*args, **kwargs)
+
+class Like(models.Model):
+    """
+    Like model for users to like articles.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.article.title}"
+    
+class Dislike(models.Model):
+    """
+    Dislike model for users to dislike articles.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    dislike_ptr = models.PositiveBigIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.username} disliked {self.article.title}"
+
+    
+class Feedback(models.Model):
+    """
+    Feedback model for users to provide feedback.
+    """
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback from {self.name}"
+    
+class Report(models.Model):
+    """
+    Report model for users to report articles or comments.
+    """
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Notification(models.Model):
+    """In-app notification for staff/client events (tickets, funnel, questionnaires)."""
+
+    VERB_ASSIGNED = 'assigned'
+    VERB_TRANSFERRED = 'transferred'
+    VERB_REFERRED = 'referred'
+    VERB_STATUS_CHANGE = 'status_change'
+    VERB_PRIORITY_CHANGE = 'priority_change'
+    VERB_ESCALATED = 'escalated'
+    VERB_CONVERTED = 'converted'
+    VERB_STAGE_CHANGE = 'stage_change'
+    VERB_QUESTIONNAIRE_SENT = 'questionnaire_sent'
+    VERB_QUESTIONNAIRE_COMPLETED = 'questionnaire_completed'
+    VERB_NOTE = 'note'
+    VERB_CHOICES = [
+        (VERB_ASSIGNED, 'Assigned'),
+        (VERB_TRANSFERRED, 'Transferred'),
+        (VERB_REFERRED, 'Referred'),
+        (VERB_STATUS_CHANGE, 'Status changed'),
+        (VERB_PRIORITY_CHANGE, 'Priority changed'),
+        (VERB_ESCALATED, 'Escalated'),
+        (VERB_CONVERTED, 'Converted'),
+        (VERB_STAGE_CHANGE, 'Stage changed'),
+        (VERB_QUESTIONNAIRE_SENT, 'Questionnaire sent'),
+        (VERB_QUESTIONNAIRE_COMPLETED, 'Questionnaire completed'),
+        (VERB_NOTE, 'Note'),
+    ]
+
+    recipient = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='notifications',
+    )
+    actor = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='notifications_actor',
+    )
+    verb = models.CharField(max_length=40, choices=VERB_CHOICES, default=VERB_NOTE)
+    title = models.CharField(max_length=255)
+    body = models.TextField(blank=True)
+    link = models.CharField(max_length=500, blank=True)
+    email_sent = models.BooleanField(default=False)
+    whatsapp_sent = models.BooleanField(default=False)
+    read_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['recipient', 'read_at'])]
+
+    def __str__(self):
+        return f"→ {self.recipient.email}: {self.title}"
+
+    @property
+    def is_unread(self):
+        return self.read_at is None
+
+    def __str__(self):
+        return f"Report by {self.user.username} on {self.article.title}"
+        if image.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("Image file too large ( > 5MB )")
+        return image
+    def clean(self):
+        cleaned_data = super().clean()
+        title = cleaned_data.get('title')
+        content = cleaned_data.get('content')
+
+        if title and content:
+            if 'bad word' in title or 'bad word' in content:
+                raise forms.ValidationError('Title or content contains inappropriate language')
+
+        return cleaned_data
+class Advertisement(models.Model):  
+    """
+    Advertisement model for managing advertisements on the website.
+    """
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    image = models.ImageField(upload_to='advertisements')
+    url = models.URLField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class Job(MetadataMixin, models.Model):
+    """
+    Job model for managing job postings.
+    """
+    title = models.CharField(max_length=100)
+    description = FroalaField(
+        options={
+            'heightMin': 200,
+            'heightMax': 500,
+            'toolbarButtons': ['bold', 'italic', 'underline', 'paragraphFormat', 'align']
+        }
+    )
+    location = models.CharField(max_length=100)
+    company = models.CharField(max_length=100)
+    salary = models.DecimalField(max_digits=10, decimal_places=2)
+    level = models.CharField(max_length=50)
+    is_active = models.BooleanField(default=True)
+    department = models.ForeignKey(
+        'Department', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='jobs',
+    )
+    employment_type = models.CharField(
+        max_length=50, blank=True,
+        help_text="e.g., Full-time, Part-time, Contract, Internship"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.title
+    def clean(self):
+        cleaned_data = super().clean()
+        title = cleaned_data.get('title')
+        description = cleaned_data.get('description')
+
+        if title and description:
+            if 'bad word' in title or 'bad word' in description:
+                raise forms.ValidationError('Title or description contains inappropriate language')
+
+        return cleaned_data
+class NewsletterSubscription(models.Model):
+    """
+    NewsletterSubscription model for managing newsletter subscriptions.
+    """
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='newsletter_subscriptions')
+    email = models.EmailField(unique=True)
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    is_verified = models.BooleanField(default=False)
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+    unsubscribed_at = models.DateTimeField(null=True, blank=True)
+
+
+
+    def __str__(self):
+        return self.email
+    
+class Newsletter(MetadataMixin):
+    """
+    Newsletter model for managing email campaigns with enhanced features and validation.
+    """
+    subject = models.CharField(max_length=200, help_text="Newsletter subject line")
+    content = FroalaField(
+        help_text="Newsletter content in HTML format",
+        options={
+            'heightMin': 200,
+            'heightMax': 500,
+            'toolbarButtons': ['bold', 'italic', 'underline', 'paragraphFormat', 'align'],
+            'placeholderText': 'Enter newsletter content here...'
+        },
+        image_upload=True,
+        file_upload=True,
+    )
+    recipients = models.ManyToManyField(
+        NewsletterSubscription, 
+        related_name='newsletters',
+        limit_choices_to={'unsubscribed_at': None},
+        blank=True
+    )
+    manual_recipients = models.TextField(
+        blank=True, 
+        help_text="Ad-hoc email addresses separated by commas (e.g., contact@example.com, lead@example.com)"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    scheduled_for = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, 
+                            choices=[('draft', 'Draft'),
+                                   ('scheduled', 'Scheduled'),
+                                   ('sending', 'Sending'),
+                                   ('sent', 'Sent'),
+                                   ('failed', 'Failed')],
+                            default='draft')
+    slug = models.SlugField(max_length=250, unique=True, null=True, blank=True)
+    tracking_enabled = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['status', 'scheduled_for'])]
+
+    def get_all_recipient_emails(self):
+        """
+        Combine database recipients and manual ad-hoc emails, returning a unique list.
+        """
+        emails = list(self.recipients.filter(unsubscribed_at__isnull=True).values_list('email', flat=True))
+        if self.manual_recipients:
+            manual_list = [e.strip() for e in self.manual_recipients.split(',') if '@' in e]
+            emails.extend(manual_list)
+        return list(set(emails))
+
+    def send_newsletter(self, batch_size=500):
+        """
+        Send newsletter to all unique recipients in batches.
+        """
+        if self.status == 'sent':
+            return False
+
+        self.status = 'sending'
+        self.save()
+
+        try:
+            all_emails = self.get_all_recipient_emails()
+            # Split list into batches
+            for i in range(0, len(all_emails), batch_size):
+                batch = all_emails[i:i + batch_size]
+                # Email sending implementation would go here (e.g., send_mass_mail)
+                pass
+            
+            self.status = 'sent'
+            self.sent_at = timezone.now()
+            self.save()
+            return True
+        except Exception as e:
+            self.status = 'failed'
+            self.save()
+            raise e
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.subject or not self.content:
+            raise forms.ValidationError("Subject and content are required")
+        return cleaned_data
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.generate_unique_slug()
+        
+        # If set to scheduled/sent but no date provided, set to now
+        if (self.status in ['scheduled', 'sent']) and not self.scheduled_for:
+            self.scheduled_for = timezone.now()
+            
+        super().save(*args, **kwargs)
+
+
+    def generate_unique_slug(self):
+        base_slug = slugify(self.subject)
+        slug = base_slug
+        counter = 1
+        while Newsletter.objects.filter(slug=slug).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+        return slug
+
+    @property
+    def hashed_id(self):
+        return hashlib.sha256(str(self.id).encode()).hexdigest() if self.id else None
+
+    def __str__(self):
+        return f"{self.subject} ({self.status})"
+
+
+# ── Career/Job Application model ──────────────────────
+class JobApplication(MetadataMixin, models.Model):
+    """Applicant Tracking System - Application for a job posting."""
+
+    SOURCE_JOB_PORTAL = 'job_portal'
+    SOURCE_LINKEDIN = 'linkedin'
+    SOURCE_INDEED = 'indeed'
+    SOURCE_REFERRAL = 'referral'
+    SOURCE_COMPANY_WEBSITE = 'company_website'
+    SOURCE_SOCIAL_MEDIA = 'social_media'
+    SOURCE_CAREER_FAIR = 'career_fair'
+    SOURCE_INTERNAL = 'internal'
+
+    SOURCE_CHOICES = [
+        (SOURCE_JOB_PORTAL, 'Job Portal'),
+        (SOURCE_LINKEDIN, 'LinkedIn'),
+        (SOURCE_INDEED, 'Indeed'),
+        (SOURCE_REFERRAL, 'Employee Referral'),
+        (SOURCE_COMPANY_WEBSITE, 'Company Website'),
+        (SOURCE_SOCIAL_MEDIA, 'Social Media'),
+        (SOURCE_CAREER_FAIR, 'Career Fair'),
+        (SOURCE_INTERNAL, 'Internal Transfer'),
+    ]
+
+    STAGE_NEW = 'new'
+    STAGE_SCREENED = 'screened'
+    STAGE_SHORTLISTED = 'shortlisted'
+    STAGE_INTERVIEW_SCHEDULED = 'interview_scheduled'
+    STAGE_INTERVIEW_COMPLETE = 'interview_complete'
+    STAGE_ASSESSMENT = 'assessment'
+    STAGE_OFFER = 'offer'
+    STAGE_NEGOTIATION = 'negotiation'
+    STAGE_HIRED = 'hired'
+    STAGE_REJECTED = 'rejected'
+    STAGE_WITHDRAWN = 'withdrawn'
+
+    PIPELINE_STAGES = [
+        STAGE_NEW, STAGE_SCREENED, STAGE_SHORTLISTED,
+        STAGE_INTERVIEW_SCHEDULED, STAGE_INTERVIEW_COMPLETE,
+        STAGE_ASSESSMENT, STAGE_OFFER, STAGE_NEGOTIATION, STAGE_HIRED,
+    ]
+
+    STATUS_CHOICES = [
+        (STAGE_NEW, 'New Application'),
+        (STAGE_SCREENED, 'Screened'),
+        (STAGE_SHORTLISTED, 'Shortlisted'),
+        (STAGE_INTERVIEW_SCHEDULED, 'Interview Scheduled'),
+        (STAGE_INTERVIEW_COMPLETE, 'Interview Complete'),
+        (STAGE_ASSESSMENT, 'Assessment'),
+        (STAGE_OFFER, 'Offer Extended'),
+        (STAGE_NEGOTIATION, 'In Negotiation'),
+        (STAGE_HIRED, 'Hired'),
+        (STAGE_REJECTED, 'Rejected'),
+        (STAGE_WITHDRAWN, 'Withdrawn'),
+    ]
+
+    job = models.ForeignKey(
+        Job, on_delete=models.CASCADE, related_name='applications',
+        help_text="The job position being applied for.",
+    )
+    department = models.ForeignKey(
+        'Department', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='applications',
+        help_text="Department the applicant is applying to.",
+    )
+    candidate_name = models.CharField(max_length=200, help_text="Full legal name of the candidate.")
+    candidate_email = models.EmailField(help_text="Primary email for candidate communication.")
+    candidate_phone = models.CharField(max_length=30, blank=True)
+    candidate_linkedin = models.URLField(max_length=500, blank=True, help_text="Candidate's LinkedIn profile URL")
+    cover_letter = models.TextField(blank=True, null=True, help_text="Candidate's cover letter")
+    resume = models.FileField(
+        upload_to='job_applications/resumes/', blank=True, null=True,
+        help_text="CV or resume file (PDF, DOC, DOCX - max 5MB)"
+    )
+    portfolio = models.FileField(
+        upload_to='job_applications/portfolios/', blank=True, null=True,
+        help_text="Portfolio or work samples link/file"
+    )
+    source = models.CharField(
+        max_length=30, choices=SOURCE_CHOICES, default=SOURCE_JOB_PORTAL,
+        help_text="How the candidate found this job posting.",
+    )
+    source_detail = models.CharField(max_length=200, blank=True, help_text="Specific source detail (e.g., job board name, referrer name)")
+    status = models.CharField(
+        max_length=30, choices=STATUS_CHOICES, default=STAGE_NEW,
+        db_index=True,
+        help_text="Current stage in the applicant tracking pipeline.",
+    )
+    priority = models.CharField(
+        max_length=20, choices=[('low', 'Low'), ('medium', 'Medium'), ('high', 'High'), ('urgent', 'Urgent')],
+        default='medium',
+        help_text="Application priority for recruiter workflow.",
+    )
+    rating = models.PositiveIntegerField(null=True, blank=True, help_text="Candidate rating (1-5) by recruiter.")
+    applied_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    status_changed_at = models.DateTimeField(auto_now=True, help_text="When current status was set.")
+    notes = models.TextField(blank=True, null=True, help_text="Internal recruiter notes.")
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='ats_applications_assigned',
+        help_text="Recruiter assigned to this application.",
+    )
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='ats_applications_reviewed',
+    )
+    interview_date = models.DateTimeField(null=True, blank=True, help_text="Scheduled interview date and time.")
+    interview_location = models.CharField(max_length=500, blank=True, help_text="Interview location or video link.")
+    offer_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Offered salary.")
+    offer_date = models.DateTimeField(null=True, blank=True)
+    offer_conditions = models.TextField(blank=True, null=True, help_text="Offer terms and conditions.")
+    rejection_reason = models.TextField(blank=True, null=True, help_text="Reason for rejection.")
+    started_at = models.DateTimeField(null=True, blank=True, help_text="Candidate's availability start date.")
+    employee_type = models.CharField(max_length=50, blank=True, help_text="Full-time, Part-time, Contract, etc.")
+
+    class Meta:
+        ordering = ['-applied_at']
+        indexes = [
+            models.Index(fields=['status', 'applied_at']),
+            models.Index(fields=['job', 'status']),
+            models.Index(fields=['department', 'status']),
+            models.Index(fields=['candidate_email']),
+            models.Index(fields=['source', 'applied_at']),
+        ]
+
+    def __str__(self):
+        return f"#{self.id}: {self.candidate_name} - {self.job.title}"
+
+    @property
+    def is_active(self):
+        """Return True if application is still in active pipeline."""
+        return self.status not in (self.STAGE_HIRED, self.STAGE_REJECTED, self.STAGE_WITHDRAWN)
+
+    @property
+    def pipeline_progress(self):
+        """Return progress as percentage through the pipeline."""
+        if self.status == self.STAGE_HIRED:
+            return 100
+        if self.status in (self.STAGE_REJECTED, self.STAGE_WITHDRAWN):
+            return 0
+        try:
+            current_idx = self.PIPELINE_STAGES.index(self.status)
+            total = len(self.PIPELINE_STAGES)
+            return round((current_idx / (total - 1)) * 100, 1)
+        except ValueError:
+            return 0
+
+    def move_to_stage(self, new_status, user=None):
+        """Move application to a new pipeline stage."""
+        if new_status not in dict(self.STATUS_CHOICES):
+            raise ValueError(f"Invalid status: {new_status}")
+        self.status = new_status
+        self.status_changed_at = timezone.now()
+        if user:
+            self.reviewed_by = user
+        self.save(update_fields=['status', 'status_changed_at', 'reviewed_by', 'updated_at'])
+
+    @property
+    def days_in_pipeline(self):
+        """Return number of days since application was submitted."""
+        if self.applied_at:
+            return (timezone.now() - self.applied_at).days
+        return 0
+
+
+# ── ATS Interview Model ──────────────────────────────
+class Interview(models.Model):
+    """Scheduled interview for a job application."""
+
+    INTERVIEW_PHONE = 'phone'
+    INTERVIEW_VIDEO = 'video'
+    INTERVIEW_IN_PERSON = 'in_person'
+    INTERVIEW_ON_SITE = 'on_site'
+
+    INTERVIEW_TYPE_CHOICES = [
+        (INTERVIEW_PHONE, 'Phone Screening'),
+        (INTERVIEW_VIDEO, 'Video Call'),
+        (INTERVIEW_IN_PERSON, 'In-Person'),
+        (INTERVIEW_ON_SITE, 'On-Site'),
+    ]
+
+    STAGE_INITIAL = 'initial'
+    STAGE_TECHNICAL = 'technical'
+    STAGE_BEHAVIORAL = 'behavioral'
+    STAGE_FINAL = 'final'
+    STAGE_HR = 'hr'
+
+    INTERVIEW_STAGE_CHOICES = [
+        (STAGE_INITIAL, 'Initial Screening'),
+        (STAGE_TECHNICAL, 'Technical'),
+        (STAGE_BEHAVIORAL, 'Behavioral'),
+        (STAGE_FINAL, 'Final'),
+        (STAGE_HR, 'HR'),
+    ]
+
+    application = models.ForeignKey(
+        JobApplication, on_delete=models.CASCADE, related_name='interviews',
+    )
+    interview_type = models.CharField(
+        max_length=20, choices=INTERVIEW_TYPE_CHOICES, default=INTERVIEW_VIDEO,
+    )
+    interview_stage = models.CharField(
+        max_length=20, choices=INTERVIEW_STAGE_CHOICES, default=STAGE_INITIAL,
+    )
+    interviewer = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='interviews_conducted',
+    )
+    scheduled_at = models.DateTimeField()
+    duration_minutes = models.PositiveIntegerField(default=60)
+    location = models.CharField(max_length=500, blank=True, help_text="Location or video link")
+    notes = models.TextField(blank=True, null=True)
+    outcome = models.CharField(max_length=20, choices=[('pass', 'Passed'), ('fail', 'Failed'), ('pending', 'Pending')], default='pending')
+    feedback = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['scheduled_at']
+        indexes = [
+            models.Index(fields=['scheduled_at', 'interviewer']),
+            models.Index(fields=['application', 'interview_stage']),
+        ]
+
+    def __str__(self):
+        return f"Interview for #{self.application.id} - {self.interview_stage}"
+
+    @property
+    def is_upcoming(self):
+        return self.scheduled_at > timezone.now() and self.outcome == 'pending'
+
+    @property
+    def is_overdue(self):
+        return self.scheduled_at < timezone.now() and self.outcome == 'pending'
+
+
+# ── ATS Activity/Note Model ──────────────────────────
+class ApplicationNote(models.Model):
+    """Activity log notes for a job application."""
+
+    ACTION_CREATED = 'created'
+    ACTION_STATUS_CHANGE = 'status_change'
+    ACTION_ASSIGNED = 'assigned'
+    ACTION_INTERVIEW = 'interview'
+    ACTION_OFFER = 'offer'
+    ACTION_REJECTED = 'rejected'
+    ACTION_NOTE = 'note'
+    ACTION_ATTACHMENT = 'attachment'
+
+    ACTION_CHOICES = [
+        (ACTION_CREATED, 'Application Created'),
+        (ACTION_STATUS_CHANGE, 'Status Changed'),
+        (ACTION_ASSIGNED, 'Assigned to Recruiter'),
+        (ACTION_INTERVIEW, 'Interview Scheduled'),
+        (ACTION_OFFER, 'Offer Extended'),
+        (ACTION_REJECTED, 'Rejected'),
+        (ACTION_NOTE, 'Note Added'),
+        (ACTION_ATTACHMENT, 'Attachment Uploaded'),
+    ]
+
+    application = models.ForeignKey(
+        JobApplication, on_delete=models.CASCADE, related_name='activity_log',
+    )
+    action = models.CharField(max_length=30, choices=ACTION_CHOICES, default=ACTION_NOTE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+    )
+    content = models.TextField()
+    attachments = models.TextField(blank=True, null=True, help_text="Comma-separated file references")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['application', 'action']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return f"#{self.application.id} - {self.get_action_display()} by {self.user or 'System'}"
+
+
+# ── ATS Source Tracking Model ──────────────────────
+class SourceTracker(models.Model):
+    """Track job posting sources and their effectiveness."""
+
+    source_name = models.CharField(max_length=100)
+    source_url = models.URLField(max_length=500, blank=True)
+    source_type = models.CharField(
+        max_length=30,
+        choices=[
+            ('job_board', 'Job Board'),
+            ('social_media', 'Social Media'),
+            ('referral', 'Referral Program'),
+            ('career_fair', 'Career Fair'),
+            ('company_website', 'Company Website'),
+            ('internal', 'Internal'),
+            ('other', 'Other'),
+        ],
+        default='job_board',
+    )
+    cost_per_hire = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    applications_count = models.PositiveIntegerField(default=0)
+    hired_count = models.PositiveIntegerField(default=0)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-hired_count']
+
+    def __str__(self):
+        return f"{self.source_name} ({self.applications_count} apps, {self.hired_count} hired)"
+
+    @property
+    def conversion_rate(self):
+        if self.applications_count > 0:
+            return round((self.hired_count / self.applications_count) * 100, 1)
+        return 0.0
+
+
+# ── Department model ──────────────────────────────────
+class Department(MetadataMixin):
+    """Organizational department for filtering job posts."""
+
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    headcount = models.PositiveIntegerField(default=0)
+    manager = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='managed_departments',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def open_positions(self):
+        return Job.objects.filter(department=self, is_active=True).count()
+
+    @property
+    def total_applications(self):
+        return self.applications.filter(is_active=True).count()

@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Gallery - Dovetec Enterprises | Projects & Events{% endblock %}
+{% block seo_desc %}Explore our rich gallery of projects, events, and team moments at Dovetec Enterprises. Software engineering success stories from Nairobi, Kenya.{% endblock %}
+{% block seo_keys %}gallery, projects, events, team, Dovetec Enterprises, Nairobi, Kenya{% endblock %}
+{% block og_title %}Gallery - Dovetec Enterprises{% endblock %}
+{% block og_desc %}Explore our rich gallery of projects, events, and team moments.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Gallery - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}Explore our rich gallery of projects, events, and team moments.{% endblock %}
+{% block content %}
+  <div class="hero overlay pt-0 vw-100" data-stellar-background-ratio="0.5" style="background-image: url('{% static 'images/hero_bg.png' %}') background-position: 0% 39px; background-repeat: no-repeat; background-size: cover;">
+    <div class="container">
+      <div class="row align-items-center justify-content-between">
+        <div class="col-lg-12">
+          <div class="row align-items-center">
+            <div class="col-lg-7 intro p-3 rounded text-start">
+              <h1  data-aos-delay="0" class="aos-init aos-animate">Contact us</h1>
+              <p class="text-white mb-4 aos-init aos-animate p-3"  data-aos-delay="10">For inquiries, collaborations, or
+                consultations, please feel free to contact us using the information above. We look forward to hearing
+                from you.</p>
+              <p  data-aos-delay="200" class="aos-init aos-animate"><a href="/contact" class="btn btn-primary">Get In
+                  Touch</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container pt-5 pb-5 mb-5 border-bottom">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="h6 mb-3 text-black">Latest Arts</h1>
+      </div>
+      <div class="col-lg-12">
+        <div class="main-slider owl-single dots-absolute owl-carousel">
+          <img src="{% static 'images/img_v_4-min.png' %}" alt="Image" class="img-fluid">
+          <img src="{% static 'images/img_h_1-min.png' %}" alt="Image" class="img-fluid">
+          <img src="{% static 'images/img_h_6-min.png' %}" alt="Image" class="img-fluid">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container pb-5 mb-5 border-bottom">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="h6 mb-3 text-black">QA's</h1>
+      </div>
+      <div class="col-lg-12">
+        <div class="custom-accordion" id="accordion_1">
+          <div class="accordion-item">
+            <h2 class="mb-0">
+              <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne"
+                aria-expanded="true" aria-controls="collapseOne">What software solutions does Dovetec Enterprises
+                offer?</button>
+            </h2>
+
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion_1">
+              <div class="accordion-body">
+                Dovetec Enterprises offers a range of software solutions tailored to meet diverse business needs. From
+                enterprise resource planning (ERP) systems to customer relationship management (CRM) software, we
+                provide comprehensive solutions to streamline processes and drive growth.
+              </div>
+            </div>
+          </div> <!-- ./Accordion Item -->
+
+          <div class="accordion-item">
+            <h2 class="mb-0">
+              <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo"
+                aria-expanded="false" aria-controls="collapseTwo">How does Dovetec Enterprises market its software
+                solutions?</button>
+            </h2>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion_1">
+              <div class="accordion-body">
+                Dovetec Enterprises employs a multi-faceted marketing approach to promote its software solutions. This
+                includes targeted digital advertising, participation in industry events and conferences, content
+                marketing through blogs and whitepapers, and strategic partnerships with complementary service
+                providers.
+              </div>
+            </div>
+          </div> <!-- ./Accordion Item -->
+          <div class="accordion-item">
+            <h2 class="mb-0">
+              <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree"
+                aria-expanded="false" aria-controls="collapseThree">How does Dovetec Enterprises support its clients in
+                the sales process?</button>
+            </h2>
+
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion_1">
+              <div class="accordion-body">
+                Dovetec Enterprises provides extensive support to its clients throughout the sales process. This
+                includes personalized demonstrations of software solutions, in-depth consultations to understand
+                specific business needs, and tailored proposals outlining the value proposition and return on investment
+                (ROI) of implementing our products.
+              </div>
+            </div>
+
+          </div> <!-- ./Accordion Item -->
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="container pb-5 mb-5 border-bottom">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="h6 mb-3 text-black">Arts Gallery</h1>
+      </div>
+      <div class="col-lg-12">
+        <div class="row gutter-1 elements">
+          <div class="col-4">
+            <a href="{% static 'images/img_v_4-min.png' %}" class="gal-item" data-fancybox="gal"><img
+                src="{% static 'images/img_h_1-min.png' %}" alt="Image" class="img-fluid"></a>
+          </div>
+          <div class="col-4">
+            <a href="{% static 'images/img_h_8-min.png' %}" class="gal-item" data-fancybox="gal"><img
+                src="{% static 'images/img_h_1-min.png' %}" alt="Image" class="img-fluid"></a>
+          </div>
+          <div class="col-4">
+            <a href="{% static 'images/img_h_3-min.jpg' %}" class="gal-item" data-fancybox="gal"><img
+                src="{% static 'images/img_h_3-min.jpg' %}" alt="Image" class="img-fluid"></a>
+          </div>
+          <div class="col-4">
+            <a href="{% static 'images/img_h_4-min.png' %}" class="gal-item" data-fancybox="gal"><img
+                src="{% static 'images/img_h_4-min.png' %}" alt="Image" class="img-fluid"></a>
+          </div>
+          <div class="col-4">
+            <a href="{% static 'images/img_h_5-min.jpg' %}" class="gal-item" data-fancybox="gal"><img
+                src="{% static 'images/img_h_5-min.jpg' %}" alt="Image" class="img-fluid"></a>
+          </div>
+          <div class="col-4">
+            <a href="{% static 'images/img_h_6-min.png' %}" class="gal-item" data-fancybox="gal"><img
+                src="{% static 'images/img_h_6-min.png' %}" alt="Image" class="img-fluid"></a>
+          </div>
+          <div class="col-4">
+            <a href="{% static 'images/img_h_8-min.png' %}" class="gal-item" data-fancybox="gal"><img
+                src="{% static 'images/img_h_8-min.png' %}" alt="Image" class="img-fluid"></a>
+          </div>
+          <div class="col-4">
+            <a href="{% static 'images/img_h_6-min.png' %}" class="gal-item" data-fancybox="gal"><img
+                src="{% static 'images/img_h_6-min.png' %}" alt="Image" class="img-fluid"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container pb-5 mb-5 border-bottom">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="h6 mb-3 text-black">Media</h1>
+      </div>
+      <div class="col-lg-7">
+        <a href="https://youtu.be/KCcrhGTAm6I" data-fancybox class="video-wrap">
+          <span class="play-wrap"><span class="icon-play"></span></span>
+          <img src="{% static 'images/img_h_5-min.jpg' %}" alt="Image" class="img-fluid rounded">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container pb-5 mb-5 border-bottom">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="h6 mb-3 text-black">Contact US</h1>
+      </div>
+      <div class="col-lg-7">
+        <form>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="text-black" for="fname">First name</label>
+                <input type="text" class="form-control" id="fname">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="text-black" for="lname">Last name</label>
+                <input type="text" class="form-control" id="lname">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="text-black" for="email">Email address</label>
+            <input type="email" class="form-control" id="email" aria-describedby="emailHelp">
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+          </div>
+          <!-- <div class="form-group">
+            <label class="text-black" for="password">Password</label>
+            <input type="password" class="form-control" id="password">
+          </div> -->
+          <div class="form-group">
+            <label class="text-black" for="message">Message</label>
+            <textarea name="" class="form-control" id="message" cols="30" rows="5"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="text-black" for="select">Select</label>
+
+            <select name="" id="select" class="custom-select">
+              <option value="">Contact Us</option>
+              <option value=""> I have Project in Mind </option>
+              <option value=""> Interested in Working with you </option>
+            </select>
+
+          </div>
+          <div class="form-group">
+            <label class="control control--checkbox">
+              <span class="caption">Subscribe to our Newsletter to Be the first to recieve an update from us on our
+                latest articles, offers ...</span>
+              <input type="checkbox" checked="checked" />
+              <div class="control__indicator"></div>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary-hover-outline">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="container pb-5 mb-5 border-bottom">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="h6 mb-3 text-black">06. Follow Us!</h1>
+      </div>
+      <div class="col-lg-7">
+        <ul class="list-unstyled social-icons light">
+          <li><a href="https://facebook.com/dovetec.org"><span class="icon-facebook"></span></a></li>
+          <li><a href="https://twitter.com/doveowuor"><span class="icon-twitter"></span></a></li>
+          <li><a href="https://linkedin.com/company/dovetecenterprises"><span class="icon-linkedin"></span></a></li>
+          <li><a href="https://drible.vom/@doveowuor"><span class="icon-dribbble"></span></a></li>
+          <li><a href="https://youtube.com/@CodewithDove"><span class="icon-youtube"></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="container pb-5 mb-5 border-bottom">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="h6 mb-3 text-black">07. Testimonials</h1>
+      </div>
+      <div class="col-lg-7">
+        <div class="main-slider owl-single owl-carousel">
+          <div class="testimonial mx-auto">
+            <figure class="img-wrap">
+              <img src="/dovetecenterprises/static/images/person_2-min.png" alt="Image" class="img-fluid">
+            </figure>
+            <h3 class="name">Adam Aderson</h3>
+            <blockquote>
+              <p>&ldquo;There live the blind texts. Separated they live in Bookmarksgrove right at the coast of the
+                Semantics, a large language ocean.&rdquo;</p>
+            </blockquote>
+          </div>
+
+          <div class="testimonial mx-auto">
+            <figure class="img-wrap">
+              <img src="{% static 'images/person_3-min.png' %}" alt="Image" class="img-fluid">
+            </figure>
+            <h3 class="name">Lukas Devlin</h3>
+            <blockquote>
+              <p>&ldquo;There live the blind texts. Separated they live in Bookmarksgrove right at the coast of the
+                Semantics, a large language ocean.&rdquo;</p>
+            </blockquote>
+          </div>
+
+          <div class="testimonial mx-auto">
+            <figure class="img-wrap">
+              <img src="{% static 'images/person_1-min.png' %}" alt="Image" class="img-fluid">
+            </figure>
+            <h3 class="name">Kayla Bryant</h3>
+            <blockquote>
+              <p>&ldquo;There live the blind texts. Separated they live in Bookmarksgrove right at the coast of the
+                Semantics, a large language ocean.&rdquo;</p>
+            </blockquote>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <div class="container pb-5 mb-5 border-bottom">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="h6 mb-3 text-black">Food For Thought!</h1>
+      </div>
+      <div class="col-lg-7">
+        <ul class="list-unstyled list-check primary">
+          <li>Engineering is all about Scientific approach to technical solutions</li>
+          <li>Beauty of art is relative to the <span>Artist</span></li>
+          <li>The most separated you are from action, the furthest you are from your achievements</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="site-section overlay site-cover-2">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-7 mx-auto text-center">
+          <h2 class="text-white mb-4">Discover How we Employ Science and Art In our Work</h2>
+          <!-- <p class="mb-0"><a href="https://dovetecenterprises.tech/" rel="noopener" class="btn btn-primary">Get it for -->
+          <!-- free!</a></p> -->
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" data-aos="fade-down">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-1"><i data-feather="layers" class="me-2"></i>Questionnaire Template Library</h1>
+        <p class="text-muted mb-0">Preset questionnaires assignable by context — discovery, onboarding, satisfaction, end of service.</p>
+    </div>
+    <form method="get" class="d-flex gap-2">
+        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search title / industry…">
+        <select name="context" class="form-select" style="width:auto;">
+            <option value="">All contexts</option>
+            {% for v, l in context_choices %}
+            <option value="{{ v }}" {% if context_f == v %}selected{% endif %}>{{ l }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-outline-secondary"><i data-feather="search"></i></button>
+    </form>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white" data-aos="fade-up">
+            <h5 class="fw-bold mb-3">New template</h5>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create">
+                <div class="mb-2">
+                    <label class="form-label small">Title *</label>
+                    <input name="title" class="form-control" required placeholder="e.g. Post-project satisfaction">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Context</label>
+                    <select name="context" class="form-select">
+                        {% for v, l in context_choices %}
+                        <option value="{{ v }}">{{ l }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Industry (optional filter)</label>
+                    <input name="industry" class="form-control" placeholder="blank = any">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small">Intro</label>
+                    <textarea name="intro" class="form-control" rows="2"></textarea>
+                </div>
+                <button class="btn btn-primary w-100">Create & add questions</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="bg-white rounded-4 shadow-sm p-4" data-aos="fade-up">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="border-bottom">
+                    <tr>
+                        <th class="text-muted fw-bold">Template</th>
+                        <th class="text-muted fw-bold">Context</th>
+                        <th class="text-muted fw-bold">Industry</th>
+                        <th class="text-muted fw-bold">Qs</th>
+                        <th class="text-muted fw-bold">Active</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in templates %}
+                    <tr>
+                        <td><a href="{% url 'template_detail' t.id %}" class="fw-bold text-decoration-none">{{ t.title }}</a></td>
+                        <td><span class="badge bg-secondary-subtle text-secondary-emphasis">{{ t.get_context_display }}</span></td>
+                        <td>{{ t.industry|default:"—" }}</td>
+                        <td>{{ t.question_count }}</td>
+                        <td>{% if t.is_active %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+                        <td class="text-end">
+                            <a href="{% url 'template_detail' t.id %}" class="btn btn-sm btn-outline-dark">Edit</a>
+                            <form method="post" class="d-inline" onsubmit="return confirm('Delete this template?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="template_id" value="{{ t.id }}">
+                                <button class="btn btn-sm btn-outline-danger"><i data-feather="trash-2" style="width:14px;"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-center text-muted py-5">No templates yet — create one on the left.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

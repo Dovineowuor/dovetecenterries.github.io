@@ -1,0 +1,54 @@
+<div id="component" class="container-fluid py-3">
+    {% for article_obj in trending_articles %}
+    <div class="bg-white p-4 rounded-3 shadow-sm mb-4">
+        <div class="container d-flex flex-wrap">
+            <!-- Image Section -->
+            <div class="col-xl-6 col-lg-12 mb-4 mb-xl-0">
+                <img class="img-fluid rounded shadow w-100 h-50" src="{{ article_obj.image.url }}" alt="{{ article_obj.title }}">
+            </div>
+
+            <!-- Article Details Section -->
+            <div class="col-xl-6 col-lg-12">
+                <div class="d-flex align-items-center mb-3">
+                    <!-- Author Avatar -->
+                    <div class="author-avatar rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                        <img class="img-fluid rounded-circle" src="{% if article_obj.author.avatar %}{{ article_obj.author.avatar.url }}{% else %}/media/profile/person_1-min.png{% endif %}" alt="{{ article_obj.author.name }}">
+                    </div>
+
+                    <!-- Author Information -->
+                    <div class="author-info">
+                        <p class="text-purple fs-6 font-weight-semibold font-family-Inter m-0">
+                            {% if article_obj.author.name %}
+                                {{ article_obj.author.name }}
+                            {% else %}
+                                Admin
+                            {% endif %}
+                        </p>
+                        <p class="text-muted fs-6 m-0">{{ article_obj.created_at|date:"D, d M Y" }}</p>
+                    </div>
+                </div>
+
+                <!-- Article Title -->
+                <h3 class="text-dark fs-5 fw-semibold font-family-Inter mb-2">
+                    {{ article_obj.title }}
+                </h3>
+
+                <!-- Article Description -->
+                <p class="text-secondary fs-6 fw-normal font-family-Inter mb-4">
+                    {{ article_obj.seo_description | truncatewords_html:50 }}
+                </p>
+
+                <!-- Categories/Tags Section -->
+                <div class="d-flex gap-3">
+                    {% for category in article_obj.categories.all %}
+                        <!-- Category Badge -->
+                        <div class="badge bg-light text-primary px-3 py-2 rounded-3 fw-medium">
+                            {{ category.name }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>

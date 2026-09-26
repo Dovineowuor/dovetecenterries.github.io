@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Our Team - Dovetec Enterprises | Meet the Architects of Innovation{% endblock %}
+{% block seo_desc %}Meet the team of visionary engineers, designers, and strategists at Dovetec Enterprises dedicated to defining the future of digital complexities. Join us as we shape the future of technology.{% endblock %}
+{% block seo_keys %}Dovetec team, engineers, designers, strategists, Nairobi, Kenya, leadership{% endblock %}
+{% block og_title %}Our Team - Dovetec Enterprises{% endblock %}
+{% block og_desc %}Meet the team of visionary engineers, designers, and strategists at Dovetec Enterprises.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Our Team - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}Meet the team of visionary engineers, designers, and strategists at Dovetec Enterprises.{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-glow: rgba(43, 95, 87, 0.15);
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.4);
+    }
+
+    .team-hero {
+        background: radial-gradient(circle at top right, rgba(43, 95, 87, 0.08), transparent 40%),
+            radial-gradient(circle at bottom left, rgba(232, 62, 140, 0.05), transparent 40%),
+            #fbfbfd;
+        padding: 160px 0 100px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .abstract-shape {
+        position: absolute;
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.4;
+    }
+
+    .shape-1 {
+        top: -10%;
+        right: -5%;
+        width: 400px;
+        height: 400px;
+        background: var(--primary);
+        border-radius: 50%;
+    }
+
+    .shape-2 {
+        bottom: -10%;
+        left: -5%;
+        width: 300px;
+        height: 300px;
+        background: var(--secondary);
+        border-radius: 50%;
+    }
+
+    .chalk-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 40px;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 1.5rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02);
+    }
+
+    .chalk-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.08);
+        border-color: rgba(43, 95, 87, 0.2);
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .team-avatar-container {
+        position: relative;
+        border-radius: 30px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        aspect-ratio: 4/5;
+    }
+
+    .team-avatar-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .chalk-card:hover .team-avatar-container img {
+        transform: scale(1.1);
+    }
+
+    .social-reveal {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        transform: translateY(100%);
+        transition: transform 0.4s ease;
+    }
+
+    .chalk-card:hover .social-reveal {
+        transform: translateY(0);
+    }
+
+    .social-reveal a {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .social-reveal a:hover {
+        background: white;
+        color: var(--primary);
+        transform: scale(1.1);
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 0.5rem 1.25rem;
+        background: rgba(43, 95, 87, 0.08);
+        color: var(--primary);
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+    }
+
+    .join-section {
+        padding: 120px 0;
+        background: #fbfbfd;
+    }
+
+    .join-card {
+        background: linear-gradient(135deg, #2b5f57 0%, #1f443e 100%);
+        border-radius: 50px;
+        padding: 5rem 2rem;
+        position: relative;
+        overflow: hidden;
+        color: white;
+        box-shadow: 0 40px 100px rgba(13, 71, 161, 0.2);
+    }
+
+    .join-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+
+    .premium-title {
+        font-weight: 900;
+        letter-spacing: -2px;
+        line-height: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="team-hero">
+    <div class="abstract-shape shape-1"></div>
+    <div class="abstract-shape shape-2"></div>
+
+    <div class="container position-relative">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-9" data-aos="fade-up">
+                <span class="badge bg-soft-primary text-primary px-4 py-2 mb-4 fw-bold">OUR ARCHITECTS</span>
+                <h1 class="display-2 premium-title mb-4">Meet the Minds Shaping <span
+                        class="text-primary">Innovation</span></h1>
+                <p class="lead text-muted px-lg-9">A collective of visionary engineers, designers, and strategists
+                    dedicated to defining the future of digital complexities.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pb-8 bg-white">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Team Member 1 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
+                <div class="chalk-card">
+                    <div class="team-avatar-container">
+                        <img src="{% static 'images/person_1-min.png' %}" alt="Dovine K.">
+                        <div class="social-reveal">
+                            <a href="#"><i class="feather-linkedin"></i></a>
+                            <a href="#"><i class="feather-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="text-center px-2">
+                        <span class="role-badge">{% trans "CEO & Founder" %}</span>
+                        <h3 class="fw-800 mb-2">Dovine K.</h3>
+                        <p class="text-muted small lh-lg">Leading Dovetec with a vision to synchronize human creativity
+                            with advanced technological nodes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 2 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="chalk-card">
+                    <div class="team-avatar-container">
+                        <img src="{% static 'images/person_2-min.png' %}" alt="Marvin Kurland">
+                        <div class="social-reveal">
+                            <a href="#"><i class="feather-linkedin"></i></a>
+                            <a href="#"><i class="feather-github"></i></a>
+                        </div>
+                    </div>
+                    <div class="text-center px-2">
+                        <span class="role-badge">{% trans "CTO & Lead Engineer" %}</span>
+                        <h3 class="fw-800 mb-2">Marvin Kurland</h3>
+                        <p class="text-muted small lh-lg">Architecting scalable ecosystems and driving the technical
+                            excellence of our innovations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 3 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="chalk-card">
+                    <div class="team-avatar-container">
+                        <img src="{% static 'images/person_3-min.png' %}" alt="Joflix O. O">
+                        <div class="social-reveal">
+                            <a href="#"><i class="feather-linkedin"></i></a>
+                            <a href="#"><i class="feather-message-circle"></i></a>
+                        </div>
+                    </div>
+                    <div class="text-center px-2">
+                        <span class="role-badge">{% trans "Product Manager" %}</span>
+                        <h3 class="fw-800 mb-2">Joflix O. O</h3>
+                        <p class="text-muted small lh-lg">Strategizing the intersection of healthcare and software to
+                            create impactful digital tools.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 4 -->
+            <div class="col-lg-4 offset-lg-2 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="chalk-card">
+                    <div class="team-avatar-container">
+                        <img src="{% static 'images/person_6-min.png' %}" alt="Jeremic Arose">
+                        <div class="social-reveal">
+                            <a href="#"><i class="feather-linkedin"></i></a>
+                        </div>
+                    </div>
+                    <div class="text-center px-2">
+                        <span class="role-badge">{% trans "Project Manager" %}</span>
+                        <h3 class="fw-800 mb-2">Jeremic Arose</h3>
+                        <p class="text-muted small lh-lg">Ensuring seamless execution and maintaining high-velocity
+                            relationships with our partners.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Member 5 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="chalk-card">
+                    <div class="team-avatar-container">
+                        <img src="{% static 'images/person_7-min.png' %}" alt="Mary A. O">
+                        <div class="social-reveal">
+                            <a href="#"><i class="feather-instagram"></i></a>
+                            <a href="#"><i class="feather-linkedin"></i></a>
+                        </div>
+                    </div>
+                    <div class="text-center px-2">
+                        <span class="role-badge">{% trans "Design Lead" %}</span>
+                        <h3 class="fw-800 mb-2">Mary A. O</h3>
+                        <p class="text-muted small lh-lg">Crafting premium visual languages and customer-centric
+                            interfaces for global reach.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="join-section">
+    <div class="container">
+        <div class="join-card text-center" data-aos="zoom-in">
+            <h2 class="display-4 fw-900 mb-4">Wanna Build the Future?</h2>
+            <p class="lead mb-5 opacity-75 mx-auto" style="max-width: 600px;">We are always looking for passionate
+                architects of code and design to join our global network.</p>
+            <a href="{% url 'careers' %}" class="btn btn-warning btn-lg px-5 py-3 fw-900 shadow-lg border-0">
+                EXPLORE OPPORTUNITIES <i class="feather-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

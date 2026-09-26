@@ -1,0 +1,50 @@
+{% load static %}
+{% load i18n %}
+
+<div class="d-flex align-items-center gap-3">
+    <span class="small fw-bold text-muted">{% trans "Share:" %}</span>
+    <!-- Facebook -->
+    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" 
+       target="_blank" rel="noopener noreferrer" 
+       class="text-muted h5 mb-0 hover-primary transition-all">
+        <i class="feather-facebook"></i>
+    </a>
+    <!-- Twitter / X -->
+    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode }}&text={{ title|urlencode }}" 
+       target="_blank" rel="noopener noreferrer" 
+       class="text-muted h5 mb-0 hover-primary transition-all">
+        <i class="feather-twitter"></i>
+    </a>
+    <!-- LinkedIn -->
+    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri|urlencode }}" 
+       target="_blank" rel="noopener noreferrer" 
+       class="text-muted h5 mb-0 hover-primary transition-all">
+        <i class="feather-linkedin"></i>
+    </a>
+    <!-- Copy Link (JS powered) -->
+    <button onclick="copyToClipboard('{{ request.build_absolute_uri }}')" 
+            class="btn btn-link p-0 text-muted h5 mb-0 hover-primary transition-all border-0 shadow-none">
+        <i class="feather-link"></i>
+    </button>
+</div>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show a temporary toast or alert if possible
+        alert('{% trans "Link copied to clipboard!" %}');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+    });
+}
+</script>
+
+<style>
+.hover-primary:hover {
+    color: var(--brand-primary) !important;
+    transform: translateY(-2px);
+}
+.transition-all {
+    transition: all 0.2s ease-in-out;
+}
+</style>

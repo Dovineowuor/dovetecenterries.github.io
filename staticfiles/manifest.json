@@ -1,0 +1,21 @@
+{
+  "name": "Dovetec Enterprises",
+  "short_name": "Dovetec",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2b5f57",
+  "description": "Leading software engineering and IT consulting firmly rooted in Nairobi, Kenya and serving East Africa.",
+  "icons": [
+    {
+      "src": "/static/images/logo-dovetek.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/logo-dovetek.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

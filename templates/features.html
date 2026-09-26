@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% block title %}Feature Requests — Dovetec{% endblock %}
+{% block seo_desc %}Vote on and discuss feature requests for the Dovetec client portal and platform.{% endblock %}
+{% block content %}
+<div class="section">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-lg-8 mx-auto text-center">
+        <h1 class="display-5 fw-bold">Feature Requests</h1>
+        <p class="lead text-muted">Tell us what to build next. Upvote ideas and track what's planned, in progress, or shipped.</p>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-lg-8 mx-auto">
+        <form method="get" class="d-flex gap-2">
+          <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search features…">
+          <select name="status" class="form-select" style="max-width:160px;">
+            <option value="">All statuses</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if status_f == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary">Filter</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      {% for feature in features %}
+      <div class="col-md-6">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge {{ feature.status_badge }}">
+                {{ feature.get_status_display }}
+              </span>
+              <span class="text-muted small">{{ feature.get_category_display }}</span>
+            </div>
+            <h5 class="card-title">
+              <a href="{% url 'feature_detail' feature.slug %}" class="text-decoration-none">{{ feature.title }}</a>
+            </h5>
+            <p class="card-text text-muted">{{ feature.description|truncatechars:160 }}</p>
+          </div>
+          <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+            <form method="post" action="{% url 'feature_vote' feature.slug %}">
+              {% csrf_token %}
+              <button class="btn btn-sm {% if feature.pk in voted_ids %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                ▲ {{ feature.vote_count }}
+              </button>
+            </form>
+            <a href="{% url 'feature_detail' feature.slug %}" class="small">Details →</a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center text-muted py-5">No feature requests yet. Be the first to suggest one.</div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="{% url 'feature_create' %}" class="btn btn-primary">Suggest a feature</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

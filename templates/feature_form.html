@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% block title %}Suggest a Feature — Dovetec{% endblock %}
+{% block content %}
+<div class="section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+        <a href="{% url 'feature_board' %}" class="btn btn-sm btn-outline-secondary mb-3">← Back to board</a>
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <h1 class="h3 fw-bold mb-3">Suggest a feature</h1>
+            <form method="post">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" required maxlength="200" value="{{ request.POST.title }}">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select">
+                  {% for value, label in category_choices %}
+                  <option value="{{ value }}">{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="5" required>{{ request.POST.description }}</textarea>
+              </div>
+              <button class="btn btn-primary">Submit request</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

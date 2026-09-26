@@ -1,0 +1,31 @@
+{
+  "builds": [
+    {
+      "src": "dovetecenterprises/wsgi.py",
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "50mb", "runtime": "python3.12" }
+    },
+    {
+      "src": "staticfiles/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "installCommand": "pip install -r requirements.txt && python manage.py migrate --noinput",
+  "framework": "django",
+  "build": {
+    "env": {
+      "DJANGO_SETTINGS_MODULE": "dovetecenterprises.settings",
+      "VERCEL": "1"
+    }
+  },
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/staticfiles/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "dovetecenterprises/wsgi.py"
+    }
+  ]
+}

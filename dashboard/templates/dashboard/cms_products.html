@@ -1,0 +1,81 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block header_actions %}
+<a href="{% url 'dashboard_add' 'shop' 'product' %}?next={{ request.path }}"
+    class="btn btn-sm btn-primary shadow-sm px-3 me-2"><i data-feather="plus"
+        style="width: 14px; margin-right: 5px; margin-top:-2px;"></i> Add Product</a>
+<a href="{% url 'dashboard_add' 'shop' 'category' %}?next={{ request.path }}"
+    class="btn btn-sm btn-outline-secondary shadow-sm px-3"><i data-feather="settings"
+        style="width: 14px; margin-right: 5px; margin-top:-2px;"></i> Add Category</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="table-responsive bg-white p-4 rounded-4 shadow-sm" data-aos="fade-up">
+    <table class="table table-hover table-borderless align-middle mb-0">
+        <thead class="border-bottom">
+            <tr>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Product</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Category</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Price</th>
+                <th class="text-muted font-weight-bold text-center" style="padding-bottom: 15px;">Stock</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Added</th>
+                <th class="text-muted font-weight-bold text-end" style="padding-bottom: 15px;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td class="font-weight-bold">
+                    <div class="d-flex align-items-center">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="rounded me-3 shadow-sm"
+                            style="width: 48px; height: 48px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-light text-muted rounded d-flex align-items-center justify-content-center me-3 shadow-sm"
+                            style="width: 48px; height: 48px;">
+                            <i data-feather="image" style="width:20px;"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <span class="text-dark">{{ product.name }}</span>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="badge bg-light text-primary border shadow-sm">{{ product.category.name|default:"Uncategorized" }}</span></td>
+                <td class="font-weight-bold text-success">${{ product.price }}</td>
+                <td class="text-center font-weight-bold">
+                    {% if product.stock > 10 %}
+                    <span class="text-success">{{ product.stock }}</span>
+                    {% elif product.stock > 0 %}
+                    <span class="text-warning">{{ product.stock }}</span>
+                    {% else %}
+                    <span class="text-danger">Out of stock</span>
+                    {% endif %}
+                </td>
+                <td class="text-muted small">{{ product.created_at|date:"M d, Y" }}</td>
+                <td class="text-end">
+                    <a href="{% url 'dashboard_edit' 'shop' 'product' product.id %}?next={{ request.path }}"
+                        class="btn btn-sm btn-outline-primary px-3 shadow-sm">Edit</a>
+                    <a href="{% url 'dashboard_delete' 'shop' 'product' product.id %}?next={{ request.path }}"
+                        class="btn btn-sm btn-outline-danger px-3 shadow-sm ms-1"><i data-feather="trash-2"
+                            style="width: 14px;"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted py-5">
+                    <div class="mb-3"><i data-feather="shopping-bag" class="text-muted opacity-50"
+                            style="width: 48px; height: 48px;"></i></div>
+                    No products added to your catalog yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mt-4 pb-4">
+    <span class="text-muted small">Showing all {{ products.count }} products.</span>
+</div>
+{% endblock %}

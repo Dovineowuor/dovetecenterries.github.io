@@ -1,0 +1,207 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<!-- KPI Cards -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 mb-4 text-center g-3 g-xl-4">
+    <div class="col">
+        <a href="{% url 'dashboard_clients' %}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm border-0 rounded-4 p-3 bg-gradient text-white position-relative overflow-hidden"
+                style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;" data-aos="fade-up"
+                data-aos-delay="0">
+                <i data-feather="users" class="position-absolute opacity-25"
+                    style="width: 100px; height: 100px; right: -10px; bottom: -10px;"></i>
+                <div class="card-body text-start position-relative z-1">
+                    <h5 class="card-subtitle text-uppercase font-weight-bold mb-2 opacity-75"
+                        style="letter-spacing: 1px; font-size: 0.85rem;">Total Clients</h5>
+                    <h2 class="display-5 font-weight-bold mb-0">{{ total_users }}</h2>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'dashboard_funnel' %}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm border-0 rounded-4 p-3 bg-gradient text-dark position-relative overflow-hidden"
+                style="background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%) !important;" data-aos="fade-up"
+                data-aos-delay="100">
+                <i data-feather="inbox" class="position-absolute opacity-25"
+                    style="width: 100px; height: 100px; right: -10px; bottom: -10px;"></i>
+                <div class="card-body text-start position-relative z-1">
+                    <h5 class="card-subtitle text-uppercase font-weight-bold mb-2 opacity-75"
+                        style="letter-spacing: 1px; font-size: 0.85rem;">New Leads</h5>
+                    <h2 class="display-5 font-weight-bold mb-0">{{ total_leads }}</h2>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'dashboard_forums' %}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm border-0 rounded-4 p-3 bg-gradient text-white position-relative overflow-hidden"
+                style="background: linear-gradient(135deg, #0ba360 0%, #3cba92 100%) !important;" data-aos="fade-up"
+                data-aos-delay="200">
+                <i data-feather="message-circle" class="position-absolute opacity-25"
+                    style="width: 100px; height: 100px; right: -10px; bottom: -10px;"></i>
+                <div class="card-body text-start position-relative z-1">
+                    <h5 class="card-subtitle text-uppercase font-weight-bold mb-2 opacity-75"
+                        style="letter-spacing: 1px; font-size: 0.85rem;">Active Topics</h5>
+                    <h2 class="display-5 font-weight-bold mb-0">{{ total_topics }}</h2>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'dashboard_products' %}" class="text-decoration-none">
+            <div class="card h-100 shadow-sm border-0 rounded-4 p-3 bg-gradient text-white position-relative overflow-hidden"
+                style="background: linear-gradient(135deg, #f85032 0%, #e73827 100%) !important;" data-aos="fade-up"
+                data-aos-delay="300">
+                <i data-feather="shopping-bag" class="position-absolute opacity-25"
+                    style="width: 100px; height: 100px; right: -10px; bottom: -10px;"></i>
+                <div class="card-body text-start position-relative z-1">
+                    <h5 class="card-subtitle text-uppercase font-weight-bold mb-2 opacity-75"
+                        style="letter-spacing: 1px; font-size: 0.85rem;">Products</h5>
+                    <h2 class="display-5 font-weight-bold mb-0">{{ total_products }}</h2>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 g-xl-4 mb-4">
+    <div class="col-12 col-md-4">
+        <div class="card h-100 shadow-sm border-0 p-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted text-uppercase fw-semibold small mb-1">Open orders</p>
+                    <p class="h2 mb-0">{{ open_orders }}</p>
+                </div>
+                <span class="rounded-circle bg-primary-subtle text-primary p-2"><i data-feather="package"></i></span>
+            </div>
+            <a class="small text-decoration-none mt-3" href="{% url 'dashboard_products' %}">Review catalogue <i data-feather="arrow-right" style="width: 14px;"></i></a>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card h-100 shadow-sm border-0 p-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted text-uppercase fw-semibold small mb-1">Published articles</p>
+                    <p class="h2 mb-0">{{ published_articles }}</p>
+                </div>
+                <span class="rounded-circle bg-success-subtle text-success p-2"><i data-feather="check-circle"></i></span>
+            </div>
+            <a class="small text-decoration-none mt-3" href="{% url 'dashboard_articles' %}">Manage content <i data-feather="arrow-right" style="width: 14px;"></i></a>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card h-100 shadow-sm border-0 p-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted text-uppercase fw-semibold small mb-1">Active pipeline value</p>
+                    <p class="h2 mb-0">KES {{ pipeline_value|floatformat:0 }}</p>
+                </div>
+                <span class="rounded-circle bg-warning-subtle text-warning-emphasis p-2"><i data-feather="trending-up"></i></span>
+            </div>
+            <a class="small text-decoration-none mt-3" href="{% url 'dashboard_funnel' %}">View sales funnel <i data-feather="arrow-right" style="width: 14px;"></i></a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 g-xl-4 mb-5">
+    <div class="col-12 col-xl-7">
+        <section class="card h-100 shadow-sm border-0 p-3 p-md-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Lead pipeline</h2>
+                    <p class="text-muted small mb-0">Current enquiries by sales stage</p>
+                </div>
+                <a href="{% url 'dashboard_funnel' %}" class="btn btn-sm btn-outline-primary">Open funnel</a>
+            </div>
+            {{ lead_chart_labels|json_script:"lead-chart-labels" }}
+            {{ lead_chart_values|json_script:"lead-chart-values" }}
+            <div style="height: 280px;"><canvas id="leadPipelineChart" aria-label="Lead pipeline chart" role="img"></canvas></div>
+        </section>
+    </div>
+    <div class="col-12 col-xl-5">
+        <section class="card h-100 shadow-sm border-0 p-3 p-md-4">
+            <div class="mb-3">
+                <h2 class="h5 mb-1">Content workflow</h2>
+                <p class="text-muted small mb-0">Articles by publication status</p>
+            </div>
+            {{ article_chart_labels|json_script:"article-chart-labels" }}
+            {{ article_chart_values|json_script:"article-chart-values" }}
+            <div style="height: 280px;"><canvas id="articleWorkflowChart" aria-label="Article workflow chart" role="img"></canvas></div>
+        </section>
+    </div>
+</div>
+
+<!-- CRM Leads Table Summary -->
+<div class="d-flex justify-content-between align-items-center mb-3 mt-5" data-aos="fade-right">
+    <h4 class="font-weight-bold mb-0"><i data-feather="clock" class="me-2 text-primary" style="margin-top:-2px;"></i>
+        Recent Inquiries (CRM Pipeline)</h4>
+    <a href="{% url 'dashboard_inquiries' %}" class="text-primary text-decoration-none font-weight-bold">View All <i
+            data-feather="arrow-right" style="width: 16px;"></i></a>
+</div>
+
+<div class="table-responsive bg-white p-4 rounded-4 shadow-sm" data-aos="fade-up">
+    <table class="table table-hover table-borderless align-middle mb-0">
+        <thead class="border-bottom">
+            <tr>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Client / Prospect</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Contact Email</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Target Service</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Date Received</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inquiry in recent_leads %}
+            <tr>
+                <td class="font-weight-bold">
+                    <div class="d-flex align-items-center mt-2">
+                        <div class="bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-3 font-weight-bold"
+                            style="width: 40px; height: 40px; font-size: 1.2rem;">
+                            {{ inquiry.name|make_list|first|upper }}
+                        </div>
+                        {{ inquiry.name }}
+                    </div>
+                </td>
+                <td><a href="mailto:{{ inquiry.email }}" class="text-decoration-none">{{ inquiry.email }}</a></td>
+                <td><span class="badge bg-light text-dark border p-2 px-3 shadow-sm">{{ inquiry.get_service_display|default:"General Inquiry" }}</span></td>
+                <td class="text-muted">{{ inquiry.created_at|timesince }} ago</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center text-muted py-5">
+                    <div class="mb-3"><i data-feather="inbox" class="text-muted opacity-50"
+                            style="width: 48px; height: 48px;"></i></div>
+                    No inquiries in your pipeline yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block dashboard_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+    const chartPalette = ['#0d6efd', '#20c997', '#ffc107', '#fd7e14', '#6f42c1', '#198754', '#dc3545'];
+    const leadLabels = JSON.parse(document.getElementById('lead-chart-labels').textContent);
+    const leadValues = JSON.parse(document.getElementById('lead-chart-values').textContent);
+    const articleLabels = JSON.parse(document.getElementById('article-chart-labels').textContent);
+    const articleValues = JSON.parse(document.getElementById('article-chart-values').textContent);
+
+    if (window.Chart) {
+        new Chart(document.getElementById('leadPipelineChart'), {
+            type: 'bar',
+            data: { labels: leadLabels, datasets: [{ label: 'Leads', data: leadValues, backgroundColor: '#0d6efd', borderRadius: 6 }] },
+            options: { maintainAspectRatio: false, responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
+        });
+
+        new Chart(document.getElementById('articleWorkflowChart'), {
+            type: 'doughnut',
+            data: { labels: articleLabels, datasets: [{ data: articleValues, backgroundColor: chartPalette, borderWidth: 0 }] },
+            options: { maintainAspectRatio: false, responsive: true, cutout: '68%', plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+</script>
+{% endblock %}

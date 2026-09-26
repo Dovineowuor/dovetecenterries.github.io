@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Authors{% endblock %}
+
+{% block content %}
+<section class="section-sm">
+    <div class="container">
+      <div class="row no-gutters">
+        {% for author in authors %}
+        <div class="col-lg-4 col-sm-6 author-block">
+          <div class="author-card text-center">
+            <img class="author-image" src="{{ author.image_url }}" alt="{{ author.name }}">
+            <h3 class="mb-2">
+              <a href="{% url 'author' author.id %}" class="post-title">{{ author.name }}</a>
+            </h3>
+            <p class="mb-3">{{ author.description }}</p>
+            <a class="post-count" href="{% url 'author' author.id %}#post">
+              <i class="ti-pencil-alt mr-2"></i>
+              <span class="text-primary">{{ author.post_count }}</span> Posts by this author
+            </a>
+            <ul class="list-inline social-icons">
+              {% for social in author.social_links %}
+              <li class="list-inline-item">
+                <a href="{{ social.url }}"><i class="{{ social.icon }}"></i></a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+{% endblock %}
+  

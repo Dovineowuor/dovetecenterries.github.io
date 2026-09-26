@@ -1,0 +1,58 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block header_actions %}
+<a href="{% url 'dashboard_add' 'community' 'topic' %}?next={{ request.path }}"
+    class="btn btn-sm btn-primary shadow-sm px-3 me-2"><i data-feather="plus"
+        style="width: 14px; margin-right: 5px; margin-top:-2px;"></i> New Topic</a>
+<a href="{% url 'dashboard_add' 'community' 'category' %}?next={{ request.path }}"
+    class="btn btn-sm btn-outline-secondary shadow-sm px-3"><i data-feather="settings"
+        style="width: 14px; margin-right: 5px; margin-top:-2px;"></i> Add Category</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="table-responsive bg-white p-4 rounded-4 shadow-sm" data-aos="fade-up">
+    <table class="table table-hover table-borderless align-middle mb-0">
+        <thead class="border-bottom">
+            <tr>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Topic Title</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Category</th>
+                <th class="text-muted font-weight-bold text-center" style="padding-bottom: 15px;">Replies</th>
+                <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Date</th>
+                <th class="text-muted font-weight-bold text-end" style="padding-bottom: 15px;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for topic in topics %}
+            <tr>
+                <td class="font-weight-bold">
+                    <a href="{% url 'topic_detail' topic.id %}" class="text-dark text-decoration-none">{{ topic.title }}</a>
+                </td>
+                <td><span class="badge bg-light text-primary border shadow-sm">{{ topic.category.name }}</span></td>
+                <td class="text-center font-weight-bold text-muted">{{ topic.posts.count }}</td>
+                <td class="text-muted small">{{ topic.created_at|date:"M d, Y" }}</td>
+                <td class="text-end">
+                    <a href="{% url 'dashboard_edit' 'community' 'topic' topic.id %}?next={{ request.path }}"
+                        class="btn btn-sm btn-outline-primary px-3 shadow-sm">Edit</a>
+                    <a href="{% url 'dashboard_delete' 'community' 'topic' topic.id %}?next={{ request.path }}"
+                        class="btn btn-sm btn-outline-danger px-3 shadow-sm ms-1"><i data-feather="trash-2"
+                            style="width: 14px;"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                    <div class="mb-3"><i data-feather="file-text" class="text-muted opacity-50"
+                            style="width: 48px; height: 48px;"></i></div>
+                    No forum topics published yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mt-4 pb-4">
+    <span class="text-muted small">Showing all {{ topics.count }} topics.</span>
+</div>
+{% endblock %}

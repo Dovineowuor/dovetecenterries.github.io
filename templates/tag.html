@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}#{{ tag }} Articles – Dovetec Enterprises Insights{% endblock %}
+{% block seo_desc %}Explore all articles tagged with #{{ tag }} at Dovetec Enterprises. Technology insights, software engineering, and IT solutions from Kenya's leading tech blog.{% endblock %}
+{% block seo_keys %}{{ tag }}, software engineering, IT solutions, technology, Nairobi, Kenya{% endblock %}
+{% block og_title %}Articles tagged #{{ tag }} - Dovetec Enterprises{% endblock %}
+{% block og_desc %}Explore all articles tagged with #{{ tag }}.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Articles tagged #{{ tag }} - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}Explore all articles tagged with #{{ tag }}.{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Hero ── */
+  .tag-hero {
+    padding: 100px 0 60px;
+    background: linear-gradient(135deg, #0d2137 0%, #1a3a52 50%, #0d4739 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .tag-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .tag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 8px 20px;
+    color: #fff;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  .tag-badge .hash { color: #4fc3a1; font-weight: 700; font-size: 1.1rem; }
+
+  /* ── Article Card ── */
+  .article-card {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    margin-bottom: 2rem;
+  }
+  .article-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  }
+  .article-card .card-img-wrap {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+  }
+  .article-card .card-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .article-card:hover .card-img-wrap img { transform: scale(1.05); }
+  .article-card .cat-badge {
+    position: absolute;
+    top: 16px; left: 16px;
+    background: #2b5f57;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .article-card .card-body { padding: 1.75rem; }
+  .article-card h3 a {
+    color: #1a2b3c;
+    text-decoration: none;
+    font-weight: 700;
+    line-height: 1.35;
+    transition: color 0.2s;
+  }
+  .article-card h3 a:hover { color: #2b5f57; }
+  .article-card .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    font-size: 0.83rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+  }
+  .article-card .meta .author-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+  }
+  .article-card .meta .author-name { font-weight: 600; color: #495057; }
+  .article-card .excerpt { color: #6c757d; font-size: 0.95rem; line-height: 1.7; }
+  .article-card .tag-list { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 6px; }
+  .article-card .tag-pill {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 50px;
+    background: #f0faf7;
+    color: #2b5f57;
+    border: 1px solid #b2dfdb;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .article-card .tag-pill:hover { background: #2b5f57; color: #fff; }
+  .btn-read-more {
+    background: linear-gradient(135deg, #2b5f57, #1f443e);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 22px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: opacity 0.2s, transform 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 1rem;
+  }
+  .btn-read-more:hover { opacity: 0.9; transform: translateX(2px); color: #fff; }
+
+  /* ── Sidebar ── */
+  .sidebar-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    margin-bottom: 1.75rem;
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+  .sidebar-card h5 {
+    font-weight: 700;
+    color: #1a2b3c;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f0faf7;
+  }
+  .search-input {
+    border: 2px solid #e9ecef;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: #2b5f57; outline: none; }
+  .btn-search {
+    background: #2b5f57; color: #fff; border: none;
+    border-radius: 50px; padding: 10px 24px;
+    font-weight: 600; width: 100%; margin-top: 10px;
+    transition: opacity 0.2s;
+  }
+  .btn-search:hover { opacity: 0.88; }
+  .category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f8f9fa;
+    color: #495057;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+  .category-item:last-child { border-bottom: none; }
+  .category-item:hover { color: #2b5f57; }
+  .category-item .count {
+    background: #f0faf7; color: #2b5f57;
+    font-size: 0.75rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 50px;
+  }
+  .tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag-cloud a {
+    padding: 5px 14px;
+    border-radius: 50px;
+    background: #f8f9fa;
+    color: #495057;
+    font-size: 0.8rem;
+    text-decoration: none;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s;
+  }
+  .tag-cloud a:hover,
+  .tag-cloud a.active { background: #2b5f57; color: #fff; border-color: #2b5f57; }
+
+  /* ── Empty State ── */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #f8f9fa;
+    border-radius: 16px;
+  }
+  .empty-state i { font-size: 3rem; color: #dee2e6; display: block; margin-bottom: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="tag-hero">
+  <div class="container text-center text-white" data-aos="fade-up">
+    <div class="tag-badge">
+      <span class="hash">#</span>{{ tag }}
+    </div>
+    <h1 class="display-5 fw-800 mb-3">{{ tag }} Insights</h1>
+    <p class="lead opacity-75 mb-0">
+      Explore all articles and resources tagged with
+      <strong>#{{ tag }}</strong> — {{ articles|length }} article{{ articles|length|pluralize }} found
+    </p>
+  </div>
+</section>
+
+<!-- Content -->
+<div class="container py-6">
+  <div class="row">
+
+    <!-- Article Grid -->
+    <div class="col-lg-8 mb-5 mb-lg-0">
+      {% if articles %}
+        {% for article in articles %}
+        <div class="article-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'1' }}00">
+          <div class="card-img-wrap">
+            {% if article.image %}
+            <img src="{{ article.image.url }}" alt="{{ article.title }}">
+            {% else %}
+            <img src="{% static 'images/hero_bg.png' %}" alt="{{ article.title }}">
+            {% endif %}
+            {% if article.category %}
+            <span class="cat-badge">{{ article.category }}</span>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <h3 class="mb-2">
+              <a href="{% url 'blog_detail' article.slug %}">{{ article.title }}</a>
+            </h3>
+            <div class="meta">
+              {% if article.author.user.profile.image %}
+              <img src="{{ article.author.user.profile.image.url }}" class="author-avatar" alt="">
+              {% endif %}
+              <span class="author-name">
+                {% if article.author.user %}{{ article.author.user.get_full_name|default:article.author.user.username }}{% else %}Dovetec Author{% endif %}
+              </span>
+              <span><i class="feather-calendar me-1"></i>{{ article.created_at|date:"M d, Y" }}</span>
+              <span><i class="feather-clock me-1"></i>8 min read</span>
+            </div>
+            <p class="excerpt">{{ article.content|safe|striptags|truncatewords:35 }}</p>
+            <div class="tag-list">
+              {% for t in article.tags.all %}
+              <a href="{% url 'tag_detail' tag=t.name %}" class="tag-pill {% if t.name == tag %}active{% endif %}">#{{ t.name }}</a>
+              {% endfor %}
+            </div>
+            <a href="{% url 'blog_detail' article.slug %}" class="btn-read-more">
+              Read Full Article <i class="feather-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="empty-state" data-aos="fade-up">
+        <i class="feather-tag"></i>
+        <h4 class="fw-bold mb-2">No articles yet for #{{ tag }}</h4>
+        <p class="text-muted mb-4">Check back soon — our authors are actively writing on this topic.</p>
+        <a href="{% url 'see_blog' %}" class="btn-read-more">Browse All Articles</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="col-lg-4">
+
+      <!-- Search -->
+      <div class="sidebar-card" data-aos="fade-left">
+        <h5><i class="feather-search me-2 text-success"></i>Search Articles</h5>
+        <form action="{% url 'search' %}" method="get">
+          <input class="search-input" name="q" type="search" placeholder="Search topics, articles…">
+          <button type="submit" class="btn-search">Search</button>
+        </form>
+      </div>
+
+      <!-- Tag Cloud -->
+      <div class="sidebar-card" data-aos="fade-left" data-aos-delay="100">
+        <h5><i class="feather-tag me-2 text-success"></i>Browse by Tag</h5>
+        <div class="tag-cloud">
+          {% for t in all_tags %}
+          <a href="{% url 'tag_detail' tag=t.name %}" class="{% if t.name == tag %}active{% endif %}">
+            #{{ t.name }}
+          </a>
+          {% empty %}
+          <p class="text-muted small mb-0">No tags available.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Categories -->
+      {% if all_categories %}
+      <div class="sidebar-card" data-aos="fade-left" data-aos-delay="150">
+        <h5><i class="feather-layers me-2 text-success"></i>Categories</h5>
+        {% for cat in all_categories %}
+        {% if cat %}
+        <a href="{% url 'category' cat %}" class="category-item">
+          <span>{{ cat }}</span>
+        </a>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- CTA -->
+      <div class="sidebar-card text-center" data-aos="fade-left" data-aos-delay="200"
+           style="background: linear-gradient(135deg,#2b5f57,#1a3a52); color:#fff;">
+        <h5 style="color:#fff; border-color:rgba(255,255,255,0.2);">
+          <i class="feather-zap me-2" style="color:#4fc3a1;"></i>Get Expert Help
+        </h5>
+        <p class="small mb-3 opacity-75">
+          Need tailored IT solutions for your business? Our team is ready.
+        </p>
+        <a href="{% url 'contact_us' %}" class="btn btn-light btn-sm fw-bold px-4">
+          Contact Us Today
+        </a>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+{% endblock %}

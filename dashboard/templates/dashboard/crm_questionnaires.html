@@ -1,0 +1,84 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-1"><i data-feather="clipboard" class="me-2"></i>Questionnaires</h1>
+        <p class="text-muted mb-0">Custom requirement forms built per client / service request.</p>
+    </div>
+    <form method="get" class="d-flex gap-2">
+        <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Search title, client, email...">
+        <button class="btn btn-outline-secondary"><i data-feather="search"></i></button>
+    </form>
+</div>
+
+<div class="bg-white rounded-4 shadow-sm p-4" data-aos="fade-up">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="border-bottom">
+            <tr>
+                <th class="text-muted fw-bold">Questionnaire</th>
+                <th class="text-muted fw-bold">Client / Lead</th>
+                <th class="text-muted fw-bold">Status</th>
+                <th class="text-muted fw-bold">Progress</th>
+                <th class="text-muted fw-bold">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for questionnaire in questionnaires %}
+            <tr>
+                <td>
+                    <b>{{ questionnaire.title|truncatechars:45 }}</b><br>
+                    <small class="text-muted">{{ questionnaire.question_count }} questions · updated {{ questionnaire.updated_at|date:"M d, Y" }}</small>
+                </td>
+                <td>
+                    {{ questionnaire.inquiry.name }}<br>
+                    <small class="text-muted">{{ questionnaire.inquiry.email }}</small>
+                </td>
+                <td>
+                    {% if questionnaire.status == 'completed' %}
+                    <span class="badge bg-success-subtle text-success-emphasis">{{ questionnaire.get_status_display }}</span>
+                    {% elif questionnaire.status == 'sent' or questionnaire.status == 'in_progress' %}
+                    <span class="badge bg-primary-subtle text-primary-emphasis">{{ questionnaire.get_status_display }}</span>
+                    {% else %}
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ questionnaire.get_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td style="min-width:120px;">
+                    <div class="progress" style="height:8px;">
+                        <div class="progress-bar bg-success" style="width: {{ questionnaire.progress_percent }}%;"></div>
+                    </div>
+                    <small class="text-muted">{{ questionnaire.progress_percent }}%</small>
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'funnel_questionnaire' questionnaire.inquiry_id %}" class="btn btn-sm btn-outline-dark" title="Edit questions">
+                            <i data-feather="edit-3" style="width:14px;"></i> Edit
+                        </a>
+                        <a href="{% url 'questionnaire_responses' questionnaire.id %}" class="btn btn-sm btn-outline-primary" title="Collect responses">
+                            <i data-feather="inbox" style="width:14px;"></i> Responses
+                        </a>
+                        <a href="{% url 'questionnaire_responses' questionnaire.id %}?format=csv" class="btn btn-sm btn-outline-success" title="Export CSV">
+                            <i data-feather="download" style="width:14px;"></i>
+                        </a>
+                        <form method="post" onsubmit="return confirm('Delete this questionnaire and all its questions and responses?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="questionnaire_id" value="{{ questionnaire.id }}">
+                            <button class="btn btn-sm btn-outline-danger" title="Delete"><i data-feather="trash-2" style="width:14px;"></i></button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                    <i data-feather="clipboard" class="opacity-50" style="width:48px; height:48px;"></i>
+                    <p class="mt-2 mb-0">No questionnaires{% if query %} found for "{{ query }}"{% endif %}.
+                    Build one from any lead card in the <a href="{% url 'dashboard_funnel' %}">Sales Funnel</a>.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

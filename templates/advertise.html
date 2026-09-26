@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Advertise Here</h1>
+    <p class="text-center">Explore our various advertising opportunities. Click on an ad to learn more or get in touch for placements.</p>
+
+    <!-- Bootstrap Carousel -->
+    <div id="adsCarousel" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        <ol class="carousel-indicators">
+            {% for ad in ads %}
+            <li data-target="#adsCarousel" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}"></li>
+            {% endfor %}
+        </ol>
+
+        <!-- Carousel Items -->
+        <div class="carousel-inner">
+            {% for ad in ads %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <!-- Display the Main Image -->
+                <a href="{{ ad.url }}" target="_blank">
+                    <img src="{{ ad.main_image.url }}" class="d-block w-100" alt="{{ ad.title }}" style="height: 400px; object-fit: cover;">
+                </a>
+                
+                <!-- Carousel controls for optional images if they exist -->
+                <div class="ad-images">
+                    {% if ad.image_2 %}
+                    <img src="{{ ad.image_2.url }}" class="img-thumbnail mt-3 mr-2" alt="{{ ad.title }} - Additional Image 1" style="height: 200px; width: auto;">
+                    {% endif %}
+                    
+                    {% if ad.image_3 %}
+                    <img src="{{ ad.image_3.url }}" class="img-thumbnail mt-3" alt="{{ ad.title }} - Additional Image 2" style="height: 200px; width: auto;">
+                    {% endif %}
+                </div>
+                
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>{{ ad.title }}</h5>
+                    <p>{{ ad.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Carousel Controls -->
+        <a class="carousel-control-prev" href="#adsCarousel" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#adsCarousel" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+</div>
+
+<style>
+    .carousel-inner img {
+        border-radius: 10px;
+    }
+
+    .carousel-caption {
+        background: rgba(0, 0, 0, 0.5);
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .ad-images img {
+        border: 2px solid #ddd;
+        border-radius: 5px;
+    }
+</style>
+
+{% endblock %}

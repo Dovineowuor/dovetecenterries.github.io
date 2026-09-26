@@ -1,0 +1,71 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block header_actions %}
+<a href="{% url 'dashboard_add' 'app' 'project' %}?next={{ request.path }}"
+    class="btn btn-sm btn-primary shadow-sm px-3"><i data-feather="plus"
+        style="width: 14px; margin-right: 5px; margin-top:-2px;"></i> New project</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" data-aos="fade-down">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-1"><i data-feather="briefcase" class="me-2"></i>Delivery Projects</h1>
+        <p class="text-muted mb-0">Projects converted from won deals and active delivery work.</p>
+    </div>
+</div>
+
+<div class="bg-white rounded-4 shadow-sm p-4" data-aos="fade-up">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="border-bottom">
+                <tr>
+                    <th class="text-muted fw-bold">Name</th>
+                    <th class="text-muted fw-bold">Organization</th>
+                    <th class="text-muted fw-bold">Service</th>
+                    <th class="text-muted fw-bold">Status</th>
+                    <th class="text-muted fw-bold">Priority</th>
+                    <th class="text-muted fw-bold">Budget</th>
+                    <th class="text-muted fw-bold">Created</th>
+                    <th class="text-muted fw-bold"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td class="fw-bold">
+                        <a href="{% url 'dashboard_edit' 'app' 'project' project.id %}?next={{ request.path }}"
+                            class="text-decoration-none text-dark">{{ project.name }}</a>
+                        {% if project.converted_from_inquiry %}
+                        <br><small class="text-muted">From lead #{{ project.converted_from_inquiry.id }}</small>
+                        {% endif %}
+                    </td>
+                    <td>{{ project.organization.name|default:"—" }}</td>
+                    <td>{{ project.get_service_display|default:"—" }}</td>
+                    <td>
+                        <span class="badge {% if project.status == 'active' %}bg-success{% elif project.status == 'completed' %}bg-primary{% elif project.status == 'on_hold' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                            {{ project.get_status_display }}
+                        </span>
+                    </td>
+                    <td><span class="badge bg-light text-dark border">{{ project.get_priority_display }}</span></td>
+                    <td>{% if project.estimated_budget %}{{ project.estimated_budget|floatformat:0 }}{% else %}—{% endif %}</td>
+                    <td><small class="text-muted">{{ project.created_at|date:"M d, Y" }}</small></td>
+                    <td class="text-end">
+                        <a href="{% url 'dashboard_edit' 'app' 'project' project.id %}?next={{ request.path }}"
+                            class="btn btn-sm btn-outline-dark">Edit</a>
+                        <a href="{% url 'dashboard_delete' 'app' 'project' project.id %}?next={{ request.path }}"
+                            class="btn btn-sm btn-outline-danger ms-1"><i data-feather="trash-2" style="width:14px;"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-5">
+                        <i data-feather="briefcase" class="opacity-50" style="width:40px;height:40px;"></i>
+                        <p class="mt-2 mb-0">No projects yet. Convert a won deal to start delivery.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

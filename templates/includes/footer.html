@@ -1,0 +1,141 @@
+{% load static %}
+<div class="site-footer">
+  <div class="container">
+    <div class="row justify-content-between">
+      <div class="col-lg-4">
+        <div class="widget">
+          <h3>About</h3>
+          <p>
+            Dovetec Enterprises is a leading innovattive yet futureproof tech solutions across industries in Kenya and
+            abroad. .
+            Specializing in innovative software and digital products, we solve
+            complex workforce challenges. Our passion drives unparalleled
+            advancements, empowering businesses to thrive. Through strategic
+            partnerships and client-focused strategies, we lead in tech
+            innovation, ensuring our clients excel in today's dynamic
+            marketplace.
+          </p>
+        </div>
+        <div class="widget">
+          <h3>Connect with us</h3>
+          <ul class="social list-unstyled">
+            <li>
+              <a href="https://facebook.com/dovetec.org"><span class="icon-facebook"></span></a>
+            </li>
+            <li>
+              <a href="https://twitter.com/doveowuor"><span class="icon-twitter"></span></a>
+            </li>
+            <li>
+              <a href="https://instagram.com/dovine.festo.03"><span class="icon-instagram"></span></a>
+            </li>
+            <li>
+              <a href="https://dribbble.com/owuordove"><span class="icon-dribbble"></span></a>
+            </li>
+            <li>
+              <a href="https://linkedin.com/company/dovetecenterprises"><span class="icon-linkedin"></span></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="row">
+          <div class="col-12">
+            <div class="widget">
+              <h3>Navigations</h3>
+            </div>
+          </div>
+          <div class="col-6 col-sm-6 col-md-4">
+            <h6 class="text-muted">Quick Links</h6>
+            <div class="widget">
+              <ul class="links list-unstyled">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'about_us' %}">About Us</a></li>
+                <li><a href="{% url 'services' %}">Services</a></li>
+                <li><a href="{% url 'portfolio' %}">Portfolio</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-6 col-sm-6 col-md-4">
+            <h6 class="text-muted">Company</h6>
+            <div class="widget">
+              <ul class="links list-unstyled">
+                <li><a href="{% url 'see_blog' %}">Blog</a></li>
+                <li><a href="{% url 'products' %}">Products</a></li>
+                <li><a href="{% url 'feature_board' %}">Feature Requests</a></li>
+                <li><a href="{% url 'shop' %}">Shop with Us</a></li>
+                <li><a href="{% url 'careers' %}">Careers</a></li>
+                <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+                <li><a href="{% url 'contact' %}">Contact Support</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-6 col-sm-6 col-md-4">
+            <h5 class="text-muted">Resources</h5>
+            <div class="widget">
+              <ul class="links list-unstyled">
+                <li><a href="{% url 'faq' %}">FAQ</a></li>
+                <li><a href="{% url 'see_blog' %}/#press">Press</a></li>
+                <li><a href="{% url 'advertise' %}">Advertise</a></li>
+                <li><a href="{% url 'cookie_policy' %}">Cookie Policy</a></li>
+                <li><a href="{% url 'contact_us' %}">Contact Us</a></li>
+                <li><a href="{% url 'cookie_policy' %}">Cookie Policy</a></li>
+                <li><a href="{% url 'feedback' %}">Give Us Feedback</a></li>
+                <li><a href="{% url 'help_center' %}">Help Center</a></li>
+                <li><a href="{% url 'community' %}">Our Community</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-6 col-sm-6 col-md-4">
+            <h5 class="text-muted">Account</h5>
+            <div class="widget">
+              <ul class="links list-unstyled">
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'profile' %}">Profile</a></li>
+                <li><a href="{% url 'logout_view' %}">Logout</a></li>
+                {% else %}
+                <li><a href="{% url 'register_view' %}">Login</a></li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Newsletter Cleanup -->
+    <div class="row justify-content-center mt-5 pt-5 border-top">
+      <div class="col-lg-8 text-center">
+        <div class="newsletter-global p-4 rounded-4 shadow-sm"
+          style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+          <h3 class="h4 font-weight-bold mb-2">Join our Newsletter</h3>
+          <p class="text-muted mb-4">Be the first to hear about our latest innovations and case studies.</p>
+          <form method="POST" action="{% url 'subscribe' %}" class="row g-2 justify-content-center">
+            {% csrf_token %}
+            <div class="col-md-7">
+              <input type="email" name="email" class="form-control form-control-lgborder-0 shadow-sm"
+                placeholder="Your email address" required>
+            </div>
+            <div class="col-md-auto">
+              <button type="submit" class="btn btn-primary btn-lg px-5 font-weight-bold shadow-sm">Subscribe</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <p>
+        Copyright &copy;
+        <script>
+          document.write(new Date().getFullYear());
+        </script>
+        . All Rights Reserved. &mdash; Built with love by
+        <a href="https://dovineowuor.me">Dovine K</a>
+      </p>
+    </div>
+  </div>
+</div>
+</div>
+
+{% comment %} Preloader removed — it blocked page content when JS failed to hide it. {% endcomment %}

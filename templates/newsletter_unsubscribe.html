@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Unsubscribe</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Manage Your Subscription Preferences</h2>
+        <form method="post" action="{% url 'unsubscribe' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label>Subscription Preferences</label>
+                <div class="d-flex flex-wrap">
+                    <div class="form-check mr-3 mb-2">
+                        <input class="form-check-input" type="checkbox" id="daily" name="preferences" value="daily">
+                        <label class="form-check-label" for="daily">Daily Newsletter</label>
+                    </div>
+                    <div class="form-check mr-3 mb-2">
+                        <input class="form-check-input" type="checkbox" id="weekly" name="preferences" value="weekly">
+                        <label class="form-check-label" for="weekly">Weekly Newsletter</label>
+                    </div>
+                    <div class="form-check mr-3 mb-2">
+                        <input class="form-check-input" type="checkbox" id="monthly" name="preferences" value="monthly">
+                        <label class="form-check-label" for="monthly">Monthly Newsletter</label>
+                    </div>
+                    <div class="form-check mr-3 mb-2">
+                        <input class="form-check-input" type="checkbox" id="subscribe_all" name="preferences" value="subscribe_all">
+                        <label class="form-check-label" for="subscribe_all">Subscribe to All</label>
+                    </div>
+                    <div class="form-check mr-3 mb-2">
+                        <input class="form-check-input" type="checkbox" id="unsubscribe" name="preferences" value="unsubscribe">
+                        <label class="form-check-label" for="unsubscribe">Unsubscribe</label>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Preferences</button>
+    </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

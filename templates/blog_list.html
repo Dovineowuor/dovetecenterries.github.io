@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load seo_tags %}
+
+{% block title %}{% firstof page_title "Insights & Tech Articles" %} | Dovetec Enterprises{% endblock %}
+{% block seo_keys %}software engineering, IT solutions, technology, digital transformation, cloud computing, Nairobi, Kenya{% endblock %}
+{% block og_type %}website{% endblock %}
+
+{% block extra_css %}
+<style>
+    .blog-hero {
+        background: radial-gradient(ellipse at top right, rgba(43, 95, 87, 0.08), transparent 50%),
+            radial-gradient(ellipse at bottom left, rgba(232, 62, 140, 0.05), transparent 50%),
+            #f8f9fe;
+        padding: 120px 0 80px;
+    }
+
+    .hero-article-card {
+        background: #fff;
+        border-radius: 32px;
+        overflow: hidden;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.07);
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .hero-article-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 50px 100px rgba(0, 0, 0, 0.12);
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .hero-article-card .hero-img {
+        width: 100%;
+        height: 420px;
+        object-fit: cover;
+    }
+
+    .hero-article-card .hero-body {
+        padding: 2.5rem;
+    }
+
+    .category-pill {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        background: rgba(43, 95, 87, 0.1);
+        color: #2b5f57;
+        margin-bottom: 1rem;
+    }
+
+    .article-card {
+        background: #fff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .article-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    }
+
+    .article-card img {
+        height: 220px;
+        width: 100%;
+        object-fit: cover;
+    }
+
+    .article-card .card-body-inner {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .article-card h4 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.4;
+        margin-bottom: 0.75rem;
+    }
+
+    .article-card a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .article-card a:hover h4 {
+        color: #2b5f57;
+    }
+
+    .sidebar-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 1.75rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .sidebar-card h5 {
+        font-weight: 800;
+        font-size: 1rem;
+        letter-spacing: -0.3px;
+        margin-bottom: 1.25rem;
+    }
+
+    .tag-pill {
+        display: inline-block;
+        padding: 0.4rem 0.9rem;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        background: #f0f2ff;
+        color: #2b5f57;
+        margin: 0.2rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .tag-pill:hover {
+        background: #2b5f57;
+        color: white;
+    }
+
+    .meta-text {
+        font-size: 0.8rem;
+        color: #9ca3af;
+    }
+
+    .pagination-wrap .page-link {
+        border-radius: 10px;
+        border: none;
+        background: #f0f2ff;
+        color: #2b5f57;
+        margin: 0 3px;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .pagination-wrap .page-link:hover,
+    .pagination-wrap .page-item.active .page-link {
+        background: #2b5f57;
+        color: white;
+    }
+
+    .section-label {
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #2b5f57;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if error %}
+<div class="alert alert-warning text-center m-5" role="alert">
+    <i class="feather-alert-triangle me-2"></i> {{ error }}
+</div>
+{% else %}
+
+<!-- ── Hero Spotlight Article ──────────────────────────────────── -->
+{% if article_obj %}
+<section class="blog-hero">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-auto text-center" data-aos="fade-up">
+                <span class="section-label">Dovetec Insights</span>
+                <h1 class="display-5 fw-bold">Ideas That Drive Innovation</h1>
+            </div>
+        </div>
+        <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="100">
+            <div class="col-lg-10">
+                <a href="{% url 'blog_detail' slug=article_obj.slug %}" class="hero-article-card">
+                    {% if article_obj.image %}
+                    <img src="{{ article_obj.image.url }}" alt="{{ article_obj.title }}" class="hero-img">
+                    {% else %}
+                    <div class="hero-img d-flex align-items-center justify-content-center"
+                        style="background: linear-gradient(135deg, #2b5f57 0%, #2b5f57 100%);">
+                        <i class="feather-file-text" style="font-size: 5rem; color: rgba(255,255,255,0.5);"></i>
+                    </div>
+                    {% endif %}
+                    <div class="hero-body">
+                        {% if article_obj.category %}
+                        <span class="category-pill">{{ article_obj.category }}</span>
+                        {% endif %}
+                        <h2 class="fw-bold mb-3" style="font-size: 2rem; letter-spacing: -0.5px;">
+                            {{ article_obj.title }}</h2>
+                        {% if article_obj.seo_description %}
+                        <p class="text-muted lh-lg mb-4">{{ article_obj.seo_description|truncatewords:30 }}</p>
+                        {% endif %}
+                        <div class="d-flex align-items-center gap-3">
+                            {% if article_obj.user.profile.image %}
+                            <img src="{{ article_obj.user.profile.image.url }}" class="rounded-circle"
+                                style="width:38px;height:38px;object-fit:cover;" alt="">
+                            {% endif %}
+                            <div>
+                                <p class="fw-bold mb-0 small">
+                                    {{ article_obj.user.get_full_name|default:article_obj.user.email }}</p>
+                                <p class="meta-text mb-0">
+                                    {{ article_obj.created_at|date:"M d, Y" }} · 8 min read
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ── Featured Grid ───────────────────────────────────────────── -->
+{% if featured_articles %}
+<section class="py-5 bg-white">
+    <div class="container">
+        <span class="section-label" data-aos="fade-up">Featured</span>
+        <div class="row g-4">
+            {% for article in featured_articles %}
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+                <a href="{% url 'blog_detail' slug=article.slug %}" class="article-card">
+                    {% if article.image %}
+                    <img src="{{ article.image.url }}" alt="{{ article.title }}">
+                    {% else %}
+                    <div
+                        style="height:220px;background:linear-gradient(135deg,#e8eaff,#c7d2fe);display:flex;align-items:center;justify-content:center;">
+                        <i class="feather-edit" style="font-size:3rem;color:#2b5f57;opacity:.5;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body-inner">
+                        {% if article.category %}<span class="category-pill" style="font-size:.65rem;">{{article.category }}</span>{% endif %}
+                        <h4>{{ article.title|truncatewords:10 }}</h4>
+                        <p class="meta-text mt-auto">{{ article.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ── All Articles + Sidebar ─────────────────────────────────── -->
+<section class="py-6" style="background:#f8f9fe;">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Article Grid -->
+            <div class="col-lg-8">
+                <span class="section-label" data-aos="fade-up">All Articles</span>
+                <div class="row g-4">
+                    {% for article in articles %}
+                    <div class="col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
+                        <a href="{% url 'blog_detail' slug=article.slug %}" class="article-card">
+                            {% if article.image %}
+                            <img src="{{ article.image.url }}" alt="{{ article.title }}">
+                            {% else %}
+                            <div
+                                style="height:220px;background:linear-gradient(135deg,#e8eaff,#c7d2fe);display:flex;align-items:center;justify-content:center;">
+                                <i class="feather-edit" style="font-size:3rem;color:#2b5f57;opacity:.5;"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-body-inner">
+                                {% if article.category %}<span class="category-pill" style="font-size:.65rem;">{{ article.category }}</span>{% endif %}
+                                <h4>{{ article.title }}</h4>
+                                {% if article.seo_description %}
+                                <p class="text-muted small lh-lg flex-grow-1">{{article.seo_description|truncatewords:18 }}</p>
+                                {% endif %}
+                                <div class="d-flex align-items-center mt-3 gap-2">
+                                    {% if article.user.profile.image %}
+                                    <img src="{{ article.user.profile.image.url }}" class="rounded-circle"
+                                        style="width:28px;height:28px;object-fit:cover;" alt="">
+                                    {% endif %}
+                                    <p class="meta-text mb-0">{{ article.user.get_full_name|default:article.user.email}}
+                                        · {{ article.created_at|date:"M d" }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <i class="feather-inbox" style="font-size:4rem;color:#9ca3af;"></i>
+                        <p class="mt-3 text-muted">No articles published yet. Check back soon!</p>
+                        {% if request.user.is_authenticated %}
+                        <a href="{% url 'add_blog' %}" class="btn btn-primary px-4 mt-2">Write Your First
+                            Article</a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                <nav class="pagination-wrap d-flex justify-content-center mt-5">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i
+                                    class="feather-chevron-left"></i></a></li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i
+                                    class="feather-chevron-right"></i></a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Categories -->
+                {% if all_categories %}
+                <div class="sidebar-card" data-aos="fade-left">
+                    <h5>Browse by Topic</h5>
+                    {% for cat in all_categories %}{% if cat %}
+                    <a href="{% url 'category' category=cat %}" class="tag-pill">{{ cat }}</a>
+                    {% endif %}{% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Tags -->
+                {% if all_tags %}
+                <div class="sidebar-card" data-aos="fade-left" data-aos-delay="100">
+                    <h5>Popular Tags</h5>
+                    {% for tag in all_tags %}
+                    <a href="{% url 'tag_detail' tag=tag.name %}" class="tag-pill">#{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Newsletter CTA -->
+                <div class="sidebar-card" style="background: linear-gradient(135deg, #2b5f57, #1565C0); color: white;"
+                    data-aos="fade-left" data-aos-delay="200">
+                    <h5 style="color:white;">Stay in the Loop</h5>
+                    <p class="small opacity-75 mb-4">Get the latest tech insights delivered straight to your inbox.</p>
+                    <form action="{% url 'subscribe' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="email" name="email" placeholder="your@email.com" class="form-control pill mb-3"
+                            style="border:none;" required>
+                        <button type="submit" class="btn btn-warning pill w-100 fw-bold">Subscribe Free</button>
+                    </form>
+                </div>
+
+                <!-- Write CTA -->
+                <div class="sidebar-card text-center" data-aos="fade-left" data-aos-delay="300">
+                    <i class="feather-edit-3 mb-3" style="font-size:2.5rem;color:#2b5f57;"></i>
+                    <h5>Share Your Ideas</h5>
+                    <p class="text-muted small mb-3">Have an industry insight? Submit your article for review to be featured on Dovetec Insights.</p>
+                    <a href="{% url 'add_blog' %}" class="btn btn-outline-primary pill px-4 fw-bold">Submit for Review</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

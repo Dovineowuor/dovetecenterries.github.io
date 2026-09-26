@@ -1,0 +1,159 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block header_actions %}
+<a href="{% url 'dashboard_add' 'home' 'newsletter' %}?next={{ request.path }}"
+    class="btn btn-sm btn-primary shadow-sm px-3 me-2">
+    <i data-feather="edit" style="width: 14px; margin-right: 5px; margin-top:-2px;"></i> Compose Broadcast
+</a>
+<a href="{% url 'admin:home_newsletter_changelist' %}" class="btn btn-sm btn-outline-secondary shadow-sm px-3 ms-1"
+    title="Advanced Admin">
+    <i data-feather="settings" style="width: 14px; margin-right: 5px; margin-top:-2px;"></i> Advanced Admin
+</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Analytics Summary -->
+<div class="row row-cols-1 row-cols-md-3 mb-4 text-center g-4" data-aos="fade-up">
+    <div class="col">
+        <div class="card shadow-sm border-0 rounded-4 p-3 bg-white h-100">
+            <h6 class="text-muted text-uppercase font-weight-bold" style="font-size: 0.75rem;">Active Subscribers</h6>
+            <h3 class="font-weight-bold text-success mb-0"><i data-feather="users" class="me-2"
+                    style="margin-top:-3px;"></i>{{ subs_count }}</h3>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card shadow-sm border-0 rounded-4 p-3 bg-white h-100">
+            <h6 class="text-muted text-uppercase font-weight-bold" style="font-size: 0.75rem;">Total Campaigns</h6>
+            <h3 class="font-weight-bold text-primary mb-0"><i data-feather="send" class="me-2"
+                    style="margin-top:-3px;"></i>{{ newsletters.count }}</h3>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card shadow-sm border-0 rounded-4 p-3 bg-white h-100">
+            <h6 class="text-muted text-uppercase font-weight-bold" style="font-size: 0.75rem;">Marketing Reach</h6>
+            <h3 class="font-weight-bold text-info mb-0"><i data-feather="globe" class="me-2"
+                    style="margin-top:-3px;"></i>Global</h3>
+            <small class="text-muted" style="font-size: 0.7rem;">Verified Subscribers Only</small>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs for Newsletters and Subscribers -->
+<ul class="nav nav-pills mb-4 bg-white p-2shadow-sm d-inline-flex" id="pills-tab" role="tablist" data-aos="fade-up">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link activepx-4" id="pills-campaigns-tab" data-bs-toggle="pill"
+            data-bs-target="#pills-campaigns" type="button" role="tab">
+            <i data-feather="mail" class="me-2" style="width: 16px;"></i> Campaigns
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-linkpx-4" id="pills-subscribers-tab" data-bs-toggle="pill"
+            data-bs-target="#pills-subscribers" type="button" role="tab">
+            <i data-feather="users" class="me-2" style="width: 16px;"></i> Subscribers
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="pills-tabContent" data-aos="fade-up" data-aos-delay="100">
+    <!-- Campaigns Tab -->
+    <div class="tab-pane fade show active" id="pills-campaigns" role="tabpanel">
+        <div class="table-responsive bg-white p-4 rounded-4 shadow-sm">
+            <table class="table table-hover table-borderless align-middle mb-0">
+                <thead class="border-bottom">
+                    <tr>
+                        <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Campaign Subject</th>
+                        <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Status</th>
+                        <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Date</th>
+                        <th class="text-muted font-weight-bold text-end" style="padding-bottom: 15px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for nl in newsletters %}
+                    <tr>
+                        <td class="font-weight-bold">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light text-primary rounded d-flex align-items-center justify-content-center me-3"
+                                    style="width: 40px; height: 40px;">
+                                    <i data-feather="mail" style="width: 18px;"></i>
+                                </div>
+                                <div class="text-truncate" style="max-width: 300px;">{{ nl.subject }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if nl.status == 'sent' %}
+                            <span class="badge bg-success px-3 shadow-sm">Sent</span>
+                            {% elif nl.status == 'draft' %}
+                            <span class="badge bg-light text-secondary border px-3 shadow-sm">Draft</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark px-3 shadow-sm text-capitalize">{{ nl.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ nl.created_at|date:"M d, Y" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'dashboard_edit' 'home' 'newsletter' nl.id %}?next={{ request.path }}"
+                                class="btn btn-sm btn-outline-primary px-3">Manage</a>
+                            <a href="{% url 'dashboard_delete' 'home' 'newsletter' nl.id %}?next={{ request.path }}"
+                                class="btn btn-sm btn-outline-danger px-3 ms-1"><i data-feather="trash-2"
+                                    style="width: 14px;"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">No campaigns found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Subscribers Tab -->
+    <div class="tab-pane fade" id="pills-subscribers" role="tabpanel">
+        <div class="table-responsive bg-white p-4 rounded-4 shadow-sm">
+            <table class="table table-hover table-borderless align-middle mb-0">
+                <thead class="border-bottom">
+                    <tr>
+                        <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Subscriber Email</th>
+                        <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Status</th>
+                        <th class="text-muted font-weight-bold" style="padding-bottom: 15px;">Subscribed On</th>
+                        <th class="text-muted font-weight-bold text-end" style="padding-bottom: 15px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in subscribers %}
+                    <tr>
+                        <td class="font-weight-bold">
+                            <div class="d-flex align-items-center text-dark">
+                                <div class="bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="width: 35px; height: 35px;">
+                                    <i data-feather="user" style="width: 16px;"></i>
+                                </div>
+                                {{ sub.email }}
+                            </div>
+                        </td>
+                        <td>
+                            {% if sub.unsubscribed_at %}
+                            <span class="badge bg-danger px-3 shadow-sm">Unsubscribed</span>
+                            {% else %}
+                            <span class="badge bg-success px-3 shadow-sm">Active</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ sub.subscribed_at|date:"M d, Y" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'dashboard_delete' 'home' 'newslettersubscription' sub.id %}?next={{ request.path }}"
+                                class="btn btn-sm btn-outline-danger px-3"><i data-feather="user-x"
+                                    style="width: 14px; margin-right: 5px;"></i> Remove</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">No subscribers found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

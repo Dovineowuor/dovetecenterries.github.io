@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage robots.txt</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .version-control {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">Manage robots.txt</h1>
+        <form id="robots-form" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="robots-content">Edit robots.txt:</label>
+                <textarea id="robots-content" name="robots-content" class="form-control" rows="10"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+
+        <div class="version-control mt-4">
+            <h2>Version Control</h2>
+            <p>Last updated: <span id="last-updated">N/A</span></p>
+            <p>Version: <span id="version">N/A</span></p>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch existing robots.txt content and version info from the database
+            fetch('/api/get-robots-content')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('robots-content').value = data.content;
+                    document.getElementById('last-updated').textContent = data.lastUpdated;
+                    document.getElementById('version').textContent = data.version;
+                });
+
+            // Handle form submission
+            document.getElementById('robots-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const content = document.getElementById('robots-content').value;
+                
+                // Update robots.txt in the database
+                fetch('/api/update-robots-content', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ content })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('robots.txt updated successfully!');
+                    document.getElementById('last-updated').textContent = data.lastUpdated;
+                    document.getElementById('version').textContent = data.version;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

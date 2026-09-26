@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+{% load static %}
+{% load ad_tags %}
+
+{% block title %}Tech Insights & Innovation Hub - Dovetec Enterprises | Software Engineering & IT Solutions{% endblock %}
+{% block seo_desc %}Leading technology company in Nairobi, Kenya. Dovetec Enterprises delivers software engineering, IT solutions, digital transformation, and consulting services. Empowering businesses across East Africa.{% endblock %}
+{% block seo_keys %}Dovetec Enterprises, software engineering, IT solutions, digital transformation, consulting, Nairobi, Kenya, East Africa{% endblock %}
+{% block og_title %}Dovetec Enterprises - Software Engineering & IT Solutions{% endblock %}
+{% block og_desc %}Leading technology company in Nairobi, Kenya. Empowering businesses across East Africa with software engineering and IT solutions.{% endblock %}
+{% block og_type %}website{% endblock %}
+{% block twitter_title %}Dovetec Enterprises - Software Engineering & IT Solutions{% endblock %}
+{% block twitter_desc %}Leading technology company in Nairobi, Kenya. Empowering businesses across East Africa.{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #2b5f57 0%, #1f443e 100%);
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(255, 255, 255, 0.3);
+    }
+
+    .hero-glow {
+        background: radial-gradient(circle at 50% 50%, rgba(13, 71, 161, 0.1) 0%, transparent 70%);
+    }
+
+    .category-pills-v2 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+        padding: 1rem 0;
+    }
+
+    .pill-item {
+        padding: 0.6rem 1.2rem;
+        border-radius: 50px;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        color: #444;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .pill-item:hover {
+        background: var(--primary-gradient);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(13, 71, 161, 0.2);
+    }
+
+    .magnificent-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        background: white;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .magnificent-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .featured-badge {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: var(--primary-gradient);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 2;
+    }
+
+    .search-container-v2 {
+        max-width: 700px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 10;
+        margin-top: -40px;
+    }
+
+    .search-input-v2 {
+        height: 70px;
+        padding: 0 30px 0 60px;
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+        font-size: 1.1rem;
+    }
+
+    .search-icon-v2 {
+        position: absolute;
+        left: 25px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #1f443e;
+        font-size: 1.2rem;
+    }
+
+    .sidebar-widget {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    .widget-title-v2 {
+        font-weight: 800;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        color: #2b5f57;
+        display: flex;
+        align-items: center;
+    }
+
+    .widget-title-v2::after {
+        content: '';
+        flex-grow: 1;
+        height: 2px;
+        background: #f0f0f0;
+        margin-left: 1rem;
+    }
+
+    .trending-item {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .trending-img {
+        width: 70px;
+        height: 70px;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-6 py-lg-8 hero-glow mt-5">
+    <div class="container text-center">
+        <h1 class="display-3 fw-bold mb-3" data-aos="fade-up">Dovetec <span class="text-primary">Insights</span></h1>
+        <p class="lead text-muted mb-5 px-lg-9" data-aos="fade-up" data-aos-delay="100">
+            Navigating the intersection of premium technology, innovative design, and strategic business intelligence.
+        </p>
+
+        <div class="category-pills-v2 mb-5" data-aos="fade-up" data-aos-delay="200">
+            {% for category in categories|slice:":12" %}
+            <a href="{% url 'category' category=category %}" class="pill-item">
+                {{ category }}
+            </a>
+            {% endfor %}
+            <a href="{% url 'tags' %}" class="pill-item text-primary">
+                Explore Tags <i class="feather-hash ms-1 small"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Search Hub -->
+<div class="container text-center">
+    <div class="search-container-v2" data-aos="zoom-in" data-aos-delay="300">
+        <form action="{% url 'search' %}" method="get">
+            <i class="feather-search search-icon-v2"></i>
+            <input type="text" name="q" class="form-control search-input-v2"
+                placeholder="Search for innovation, strategies, or tech trends...">
+        </form>
+    </div>
+</div>
+
+<div class="container py-8">
+    <div class="row">
+        <!-- Main Content (Articles) -->
+        <div class="col-lg-8">
+            <h2 class="h4 fw-bold mb-4 d-flex align-items-center">
+                <i class="feather-terminal me-2 text-primary"></i> Latest Insights
+            </h2>
+
+            <div class="row g-4">
+                {% for blog in article_objs %}
+                <div class="col-md-6" data-aos="fade-up">
+                    <div class="magnificent-card h-100 position-relative">
+                        {% if blog.featured %}
+                        <span class="featured-badge shadow-sm">Featured Post</span>
+                        {% endif %}
+
+                        <a href="{% url 'blog_detail' blog.slug %}" class="d-block">
+                            {% if blog.image %}
+                            <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="card-img-top"
+                                style="height: 240px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center"
+                                style="height: 240px;">
+                                <i class="feather-image text-muted h1"></i>
+                            </div>
+                            {% endif %}
+                        </a>
+
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-soft-primary text-primary">{{ blog.category }}</span>
+                                <small class="text-muted"><i class="feather-calendar me-1"></i> {{ blog.created_at|date:"M d, Y" }}</small>
+                            </div>
+                            <h3 class="h5 fw-bold mb-3">
+                                <a href="{% url 'blog_detail' blog.slug %}"
+                                    class="text-dark text-decoration-none hover-primary">
+                                    {{ blog.title }}
+                                </a>
+                            </h3>
+                            <p class="text-muted small mb-4">
+                                {{ blog.seo_description|truncatechars:100 }}
+                            </p>
+
+                            <hr class="my-4 opacity-10">
+
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    {% if blog.user.profile.image %}
+                                    <img src="{{ blog.user.profile.image.url }}" alt="" class="rounded-circle me-2"
+                                        style="width: 32px; height: 32px; object-fit: cover;">
+                                    {% endif %}
+                                    <span class="small fw-600 text-dark">{{ blog.user.get_full_name|default:blog.user.username }}</span>
+                                </div>
+                                <a href="{% url 'blog_detail' blog.slug %}"
+                                    class="btn btn-link text-primary p-0 h6 mb-0 text-decoration-none">
+                                    Read Now <i class="feather-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 py-5 text-center">
+                    <img src="{% static 'images/empty-blog.svg' %}" alt="" style="max-width: 200px;" class="mb-4">
+                    <h5 class="text-muted">No articles arrived yet. Check back soon!</h5>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination Support -->
+            {% if is_paginated %}
+            <nav class="mt-6">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link rounded-circle mx-1"
+                            href="?page={{ page_obj.previous_page_number }}"><i class="feather-chevron-left"></i></a>
+                    </li>
+                    {% endif %}
+                    <li class="page-item active"><span class="page-link rounded-circle mx-1">{{ page_obj.number }}</span></li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link rounded-circle mx-1"
+                            href="?page={{ page_obj.next_page_number }}"><i class="feather-chevron-right"></i></a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4 mt-5 mt-lg-0">
+            <!-- Newsletter Capture -->
+            <div class="sidebar-widget bg-primary text-white text-center position-relative overflow-hidden">
+                <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                    <i class="feather-send display-1"></i>
+                </div>
+                <h5 class="fw-bold mb-3">Innovation Weekly</h5>
+                <p class="small mb-4">Join 5,000+ tech leaders receiving our curated digests.</p>
+                <form action="{% url 'subscribe' %}" method="post">
+                    {% csrf_token %}
+                    <input type="email" name="email" class="form-controlmb-3 text-center border-0"
+                        placeholder="Email Address">
+                    <button class="btn btn-warning w-100fw-bold py-2 shadow-sm">Join the Community</button>
+                </form>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="sidebar-widget p-0 overflow-hidden text-center">
+                {% render_ad count=1 %}
+            </div>
+
+            <!-- Trending Topics -->
+            <div class="sidebar-widget">
+                <h5 class="widget-title-v2"><i class="feather-trending-up me-2"></i> Trending</h5>
+                {% for art in article_objs|slice:":4" %}
+                <a href="{% url 'blog_detail' art.slug %}" class="trending-item">
+                    {% if art.image %}
+                    <img src="{{ art.image.url }}" class="trending-img shadow-sm" alt="">
+                    {% endif %}
+                    <div>
+                        <h6 class="mb-1 fw-bold small text-dark lh-sm">{{ art.title|truncatechars:50 }}</h6>
+                        <small class="text-muted">{{ art.created_at|date:"M d" }}</small>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Popular Categories -->
+            <div class="sidebar-widget">
+                <h5 class="widget-title-v2"><i class="feather-grid me-2"></i> Categories</h5>
+                <div class="d-flex flex-column gap-2">
+                    {% for category in categories|slice:":8" %}
+                    <a href="{% url 'category' category=category %}"
+                        class="d-flex justify-content-between align-items-center text-decoration-none text-muted hover-primary pill-item shadow-none border-0 py-2 px-3">
+                        <span>{{ category }}</span>
+                        <span class="badge bg-soft-secondary text-secondary">Explore</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,255 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<!-- Lead Context -->
+<div class="bg-white rounded-4 shadow-sm p-4 mb-4" data-aos="fade-down">
+    <div class="d-flex justify-content-between flex-wrap align-items-center">
+        <div>
+            <h4 class="fw-bold mb-1"><i data-feather="clipboard" class="me-2"></i>{{ questionnaire.title }}</h4>
+            <p class="text-muted mb-0">
+                Lead: <b>{{ inquiry.name }}</b> · {{ inquiry.email }} · {{ inquiry.get_service_display }}
+                &nbsp;|&nbsp; Stage: <span class="badge bg-dark">{{ inquiry.get_stage_display }}</span>
+            </p>
+        </div>
+        <a href="{% url 'dashboard_funnel' %}" class="btn btn-sm btn-outline-secondary">
+            <i data-feather="arrow-left"></i> Back to Funnel
+        </a>
+    </div>
+</div>
+
+<!-- Status + Details -->
+<div class="row g-4 mb-4" data-aos="fade-up">
+    <div class="col-lg-4">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100">
+            <h5 class="fw-bold mb-3">Status</h5>
+            <span class="badge {% if questionnaire.status == 'completed' %}bg-success{% elif questionnaire.status == 'sent' or questionnaire.status == 'in_progress' %}bg-primary{% else %}bg-secondary{% endif %} fs-6 mb-3">
+                {{ questionnaire.get_status_display }}
+            </span>
+            <div class="progress mb-2" style="height: 10px;">
+                <div class="progress-bar bg-success" style="width: {{ questionnaire.progress_percent }}%;"></div>
+            </div>
+            <small class="text-muted">{{ questionnaire.answered_count }} of {{ questionnaire.question_count }} questions answered ({{ questionnaire.progress_percent }}%)</small>
+            {% if questionnaire.completed_at %}
+            <small class="text-success d-block mt-2"><i data-feather="check-circle"></i> Completed {{ questionnaire.completed_at|date:"M d, Y h:i A" }}</small>
+            {% endif %}
+            <form method="post" class="mt-3 d-flex gap-2">
+                {% csrf_token %}
+                <button name="action" value="send" class="btn btn-sm btn-primary flex-fill">
+                    <i data-feather="send"></i> Send to Client
+                </button>
+                <button name="action" value="reset" class="btn btn-sm btn-outline-secondary">Reset</button>
+            </form>
+            <div class="d-grid gap-2 mt-2">
+                <a href="{% url 'questionnaire_responses' questionnaire.id %}" class="btn btn-sm btn-outline-primary">
+                    <i data-feather="inbox"></i> Collect Responses
+                </a>
+                <a href="{% url 'questionnaire_responses' questionnaire.id %}?format=csv" class="btn btn-sm btn-outline-success">
+                    <i data-feather="download"></i> Export CSV
+                </a>
+            </div>
+            <form method="post" class="d-flex gap-2 mt-2"
+                  onsubmit="return confirm('Apply this destructive action to the questionnaire?');">
+                {% csrf_token %}
+                <button name="action" value="clear_responses" class="btn btn-sm btn-outline-warning flex-fill">Clear Responses</button>
+                <button name="action" value="delete_questionnaire" class="btn btn-sm btn-outline-danger flex-fill">Delete</button>
+            </form>
+
+            {% if templates %}
+            <hr class="my-3">
+            <h6 class="fw-bold mb-2">Merge questions from packages</h6>
+            <p class="small text-muted mb-2">
+                Adds new questions only — existing client answers are preserved
+                (e.g. Discovery + Compliance without clearing responses).
+            </p>
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="import_questions">
+                <div class="mb-2" style="max-height:170px; overflow:auto;">
+                    {% for t in templates %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="import_template_ids" value="{{ t.id }}" id="pkg{{ t.id }}">
+                        <label class="form-check-label small" for="pkg{{ t.id }}">
+                            {{ t.title }}
+                            <span class="text-muted">({{ t.get_context_display }} · {{ t.questions.count }}q)</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="btn btn-sm btn-success w-100">Merge selected packages (keeps answers)</button>
+            </form>
+
+            {% if import_source %}
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="import_questions">
+                <input type="hidden" name="source_template_id" value="{{ import_source.id }}">
+                <div class="small text-muted mb-1">Cherry-pick from “{{ import_source.title }}”:</div>
+                <div class="mb-2" style="max-height:150px; overflow:auto;">
+                    {% for q in import_source.questions.all %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="import_question_ids" value="{{ q.id }}" id="iq{{ q.id }}">
+                        <label class="form-check-label small" for="iq{{ q.id }}">{{ q.text|truncatechars:70 }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="btn btn-sm btn-outline-success w-100">Import selected questions (keeps answers)</button>
+            </form>
+            {% else %}
+            <a href="?source={{ templates.0.id }}" class="btn btn-sm btn-outline-secondary w-100 mb-3">Browse detailed import</a>
+            {% endif %}
+
+            <h6 class="fw-bold mb-2 text-danger">Destructive</h6>
+            <form method="post" class="mb-2">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="swap_template">
+                <select name="template_id" class="form-select form-select-sm mb-1">
+                    {% for t in templates %}
+                    <option value="{{ t.id }}">{{ t.title }} ({{ t.get_context_display }})</option>
+                    {% endfor %}
+                </select>
+                <div class="form-check mb-1">
+                    <input class="form-check-input" type="checkbox" name="confirm_replace" id="confirmSwap">
+                    <label class="form-check-label small" for="confirmSwap">Confirm replace (clears all answers)</label>
+                </div>
+                <button class="btn btn-sm btn-outline-danger w-100">Swap questions (clears answers)</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="bg-white rounded-4 shadow-sm p-4 h-100">
+            <h5 class="fw-bold mb-3">Questionnaire Details</h5>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_meta">
+                <div class="mb-2">
+                    <label class="form-label small text-muted">Title</label>
+                    <input type="text" name="title" value="{{ questionnaire.title }}" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small text-muted">Intro shown to client</label>
+                    <textarea name="intro" rows="2" class="form-control">{{ questionnaire.intro|default:'' }}</textarea>
+                </div>
+                <button class="btn btn-sm btn-dark">Save Details</button>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Add Question -->
+<div class="bg-white rounded-4 shadow-sm p-4 mb-4" data-aos="fade-up">
+    <h5 class="fw-bold mb-3">Add Custom Question</h5>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_question">
+        <div class="row g-2">
+            <div class="col-md-5">
+                <input type="text" name="text" class="form-control" placeholder="Question text *" required>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="help_text" class="form-control" placeholder="Help text (optional)">
+            </div>
+            <div class="col-md-2">
+                <select name="question_type" class="form-select">
+                    {% for value, label in question_types %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <div class="input-group">
+                    <div class="input-group-text"><input type="checkbox" name="required" class="form-check-input mt-0" title="Required"></div>
+                    <button class="btn btn-primary w-100">Add</button>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <input type="text" name="options" class="form-control" placeholder="Options for multiple choice, comma-separated (e.g., Website, Mobile App, ERP)">
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Questions + Answers -->
+<div class="bg-white rounded-4 shadow-sm p-4" data-aos="fade-up">
+    <h5 class="fw-bold mb-3">Questions {% if questionnaire.status == 'completed' %}<span class="badge bg-success ms-2">Client Responses</span>{% endif %}</h5>
+    {% for question in questions %}
+    <div class="border rounded-3 p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <b>{{ forloop.counter }}. {{ question.text }}</b>
+                {% if question.required %}<span class="text-danger">*</span>{% endif %}
+                <small class="text-muted d-block">{{ question.get_question_type_display }}{% if question.help_text %} — {{ question.help_text }}{% endif %}</small>
+                {% if question.options %}<small class="text-muted">Options: {{ question.options }}</small>{% endif %}
+            </div>
+            <div class="d-flex gap-1 align-items-start">
+                <!-- Reorder -->
+                <div class="d-flex flex-column me-1">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="move_question">
+                        <input type="hidden" name="question_id" value="{{ question.id }}">
+                        <input type="hidden" name="direction" value="up">
+                        <button class="btn btn-sm btn-link p-0" {% if forloop.first %}disabled{% endif %} title="Move up">▲</button>
+                    </form>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="move_question">
+                        <input type="hidden" name="question_id" value="{{ question.id }}">
+                        <input type="hidden" name="direction" value="down">
+                        <button class="btn btn-sm btn-link p-0" {% if forloop.last %}disabled{% endif %} title="Move down">▼</button>
+                    </form>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_question">
+                    <input type="hidden" name="question_id" value="{{ question.id }}">
+                    <button class="btn btn-sm btn-outline-danger" title="Remove"><i data-feather="trash-2" style="width:14px;"></i></button>
+                </form>
+            </div>
+        </div>
+        <button class="btn btn-sm btn-link text-decoration-none p-0 mt-1" type="button" style="font-size:.72rem;"
+                data-bs-toggle="collapse" data-bs-target="#edit-q-{{ question.id }}">✏ Edit question</button>
+        <div class="collapse" id="edit-q-{{ question.id }}">
+            <form method="post" class="border-top pt-2 mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="edit_question">
+                <input type="hidden" name="question_id" value="{{ question.id }}">
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <input type="text" name="text" value="{{ question.text }}" class="form-control form-control-sm" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="help_text" value="{{ question.help_text|default:'' }}" class="form-control form-control-sm" placeholder="Help text">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="question_type" class="form-select form-select-sm">
+                            {% for value, label in question_types %}
+                            <option value="{{ value }}" {% if question.question_type == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-text"><input type="checkbox" name="required" class="form-check-input mt-0" {% if question.required %}checked{% endif %}></div>
+                            <button class="btn btn-dark w-100">Save</button>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <input type="text" name="options" value="{{ question.options|default:'' }}" class="form-control form-control-sm" placeholder="Options for multiple choice, comma-separated">
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% with answer=question.client_answer %}
+        {% if answer and answer.answer %}
+        <div class="mt-2 p-2 bg-success-subtle rounded-2">
+            <small class="text-uppercase text-success fw-bold" style="font-size:.65rem;">Client's answer</small>
+            <div>{{ answer.answer|linebreaks }}</div>
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+    {% empty %}
+    <p class="text-muted text-center py-4">No questions yet — add the first custom question above.</p>
+    {% endfor %}
+</div>
+{% endblock %}

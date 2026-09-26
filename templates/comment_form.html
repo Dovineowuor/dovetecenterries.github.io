@@ -1,0 +1,20 @@
+<div class="card mt-5">
+    <div class="card-header">
+        <h2 class="h5 mb-0">
+            <button class="btn btn-link text-dark" type="button" data-toggle="collapse" data-target="#addCommentForm" aria-expanded="false" aria-controls="addCommentForm">
+                Add a Comment
+            </button>
+        </h2>
+    </div>
+    <div id="addCommentForm" class="collapse">
+        <div class="card-body">
+            <form action="{% url 'add_comment' article_obj.post_id %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <textarea class="form-control" id="commentText" name="content" rows="2" placeholder="Add a comment..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>

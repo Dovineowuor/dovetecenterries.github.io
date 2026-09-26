@@ -1,0 +1,372 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% firstof page_title "Community Hub" %} | Dovetec Enterprises{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root { --brand-primary: {{ brand_primary|default:"#1F6256" }}; }
+
+    /* ── Mobile Bottom Nav ── */
+    .mobile-nav {
+        display: none;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 1000;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(0,0,0,0.08);
+        padding: 0.25rem 0;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    }
+    .mobile-nav-inner { display: flex; justify-content: space-around; align-items: center; }
+    .mobile-nav-link {
+        display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+        padding: 0.4rem 0.75rem; text-decoration: none; color: #86868b;
+        font-size: 0.6rem; font-weight: 600; transition: all 0.2s;
+        background: none; border: none; cursor: pointer;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    }
+    .mobile-nav-link i { font-size: 1.2rem; }
+    .mobile-nav-link:hover, .mobile-nav-link.active { color: var(--brand-primary); }
+
+    /* ── Hero ── */
+    .community-hero {
+        position: relative; overflow: hidden;
+        padding: 80px 20px 60px;
+        background: linear-gradient(135deg, var(--brand-primary) 0%, #1a3d35 50%, #0f2520 100%);
+        color: white; margin-bottom: 2rem;
+    }
+    .community-hero::before {
+        content: ''; position: absolute; width: 500px; height: 500px;
+        border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+        top: -200px; right: -100px; animation: float 15s ease-in-out infinite;
+    }
+    .community-hero::after {
+        content: ''; position: absolute; width: 300px; height: 300px;
+        border-radius: 50%; background: radial-gradient(circle, rgba(43,95,87,0.3) 0%, transparent 70%);
+        bottom: -100px; left: -50px; animation: float 20s ease-in-out infinite reverse;
+    }
+    @keyframes float { 0%,100%{transform:translate(0,0)} 33%{transform:translate(20px,-20px)} 66%{transform:translate(-15px,15px)} }
+    .community-hero h1 {
+        font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800;
+        letter-spacing: -0.03em; line-height: 1.1; position: relative; z-index: 1;
+    }
+    .community-hero p {
+        font-size: clamp(0.9rem, 2vw, 1.1rem); opacity: 0.8;
+        max-width: 560px; margin-top: 1rem; position: relative; z-index: 1;
+    }
+
+    /* ── Stats Bar ── */
+    .stats-bar { display: flex; gap: 1rem; margin-bottom: 2rem; overflow-x: auto; padding-bottom: 0.5rem; }
+    .stat-item {
+        flex-shrink: 0; padding: 1rem 1.5rem; background: white;
+        border-radius: 16px; border: 1px solid rgba(0,0,0,0.04); text-align: center; min-width: 120px;
+    }
+    .stat-item .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--brand-primary); }
+    .stat-item .stat-label { font-size: 0.7rem; color: #86868b; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── Search Bar ── */
+    .search-bar { position: relative; margin-bottom: 1.5rem; }
+    .search-bar input {
+        width: 100%; padding: 1rem 3.5rem 1rem 3rem;
+        border: 1px solid rgba(0,0,0,0.08); border-radius: 16px;
+        font-size: 0.95rem; background: white; transition: all 0.3s ease;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    }
+    .search-bar input:focus { outline: none; border-color: var(--brand-primary); box-shadow: 0 0 0 3px rgba(43,95,87,0.1); }
+    .search-bar .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #86868b; pointer-events: none; }
+    .search-bar button.search-submit {
+        position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);
+        border: none; background: var(--brand-primary); color: white;
+        width: 2.5rem; height: 2.5rem; border-radius: 12px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .search-bar button.search-submit:hover { filter: brightness(1.1); }
+
+    /* ── Category Tabs ── */
+    .category-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 0.5rem 0; margin-bottom: 1.5rem; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .category-tabs::-webkit-scrollbar { display: none; }
+    .category-tab {
+        flex-shrink: 0; padding: 8px 18px; border-radius: 100px;
+        border: 1px solid rgba(0,0,0,0.08); background: white;
+        font-size: 0.8rem; font-weight: 600; color: #4b5563;
+        cursor: pointer; transition: all 0.2s; text-decoration: none; white-space: nowrap;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    }
+    .category-tab:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .category-tab.active { background: var(--brand-primary); color: white; border-color: var(--brand-primary); }
+
+    /* ── Sidebar (Desktop) ── */
+    .community-sidebar { position: sticky; top: 90px; height: min-content; }
+    .sidebar-section-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #86868b; padding: 1rem 1rem 0.5rem; margin-top: 0.5rem; }
+    .sidebar-nav-link {
+        display: flex; align-items: center; gap: 0.75rem;
+        padding: 0.75rem 1rem; border-radius: 12px; color: #4b5563;
+        font-weight: 600; font-size: 0.9rem; transition: all 0.2s ease;
+        text-decoration: none; margin-bottom: 0.15rem;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    }
+    .sidebar-nav-link:hover, .sidebar-nav-link.active { background: var(--brand-primary); color: white; box-shadow: 0 4px 12px rgba(43,95,87,0.25); }
+    .sidebar-nav-link:hover i, .sidebar-nav-link.active i { color: white; }
+    .sidebar-nav-link i { font-size: 1.1rem; color: inherit; opacity: 0.9; }
+    .sidebar-count {
+        margin-left: auto; font-size: 0.7rem; font-weight: 700;
+        background: rgba(0,0,0,0.06); color: inherit; padding: 0.15rem 0.5rem; border-radius: 100px;
+    }
+    .sidebar-nav-link.active .sidebar-count,
+    .sidebar-nav-link:hover .sidebar-count { background: rgba(255,255,255,0.2); }
+
+    /* ── Resource Cards ── */
+    .resource-card {
+        background: white; border-radius: 20px; padding: 24px;
+        border: 1px solid rgba(0,0,0,0.04); transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        text-decoration: none; color: inherit; display: block; height: 100%;
+    }
+    .resource-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0,0,0,0.1); border-color: rgba(43,95,87,0.15); }
+    .resource-card .card-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1.25rem; }
+    .resource-card h4 { font-size: 1rem; font-weight: 700; color: #1d1d1f; margin-bottom: 0.5rem; }
+    .resource-card p { font-size: 0.85rem; color: #86868b; line-height: 1.5; margin-bottom: 0; }
+    .resource-card .card-meta { margin-top: 1rem; font-size: 0.75rem; font-weight: 700; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── Discussion / List Cards ── */
+    .discussion-card {
+        background: white; border-radius: 20px; padding: 1.5rem;
+        border: 1px solid rgba(0,0,0,0.03); transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        height: 100%; display: flex; flex-direction: column; text-decoration: none; color: inherit;
+    }
+    .discussion-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+    .discussion-card .category-pill {
+        font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+        color: var(--brand-primary); background: rgba(43,95,87,0.05);
+        padding: 0.4rem 0.8rem; border-radius: 8px; display: inline-block; margin-bottom: 0.75rem;
+        align-self: flex-start;
+    }
+    .discussion-card h5 { font-size: 1.05rem; font-weight: 700; color: #1d1d1f; margin-bottom: 0.5rem; line-height: 1.3; }
+    .discussion-card p { font-size: 0.85rem; color: #86868b; line-height: 1.5; margin-bottom: 0; }
+    .discussion-card .card-footer {
+        margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.04);
+        display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    }
+    .discussion-card .meta-chip {
+        display: inline-flex; align-items: center; gap: 0.35rem;
+        font-size: 0.75rem; color: #86868b; font-weight: 600;
+    }
+
+    /* ── Featured ── */
+    .featured-discussion-card {
+        background: white; border-radius: 24px; padding: 2.5rem;
+        border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        position: relative; overflow: hidden; margin-bottom: 2rem;
+    }
+
+    /* ── Section heading ── */
+    .section-heading {
+        font-size: clamp(1.2rem, 2.5vw, 1.5rem); font-weight: 800;
+        color: #1d1d1f; margin-top: 2rem; margin-bottom: 1rem; letter-spacing: -0.02em;
+    }
+
+    /* ── Event card ── */
+    .event-date-badge {
+        display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+        min-width: 64px; padding: 0.5rem 0.75rem; border-radius: 14px;
+        background: rgba(43,95,87,0.08); color: var(--brand-primary); font-weight: 800; line-height: 1.1;
+    }
+    .event-date-badge .day { font-size: 1.35rem; }
+    .event-date-badge .mon { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── Member card ── */
+    .member-avatar {
+        width: 56px; height: 56px; border-radius: 50%; object-fit: cover;
+        background: rgba(43,95,87,0.1); color: var(--brand-primary);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 1.1rem; flex-shrink: 0;
+    }
+
+    /* ── Empty State ── */
+    .empty-state { text-align: center; padding: 4rem 2rem; }
+    .empty-state i { font-size: 3rem; color: #d1d5db; margin-bottom: 1rem; }
+    .empty-state h3 { font-size: 1.2rem; font-weight: 700; color: #1d1d1f; }
+    .empty-state p { color: #86868b; margin-top: 0.5rem; }
+
+    /* ── Back to Top ── */
+    .back-to-top {
+        position: fixed; bottom: 80px; right: 20px; width: 44px; height: 44px;
+        background: var(--brand-primary); color: white; border: none;
+        border-radius: 50%; display: none; align-items: center; justify-content: center;
+        cursor: pointer; box-shadow: 0 4px 16px rgba(43,95,87,0.3);
+        transition: all 0.3s ease; z-index: 100; font-size: 1.2rem;
+    }
+    .back-to-top:hover { transform: translateY(-3px); }
+    .back-to-top.visible { display: flex; }
+
+    /* ── Content panel ── */
+    .content-panel {
+        background: white; border-radius: 20px; padding: 1.5rem;
+        border: 1px solid rgba(0,0,0,0.04); margin-bottom: 1.5rem;
+    }
+    .content-panel .panel-title {
+        font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+        color: #86868b; margin-bottom: 1rem;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 991.98px) {
+        .mobile-nav { display: flex; }
+        .community-hero { padding: 60px 20px 40px; margin-bottom: 1rem; }
+        .community-sidebar { display: none !important; }
+        .back-to-top { bottom: 90px; }
+    }
+    @media (min-width: 992px) { .mobile-nav { display: none !important; } }
+    @media (max-width: 575.98px) {
+        .stats-bar { gap: 0.5rem; }
+        .stat-item { min-width: 90px; padding: 0.75rem 1rem; }
+        .stat-item .stat-num { font-size: 1.2rem; }
+        .resource-card { padding: 16px; }
+        .discussion-card { padding: 1rem; }
+        .featured-discussion-card { padding: 1.5rem; }
+    }
+    {% block community_css %}{% endblock %}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero ── -->
+<section class="community-hero">
+    <div class="container position-relative" style="z-index: 1;">
+        <h1>{% block hero_title %}{% firstof hero_title page_title "Community Hub" %}{% endblock %}</h1>
+        <p>{% block hero_text %}{% firstof hero_text seo_desc "Join thousands of professionals discussing technology, software engineering, and digital transformation. Your next breakthrough starts here." %}{% endblock %}</p>
+    </div>
+</section>
+
+<div class="container">
+    <!-- ── Stats ── -->
+    <div class="stats-bar">
+        <div class="stat-item"><div class="stat-num">{{ stats.members|default:0 }}</div><div class="stat-label">Members</div></div>
+        <div class="stat-item"><div class="stat-num">{{ stats.topics|default:0 }}</div><div class="stat-label">Topics</div></div>
+        <div class="stat-item"><div class="stat-num">{{ stats.replies|default:0 }}</div><div class="stat-label">Replies</div></div>
+        <div class="stat-item"><div class="stat-num">{{ stats.resources|default:0 }}</div><div class="stat-label">Resources</div></div>
+    </div>
+
+    <div class="row g-4">
+        <!-- ── Desktop Sidebar ── -->
+        <div class="col-12 col-lg-3">
+            <aside class="community-sidebar">
+                <p class="sidebar-section-title">HomeFeed</p>
+                <a href="{% url 'community' %}" class="sidebar-nav-link{% if section == 'feed' %} active{% endif %}">
+                    <i class="feather-home"></i> Feed
+                </a>
+                <a href="{% url 'community_trending' %}" class="sidebar-nav-link{% if section == 'trending' %} active{% endif %}">
+                    <i class="feather-rss"></i> Trending
+                </a>
+
+                <p class="sidebar-section-title">Resources</p>
+                <a href="{% url 'help_center' %}" class="sidebar-nav-link">
+                    <i class="feather-book"></i> Knowledge Base
+                </a>
+                <a href="{% url 'community_product_updates' %}" class="sidebar-nav-link{% if section == 'product_updates' %} active{% endif %}">
+                    <i class="feather-zap"></i> Product Updates
+                    {% if newsletter_count %}<span class="sidebar-count">{{ newsletter_count }}</span>{% endif %}
+                </a>
+                <a href="{% url 'community_get_inspired' %}" class="sidebar-nav-link{% if section == 'get_inspired' %} active{% endif %}">
+                    <i class="feather-compass"></i> Get Inspired
+                    {% with inspired_total=case_study_count|default:0 %}{% endwith %}
+                </a>
+
+                <p class="sidebar-section-title">Connect</p>
+                <a href="{% url 'contact_us' %}" class="sidebar-nav-link">
+                    <i class="feather-message-circle"></i> Support
+                </a>
+                <a href="{% url 'community_events' %}" class="sidebar-nav-link{% if section == 'events' %} active{% endif %}">
+                    <i class="feather-calendar"></i> Events
+                    {% if upcoming_event_count %}<span class="sidebar-count">{{ upcoming_event_count }}</span>{% endif %}
+                </a>
+                <a href="{% url 'community_directory' %}" class="sidebar-nav-link{% if section == 'directory' %} active{% endif %}">
+                    <i class="feather-users"></i> Directory
+                    {% if member_count %}<span class="sidebar-count">{{ member_count }}</span>{% endif %}
+                </a>
+
+                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.06);">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'profile' %}" class="sidebar-nav-link"><i class="feather-user"></i> My Profile</a>
+                        <a href="{% url 'logout_view' %}" class="sidebar-nav-link"><i class="feather-log-out"></i> Log out</a>
+                    {% else %}
+                        <a href="{% url 'login_view' %}" class="sidebar-nav-link"><i class="feather-log-in"></i> Log in</a>
+                    {% endif %}
+                </div>
+            </aside>
+        </div>
+
+        <!-- ── Main Content ── -->
+        <div class="col-12 col-lg-9">
+            <!-- Search -->
+            <form class="search-bar" method="get" action="{% block search_action %}{% url 'community' %}{% endblock %}" role="search">
+                <i class="feather-search search-icon"></i>
+                <input type="search" name="q" value="{{ query|default:'' }}" placeholder="{% block search_placeholder %}Search discussions, resources, and more...{% endblock %}" aria-label="Search">
+                <button type="submit" class="search-submit" aria-label="Submit search"><i class="feather-arrow-right" style="width:18px;height:18px;"></i></button>
+            </form>
+
+            <!-- Category Tabs (Feed / Trending) -->
+            {% block category_tabs %}
+            {% if section == 'feed' or section == 'trending' %}
+            <div class="category-tabs">
+                {% if section == 'feed' %}
+                    <a href="{% url 'community' %}" class="category-tab{% if not active_tab or active_tab == 'all' %} active{% endif %}">All</a>
+                    <a href="{% url 'community_trending' %}" class="category-tab">Trending</a>
+                    {% for tab in tabs %}
+                    <a href="{% url 'community' %}?tab={{ tab|urlencode }}" class="category-tab{% if active_tab == tab %} active{% endif %}">{{ tab }}</a>
+                    {% endfor %}
+                {% else %}
+                    <a href="{% url 'community_trending' %}" class="category-tab{% if not active_tab or active_tab == 'all' %} active{% endif %}">All</a>
+                    <a href="{% url 'community' %}" class="category-tab">Feed</a>
+                    {% for tab in tabs %}
+                    <a href="{% url 'community_trending' %}?tab={{ tab|urlencode }}" class="category-tab{% if active_tab == tab %} active{% endif %}">{{ tab }}</a>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% endif %}
+            {% endblock %}
+
+            {% block community_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<!-- ── Mobile Bottom Navigation ── -->
+<nav class="mobile-nav" aria-label="Community">
+    <div class="mobile-nav-inner">
+        <a href="{% url 'community' %}" class="mobile-nav-link{% if section == 'feed' %} active{% endif %}"><i class="feather-home"></i><span>Feed</span></a>
+        <a href="{% url 'community_trending' %}" class="mobile-nav-link{% if section == 'trending' %} active{% endif %}"><i class="feather-trending-up"></i><span>Trending</span></a>
+        <a href="{% url 'help_center' %}" class="mobile-nav-link"><i class="feather-book"></i><span>Learn</span></a>
+        <a href="{% url 'community_events' %}" class="mobile-nav-link{% if section == 'events' %} active{% endif %}"><i class="feather-calendar"></i><span>Events</span></a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="mobile-nav-link"><i class="feather-user"></i><span>Profile</span></a>
+        {% else %}
+        <a href="{% url 'login_view' %}" class="mobile-nav-link"><i class="feather-log-in"></i><span>Log In</span></a>
+        {% endif %}
+    </div>
+</nav>
+
+<!-- ── Back to Top ── -->
+<button class="back-to-top" id="backToTop" aria-label="Back to top" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="feather-chevron-up"></i></button>
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    window.addEventListener('scroll', function() {
+        var btn = document.getElementById('backToTop');
+        if (btn) btn.classList.toggle('visible', window.scrollY > 400);
+    });
+    (function() {
+        var l = document.querySelector('.loader');
+        var o = document.getElementById('overlayer');
+        if (l) l.style.display = 'none';
+        if (o) o.style.display = 'none';
+    })();
+</script>
+{% block community_js %}{% endblock %}
+{% endblock %}

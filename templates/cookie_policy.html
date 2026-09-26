@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Cookie Policy | Dovetec Enterprises{% endblock %}
+{% block seo_desc %}How Dovetec Enterprises uses cookies and similar technologies to improve your experience on our website and services.{% endblock %}
+{% block seo_keys %}cookie policy, cookies, privacy, Dovetec Enterprises{% endblock %}
+{% block og_title %}Cookie Policy | Dovetec Enterprises{% endblock %}
+{% block og_desc %}How Dovetec Enterprises uses cookies and similar technologies to improve your experience.{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="mb-4">Cookie Policy</h1>
+                    <p class="text-muted">Last Updated: September 22, 2026</p>
+
+                    <div class="mb-5">
+                        <h4>What Are Cookies</h4>
+                        <p>Cookies are small text files stored on your device when you visit a website. They help sites remember your actions and preferences over a period of time so you don't have to re-enter them whenever you come back or browse from one page to another.</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4>How We Use Cookies</h4>
+                        <p>Dovetec Enterprises uses cookies to:</p>
+                        <ul>
+                            <li><strong>Keep you signed in</strong> to your account securely</li>
+                            <li><strong>Remember your cart</strong> while you shop</li>
+                            <li><strong>Understand site usage</strong> so we can improve performance and content</li>
+                            <li><strong>Deliver relevant ads</strong> through Google AdSense</li>
+                            <li><strong>Support site security</strong> and prevent fraud</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4>Types of Cookies We Use</h4>
+                        <h5 class="mt-3">Strictly Necessary Cookies</h5>
+                        <p>Required for the website to function — session management, security, and load balancing. The site cannot work properly without these.</p>
+                        <h5 class="mt-3">Preference Cookies</h5>
+                        <p>Remember settings like language and region so the site behaves the way you expect on future visits.</p>
+                        <h5 class="mt-3">Analytics Cookies</h5>
+                        <p>Help us understand how visitors interact with the site by collecting information anonymously, such as pages visited and time spent.</p>
+                        <h5 class="mt-3">Advertising Cookies</h5>
+                        <p>Used by Google AdSense to serve ads based on your prior visits to this and other sites. Google's use of advertising cookies enables it and its partners to serve ads based on your visit to our site.</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4>Managing Cookies</h4>
+                        <p>You can control and delete cookies through your browser settings. Disabling some cookies may affect site functionality — for example, staying signed in or keeping items in your cart.</p>
+                        <ul>
+                            <li><a href="https://support.google.com/ads/answer/2662924" rel="nofollow noopener" target="_blank">Google AdSense opt-out &amp; Ads Settings</a></li>
+                            <li>Most browsers let you block or delete cookies under Settings → Privacy &amp; Security → Cookies</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4>Third-Party Cookies</h4>
+                        <p>Some cookies are set by third-party services that appear on our pages — including Google AdSense and payment providers such as M-Pesa and PayPal. These providers are responsible for their own cookies.</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4>Updates to This Policy</h4>
+                        <p>We may update this Cookie Policy from time to time. Changes will be posted on this page with a revised date.</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <h4>Contact</h4>
+                        <p>Questions about our use of cookies? Email <a href="mailto:info@dovetecenterprises.site">info@dovetecenterprises.site</a> or see our <a href="{% url 'privacy_policy' %}">Privacy Policy</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

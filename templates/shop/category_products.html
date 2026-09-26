@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Products in {{ category.name }} - Dovetec Enterprises{% endblock %}
+
+{% block content %}
+<section class="category-hero py-5 bg-light rounded-bottom-4 shadow-sm overflow-hidden position-relative">
+    <div class="container py-lg-4 text-center">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-lg-8" data-aos="fade-up">
+                <nav aria-label="breadcrumb" class="mb-4 d-inline-block">
+                    <ol class="breadcrumb bg-whitepx-4 py-2 small shadow-sm border-0">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}"
+                                class="text-muted text-decoration-none">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'shop' %}"
+                                class="text-muted text-decoration-none">Shop</a></li>
+                        <li class="breadcrumb-item active text-primary fw-bold" aria-current="page">{{ category.name }}
+                        </li>
+                    </ol>
+                </nav>
+                <h1 class="h2 fw-bold mb-3">{{ category.name }}</h1>
+                <p class="text-muted mb-0 mx-auto px-md-5" style="max-width: 800px;">{{ category.description|default:"Discover our high-quality collection of innovative products tailored for your business needs." }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="category-product-listing py-5 bg-white">
+    <div class="container py-lg-4">
+        {% include 'shop/product_list.html' %}
+
+        <div class="mt-5 text-center">
+            <a href="{% url 'shop' %}" class="btn btn-outline-primary px-5 py-3">
+                <i class="feather-box me-2"></i>View All Products
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .breadcrumb-item+.breadcrumb-item::before {
+        content: "•";
+    }
+
+    .rounded-bottom-4 {
+        border-bottom-left-radius: 2rem !important;
+        border-bottom-right-radius: 2rem !important;
+    }
+</style>
+{% endblock %}

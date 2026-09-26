@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% load static %}
+{% load seo_tags %}
+
+{% block title %}Portfolio Masonry - Dovetec Enterprises{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+<link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}">
+<link rel="stylesheet" href="{% static 'fonts/feather/style.css' %}">
+<link rel="stylesheet" href="{% static 'fonts/flaticon/font/flaticon.css' %}">
+<link rel="stylesheet" href="{% static 'css/jquery.fancybox.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/aos.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="position-relative overflow-hidden">
+  <div class="position-absolute w-100 h-100">
+    <picture>
+      {% static 'images/bg-video.jpg' as hero_img %}
+      {% with hero_url=hero_img|cut:'.jpg' %}
+      <source type="image/webp" 
+              srcset="{{ hero_url }}.webp 1920w,
+                      {{ hero_url }}_1200w.webp 1200w,
+                      {{ hero_url }}_768w.webp 768w"
+              sizes="100vw">
+      <img src="{{ hero_img }}" 
+           alt="Portfolio Masonry Background" 
+           class="img-fluid w-100" 
+           style="object-fit: cover; min-height: 400px;"
+           loading="eager"
+           width="1920"
+           height="1080">
+      {% endwith %}
+    </picture>
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+  </div>
+  <div class="container position-relative py-5" style="min-height: 400px;">
+    <div class="row align-items-center justify-content-center h-100">
+      <div class="col-lg-8 text-center text-white">
+        <h1 class="display-4 fw-bold mb-4" data-aos="fade-up">Portfolio Masonry</h1>
+        <p class="lead mb-4" data-aos="fade-up" data-aos-delay="100">
+          Explore our diverse collection of work showcasing our expertise and creativity across various industries.
+          Each project represents our commitment to excellence and innovation.
+        </p>
+        <div data-aos="fade-up" data-aos-delay="200">
+          <a href="#portfolio" class="btn btn-primary btn-lg px-4">View Our Work</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Portfolio Grid -->
+<section id="portfolio" class="py-5">
+  <div class="container">
+    <!-- Filter Buttons -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="filter-buttons text-center" data-aos="fade-up">
+          <button class="btn btn-outline-primary active mb-2 mb-md-0" data-filter="all">All Works</button>
+          <button class="btn btn-outline-primary mb-2 mb-md-0" data-filter="branding">Branding</button>
+          <button class="btn btn-outline-primary mb-2 mb-md-0" data-filter="web">Web Design</button>
+          <button class="btn btn-outline-primary mb-2 mb-md-0" data-filter="graphic">Graphic Design</button>
+          <button class="btn btn-outline-primary" data-filter="photography">Photography</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Portfolio Grid -->
+    <div class="portfolio-masonry">
+      {% with portfolio_items="img_h_8-min.png:Oddibites:Food and Orders:branding,img_v_4-min.jpg:Oddibites Revamp:Brand Revamp:branding,img_v_2-min.png:Adios Media:Product and Service Design:web,img_h_1-min.png:Dovetec Enterprises:Brand Identity:branding,img_h_3-min.jpg:Creative Solutions:Graphic Design:graphic,img_h_6-min.png:Marketing Campaign:Digital Marketing:branding,img_h_5-min.jpg:Photo Shoot:Professional Photography:photography,img_v_8-min.jpg:Web Application:UI/UX Design:web,macbookmock.jpg:Product Showcase:Branding:branding" %}
+      {% for item in portfolio_items|split:',' %}
+        {% with item_info=item|split:':' %}
+        {% with img_name=item_info.0 title=item_info.1 category=item_info.2 filter_class=item_info.3 %}
+        {% with img_ext=img_name|slice:'-4:' img_base=img_name|slice:':-4' %}
+        <div class="portfolio-item" data-category="{{ filter_class }}">
+          <div class="portfolio-card">
+            <div class="portfolio-img-container">
+              <picture>
+                <source type="image/webp" 
+                        srcset="{% static 'images/'|add:img_base|add:'_800w.webp' %} 800w,
+                                {% static 'images/'|add:img_base|add:'_400w.webp' %} 400w"
+                        sizes="(max-width: 991.98px) 50vw, 33.333vw">
+                <img src="{% static 'images/'|add:img_name %}" 
+                     alt="{{ title }} - {{ category }}" 
+                     class="portfolio-img"
+                     loading="lazy"
+                     width="800"
+                     height="600">
+              </picture>
+              <div class="portfolio-overlay">
+                <div class="text-center text-white p-3">
+                  <h5 class="h4 mb-2">{{ title }}</h5>
+                  <p class="mb-0">{{ category }}</p>
+                  <a href="{% static 'images/'|add:img_name %}" 
+                     class="btn btn-sm btn-outline-light mt-3" 
+                     data-fancybox="gallery" 
+                     data-caption="<h4 class='mb-1'>{{ title }}</h4><p class='mb-0'>{{ category }}</p>"
+                     data-width="1200"
+                     data-height="900">
+                    View Project
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="portfolio-content">
+              <h3 class="portfolio-title">{{ title }}</h3>
+              <span class="portfolio-category">{{ category }}</span>
+            </div>
+          </div>
+        </div>
+        {% endwith %}
+        {% endwith %}
+        {% endwith %}
+      {% endfor %}
+      {% endwith %}
+    </div>
+    
+    <!-- Load More Button -->
+    <div class="text-center mt-5" data-aos="fade-up">
+      <button class="btn btn-primary btn-lg" id="load-more">
+        <span class="me-2">Load More</span>
+        <i class="fas fa-arrow-down"></i>
+      </button>
+    </div>
+  </div>
+</section>
+<!-- Footer and overlays are handled by base.html -->
+{% endblock %}
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
+<script src="{% static 'js/imagesloaded.pkgd.min.js' %}"></script>
+<script src="{% static 'js/jquery.fancybox.min.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize AOS
+  AOS.init({
+    duration: 800,
+    easing: 'ease-in-out',
+    once: true
+  });
+
+  // Initialize Isotope
+  const grid = document.querySelector('.portfolio-masonry');
+  let iso;
+
+  if (grid) {
+    imagesLoaded(grid, function() {
+      iso = new Isotope(grid, {
+        itemSelector: '.portfolio-item',
+        percentPosition: true,
+        masonry: {
+          columnWidth: '.portfolio-item',
+          gutter: 24
+        }
+      });
+
+      // Filter items on button click
+      const filterButtons = document.querySelectorAll('.filter-buttons button');
+      
+      filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all buttons
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          // Add active class to clicked button
+          this.classList.add('active');
+          
+          const filterValue = this.getAttribute('data-filter');
+          iso.arrange({
+            filter: filterValue === 'all' ? '*' : `[data-category*="${filterValue}"]`
+          });
+          
+          // Animate items
+          const items = document.querySelectorAll('.portfolio-item');
+          items.forEach(item => {
+            if (filterValue === 'all' || item.getAttribute('data-category').includes(filterValue)) {
+              item.style.opacity = 0;
+              setTimeout(() => {
+                item.style.opacity = 1;
+              }, 50);
+            }
+          });
+        });
+      });
+    });
+  }
+
+  // Initialize Fancybox
+  $('[data-fancybox="gallery"]').fancybox({
+    buttons: [
+      'zoom',
+      'share',
+      'slideShow',
+      'fullScreen',
+      'download',
+      'thumbs',
+      'close'
+    ],
+    animationEffect: 'zoom',
+    transitionEffect: 'slide',
+    transitionDuration: 500,
+    loop: true,
+    protect: true,
+    idleTime: 3,
+    baseTpl: `
+      <div class="fancybox-container" role="dialog">
+        <div class="fancybox-bg"></div>
+        <div class="fancybox-inner">
+          <div class="fancybox-navigation">{{arrows}}</div>
+          <div class="fancybox-infobar">
+            <span data-fancybox-index></span>&nbsp;/&nbsp;<span data-fancybox-count></span>
+          </div>
+          <div class="fancybox-toolbar">{{buttons}}</div>
+          <div class="fancybox-caption"></div>
+        </div>
+      </div>`
+  });
+
+  // Load more functionality
+  const loadMoreBtn = document.getElementById('load-more');
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', function() {
+      // Simulate loading more items (in a real app, you would fetch these from the server)
+      const spinner = document.createElement('span');
+      spinner.className = 'spinner-border spinner-border-sm me-2';
+      spinner.setAttribute('role', 'status');
+      spinner.setAttribute('aria-hidden', 'true');
+      
+      const originalContent = this.innerHTML;
+      this.disabled = true;
+      this.innerHTML = '';
+      this.appendChild(spinner);
+      this.appendChild(document.createTextNode(' Loading...'));
+      
+      // Simulate AJAX request
+      setTimeout(() => {
+        // In a real app, you would append new items here
+        // For now, we'll just show an alert
+        alert('In a real implementation, this would load more portfolio items.');
+        
+        // Reset button
+        this.innerHTML = originalContent;
+        this.disabled = false;
+        
+        // Reinitialize Isotope layout
+        if (iso) {
+          iso.layout();
+          AOS.refresh();
+        }
+      }, 1500);
+    });
+  }
+
+  // Add smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const targetId = this.getAttribute('href');
+      if (targetId === '#') return;
+      
+      const targetElement = document.querySelector(targetId);
+      if (targetElement) {
+        window.scrollTo({
+          top: targetElement.offsetTop - 80,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

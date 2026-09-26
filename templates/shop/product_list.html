@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% firstof page_title "Products" %}{% endblock %}
+{% block seo_keys %}products, shop, software solutions, IT services, Dovetec Enterprises, Kenya{% endblock %}
+{% block og_type %}website{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-card-v2 {
+        background: #fff;
+        border-radius: 28px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.04);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+        transition: all 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .product-card-v2:hover {
+        transform: translateY(-14px);
+        box-shadow: 0 35px 70px rgba(0,0,0,0.10);
+        border-color: rgba(43, 95, 87, 0.15);
+    }
+
+    .product-card-v2 .card-img-wrap {
+        position: relative;
+        overflow: hidden;
+        height: 260px;
+    }
+
+    .product-card-v2 .card-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .product-card-v2:hover .card-img-wrap img {
+        transform: scale(1.08);
+    }
+
+    .cat-tag {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(10px);
+        border-radius: 50px;
+        padding: 0.3rem 0.85rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #2b5f57;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .wishlist-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 36px;
+        height: 36px;
+        background: rgba(255,255,255,0.9);
+        backdrop-filter: blur(10px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        color: #9ca3af;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .wishlist-btn:hover {
+        background: #fee2e2;
+        color: #ef4444;
+        transform: scale(1.1);
+    }
+
+    .out-of-stock-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0.55);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stock-badge {
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .product-card-v2 .card-body-v2 {
+        padding: 1.4rem 1.5rem 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .rating-stars i {
+        font-size: 0.75rem;
+        color: #f59e0b;
+    }
+
+    .add-btn {
+        border-radius: 14px;
+        padding: 0.7rem 1rem;
+        font-weight: 700;
+        font-size: 0.88rem;
+        border: none;
+        background: linear-gradient(135deg, #2b5f57, #28a745);
+        color: white;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .add-btn:hover:not(:disabled) {
+        transform: scale(1.02);
+        box-shadow: 0 12px 30px rgba(43, 95, 87, 0.35);
+    }
+
+    .add-btn:disabled {
+        background: #e5e7eb;
+        color: #9ca3af;
+        cursor: not-allowed;
+    }
+
+    .section-header-v2 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2.5rem;
+    }
+
+    .section-nav-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(43, 95, 87, 0.2);
+        background: white;
+        color: #2b5f57;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
+
+    .section-nav-btn:hover {
+        background: #2b5f57;
+        color: white;
+        border-color: #2b5f57;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<section class="py-5" id="product-feed">
+    <div class="section-header-v2" data-aos="fade-up">
+        <div>
+            <span style="font-size:0.72rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#2b5f57;">CURATED FOR YOU</span>
+            <h2 class="fw-800 text-dark mb-0 mt-1">Latest <span class="text-primary">Innovations</span></h2>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="section-nav-btn"><i class="feather-chevron-left"></i></button>
+            <button class="section-nav-btn"><i class="feather-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        {% for product in products %}
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
+            <div class="product-card-v2">
+                <div class="card-img-wrap">
+                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/img_v_4-min.png' %}{% endif %}"
+                         alt="{{ product.name }}">
+
+                    <span class="cat-tag">{{ product.category.name|default:"Tech" }}</span>
+
+                    <button class="wishlist-btn"><i class="feather-heart"></i></button>
+
+                    {% if product.stock == 0 %}
+                    <div class="out-of-stock-overlay">
+                        <span class="stock-badge bg-danger text-white">Out of Stock</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-body-v2">
+                    <h5 class="fw-bold text-dark mb-1 text-truncate" title="{{ product.name }}">{{ product.name }}</h5>
+
+                    <div class="rating-stars mb-3">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span class="text-muted small ms-1">(4.5)</span>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mb-4 mt-auto">
+                        <div>
+                            <span class="h5 fw-800 text-primary mb-0">Ksh {{ product.price }}</span>
+                            {% if product.stock > 0 %}
+                            <p class="extra-small text-success fw-bold mb-0"><i class="feather-check-circle me-1"></i>{{ product.stock }} in stock</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <form method="post" action="{% url 'add_to_cart' product.id %}">
+                        {% csrf_token %}
+                        <button class="add-btn" type="submit" {% if product.stock == 0 %}disabled{% endif %}>
+                            <i class="feather-shopping-bag"></i>
+                            {% if product.stock == 0 %}Unavailable{% else %}Add to Cart{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-6">
+            <div class="mb-4 text-muted opacity-25"><i class="feather-search display-2"></i></div>
+            <h4 class="text-muted fw-bold">No innovations found in vault.</h4>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

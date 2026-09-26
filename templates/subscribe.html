@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Subscribe to Newsletter | Dovetec Enterprises{% endblock %}
+{% block seo_desc %}Subscribe to the Dovetec Enterprises newsletter for technology insights, software engineering tips, and IT solutions from Nairobi, Kenya.{% endblock %}
+{% block seo_keys %}newsletter, subscribe, technology insights, Dovetec Enterprises{% endblock %}
+{% block og_title %}Subscribe to Newsletter | Dovetec Enterprises{% endblock %}
+{% block og_desc %}Subscribe for technology insights, software engineering tips, and IT solutions.{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <div class="mb-4">
+                        <i class="feather-mail text-primary" style="width: 48px; height: 48px;"></i>
+                    </div>
+                    <h1 class="h3 mb-2">Stay in the Loop</h1>
+                    <p class="text-muted mb-4">Get technology insights, software engineering tips, and Dovetec updates delivered to your inbox. No spam — unsubscribe anytime.</p>
+                    <form method="post" action="{% url 'subscribe' %}">
+                        {% csrf_token %}
+                        <div class="input-group mb-3">
+                            <input class="form-control form-control-lg" type="email" name="email" required placeholder="you@example.com" aria-label="Email address">
+                            <button class="btn btn-primary fw-bold px-4" type="submit">Subscribe</button>
+                        </div>
+                        <small class="text-muted">By subscribing you agree to our <a href="{% url 'privacy_policy' %}">Privacy Policy</a>.</small>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

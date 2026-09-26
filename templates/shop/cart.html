@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% load static %}
+
+{% block title %}Your Basket - Dovetec Innovations{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-container {
+        padding: 120px 0 80px;
+        background: #fcfdfe;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 30px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02);
+    }
+
+    .cart-item-premium {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    .cart-item-premium:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+        border-color: rgba(43, 95, 87, 0.1);
+    }
+
+    .qty-control {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 4px;
+        border: 1px solid #eee;
+    }
+
+    .qty-input-premium {
+        width: 45px;
+        border: none;
+        background: transparent;
+        text-align: center;
+        font-weight: 800;
+        color: #2b5f57;
+    }
+
+    .qty-btn {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: white;
+        border: 1px solid #eee;
+        color: #2b5f57;
+        transition: all 0.2s;
+    }
+
+    .qty-btn:hover {
+        background: #2b5f57;
+        color: white;
+    }
+
+    .summary-card-premium {
+        background: #2b5f57;
+        color: white;
+        border-radius: 30px;
+        padding: 3rem;
+        position: sticky;
+        top: 120px;
+        box-shadow: 0 30px 60px rgba(43, 95, 87, 0.2);
+    }
+
+    .promo-input {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 15px;
+        color: white !important;
+        padding: 0.8rem 1.2rem;
+    }
+
+    .promo-input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="cart-container">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-8" data-aos="fade-right">
+                <div class="d-flex align-items-end justify-content-between mb-5">
+                    <div>
+                        <span class="text-primary fw-800 text-uppercase small ls-2">Your Selection</span>
+                        <h1 class="fw-900 display-5 mb-0">Innovation <span class="text-primary">Basket</span></h1>
+                    </div>
+                    <span class="h4 fw-800 text-muted opacity-50 mb-1">{{ items|length }} Items</span>
+                </div>
+
+                {% if items %}
+                <div class="cart-feed mt-4">
+                    {% for item in items %}
+                    <div class="cart-item-premium d-flex align-items-center gap-4">
+                        <div class="flex-shrink-0 position-relative">
+                            <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'images/img_v_4-min.png' %}{% endif %}"
+                                class="rounded-4 shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+                            <div class="position-absolute top-0 start-0 m-2">
+                                <span class="badge bg-white text-dark shadow-sm px-2">Tech</span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h4 class="fw-800 mb-1 text-dark">{{ item.product.name }}</h4>
+                            <p class="text-muted small mb-3">{{ item.product.category.name|default:"General Innovation" }}</p>
+
+                            <div class="d-flex align-items-center gap-4">
+                                <form action="{% url 'update_cart_item' item.id %}" method="POST" class="qty-control">
+                                    {% csrf_token %}
+                                    <button type="button" class="qty-btn"
+                                        onclick="this.parentNode.querySelector('input[type=number]').stepDown(); this.parentNode.submit();">
+                                        <i class="feather-minus"></i>
+                                    </button>
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1"
+                                        class="qty-input-premium" readonly>
+                                    <button type="button" class="qty-btn"
+                                        onclick="this.parentNode.querySelector('input[type=number]').stepUp(); this.parentNode.submit();">
+                                        <i class="feather-plus"></i>
+                                    </button>
+                                </form>
+                                <span class="fw-800 text-primary h5 mb-0">Ksh {{ item.total_price }}</span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 ms-auto">
+                            <form action="{% url 'remove_from_cart' item.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-soft-danger btn-icon rounded-circle p-0"
+                                    style="width: 40px; height: 40px;">
+                                    <i class="feather-trash-2"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div
+                    class="mt-5 p-4 rounded-4 bg-soft-primary border border-primary border-opacity-10 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-primary text-white p-2 rounded-circle">
+                            <i class="feather-truck"></i>
+                        </div>
+                        <p class="mb-0 fw-bold small text-dark">Complimentary Global Priority Shipping Included</p>
+                    </div>
+                    <a href="{% url 'shop' %}"
+                        class="btn btn-link text-primary text-decoration-none fw-800 small text-uppercase">
+                        Continue Exploring <i class="feather-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                {% else %}
+                <div class="glass-card text-center py-8">
+                    <div class="bg-soft-primary d-inline-flex p-4 rounded-circle mb-4">
+                        <i class="feather-shopping-bag text-primary display-4"></i>
+                    </div>
+                    <h2 class="fw-900">Your basket is empty</h2>
+                    <p class="text-muted mb-5 mx-auto" style="max-width: 400px;">It seems you haven't secured any
+                        innovations yet. Start your journey into the future today.</p>
+                    <a href="{% url 'shop' %}" class="btn btn-primary px-5 py-3 fw-800 shadow-lg">DISCOVER
+                        INNOVATIONS</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-4" data-aos="fade-left">
+                {% if items %}
+                <div class="summary-card-premium">
+                    <h2 class="fw-900 mb-5">Summary</h2>
+
+                    <div class="d-flex justify-content-between mb-3 opacity-75">
+                        <span class="fw-bold">Subtotal</span>
+                        <span class="fw-800">Ksh {{ total }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 opacity-75">
+                        <span class="fw-bold">Priority Shipping</span>
+                        <span class="text-warning fw-900">FREE</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-5 opacity-75">
+                        <span class="fw-bold">Innovation Tax</span>
+                        <span class="fw-800">Ksh 0.00</span>
+                    </div>
+
+                    <div class="border-top border-white border-opacity-10 pt-4 mb-5">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="h4 fw-bold mb-0">Total Due</span>
+                            <span class="h2 fw-900 mb-0">Ksh {{ total }}</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-4">
+                        <a href="{% url 'checkout' %}" class="btn btn-warning btn-lg fw-900 py-3 shadow-lg border-0">
+                            PROCEED TO CHECKOUT <i class="feather-shield-check ms-2"></i>
+                        </a>
+                        <div class="text-center opacity-50 extra-small ls-1">
+                            <i class="feather-lock me-1"></i> AES-256 BANK-GRADE ENCRYPTION
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <label class="small text-uppercase fw-800 opacity-50 mb-3 d-block">Promotional Code</label>
+                        <form action="{% url 'apply_discount' %}" method="POST" class="d-flex gap-2">
+                            {% csrf_token %}
+                            <input type="text" name="discount_code" class="form-control promo-input"
+                                placeholder="INV-2026">
+                            <button class="btn btn-white rounded-4 px-4 fw-800">APPLY</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

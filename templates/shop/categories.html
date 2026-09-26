@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Innovation Hub - Dovetec Enterprises{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cat-hero {
+        padding: 140px 0 100px;
+        background: linear-gradient(rgba(10, 20, 50, 0.8), rgba(10, 20, 50, 0.8)),
+        url("{% static 'images/bg-video.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: white;
+    }
+
+    .search-glass {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+    }
+
+    .cat-card {
+        background: white;
+        border-radius: 25px;
+        padding: 2.5rem;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    .cat-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+        border-color: #2b5f57;
+    }
+
+    .cat-icon-box {
+        width: 70px;
+        height: 70px;
+        background: rgba(43, 95, 87, 0.05);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+        transition: all 0.3s;
+    }
+
+    .cat-card:hover .cat-icon-box {
+        background: #2b5f57;
+        color: white;
+        transform: rotate(10deg);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="cat-hero mb-8">
+    <div class="container text-center" data-aos="zoom-in">
+        <h1 class="display-3 fw-800 mb-3">Innovation <span class="text-primary">Hub</span></h1>
+        <p class="lead opacity-75 mb-5 mx-auto px-md-5" style="max-width: 800px;">Precision-engineered tech solutions
+            and bespoke digital assets segmented for your strategic needs.</p>
+
+        <div class="search-glass mx-auto" style="max-width: 600px;">
+            <div class="d-flex align-items-center">
+                <i class="feather-search opacity-50 h5 mb-0"></i>
+                <input type="text"
+                    class="form-control border-0 bg-transparent text-white placeholder-light py-3 px-3 shadow-none"
+                    placeholder="Search the innovation hub..." id="categorySearchInput">
+                <button class="btn btn-primary px-5 py-2 fw-bold">SEARCH</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row g-5" id="categoryContainer">
+            {% for category in categories %}
+            <div class="col-lg-4 col-md-6 category-item" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+                <a href="{% url 'product_list_by_category' category.id %}"
+                    class="cat-card h-100 d-block text-decoration-none">
+                    <div class="cat-icon-box text-primary">
+                        <i class="feather-{{ category.icon|default:'package' }}" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-3">{{ category.name }}</h3>
+                    <p class="text-muted small mb-5 lh-lg">{{ category.description|truncatechars:120|default:"Innovative solutions found within our specialized category." }}</p>
+
+                    <div class="d-flex align-items-center text-primary fw-bold small mt-auto">
+                        <span class="text-uppercase tracking-widest">Entry Gallery</span>
+                        <i class="feather-arrow-right ms-2"></i>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-8">
+                <div class="opacity-10 mb-4">
+                    <i class="feather-box display-1"></i>
+                </div>
+                <h3>Hub Empty.</h3>
+                <p class="text-muted">Our innovation leads are busy curating new collections.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('categorySearchInput').addEventListener('keyup', function () {
+        let input = this.value.toLowerCase();
+        let items = document.querySelectorAll('.category-item');
+        items.forEach(item => {
+            let text = item.innerText.toLowerCase();
+            item.style.display = text.includes(input) ? 'block' : 'none';
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,2 @@
+# AdSense ads.txt for Dovetec Enterprises
+google.com, pub-6316366075859223, DIRECT, f08c47fec0942fa0

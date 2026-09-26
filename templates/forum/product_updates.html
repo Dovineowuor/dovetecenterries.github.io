@@ -1,0 +1,68 @@
+{% extends 'forum/community_base.html' %}
+
+{% block title %}Product Updates | Community Hub | Dovetec Enterprises{% endblock %}
+{% block hero_title %}Product Updates{% endblock %}
+{% block hero_text %}Latest features, improvements, and what's coming next.{% endblock %}
+
+{% block community_content %}
+{% if query %}
+<p class="small text-muted mb-3">Showing updates for <strong>{{ query }}</strong></p>
+{% endif %}
+
+<h3 class="section-heading" style="margin-top:0;">Release Notes & Newsletters</h3>
+<div class="row g-3 mb-4">
+    {% for update in updates %}
+    <div class="col-12 col-md-6">
+        <div class="discussion-card">
+            <span class="category-pill">{{ update.get_status_display|default:"Update" }}</span>
+            <h5>{{ update.subject }}</h5>
+            <p>{{ update.content|striptags|truncatewords:22 }}</p>
+            <div class="card-footer">
+                <span class="meta-chip">
+                    <i class="feather-clock"></i>
+                    {% if update.scheduled_for %}{{ update.scheduled_for|date:"M d, Y" }}{% else %}{{ update.created_at|date:"M d, Y" }}{% endif %}
+                </span>
+                {% if update.slug %}
+                <a class="meta-chip" style="color: var(--brand-primary); text-decoration: none;" href="{% url 'newsletter' %}">
+                    View <i class="feather-arrow-right"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="empty-state">
+            <i class="feather-zap"></i>
+            <h3>No product updates yet</h3>
+            <p>Check back soon for release notes and improvement announcements.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<h3 class="section-heading">From the Blog</h3>
+<div class="row g-3 mb-4">
+    {% for article in articles %}
+    <div class="col-12 col-md-6 col-xl-4">
+        <a href="{% url 'blog_detail' article.slug %}" class="discussion-card">
+            <span class="category-pill">{{ article.category|default:"Blog" }}</span>
+            <h5>{{ article.title }}</h5>
+            <p>{{ article.seo_description|default:article.content|striptags|truncatewords:18 }}</p>
+            <div class="card-footer">
+                <span class="meta-chip"><i class="feather-calendar"></i> {{ article.created_at|date:"M d, Y" }}</span>
+                <span class="meta-chip"><i class="feather-user"></i> {{ article.user.get_full_name|default:article.user.username|default:"Dovetec" }}</span>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="empty-state">
+            <i class="feather-edit"></i>
+            <h3>No blog posts yet</h3>
+            <p>Published articles will show up here.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends 'dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+
+        <!-- Back navigation -->
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <a href="{% url 'dashboard_funnel' %}"
+                class="btn btn-outline-secondary btn-sm shadow-sm">
+                <i data-feather="chevron-left" style="width:14px;"></i> Back to Funnel
+            </a>
+            <a href="{% url 'dashboard_inquiries' %}"
+                class="btn btn-outline-secondary btn-sm shadow-sm">
+                <i data-feather="list" style="width:14px;"></i> All Inquiries
+            </a>
+            <span class="text-muted small align-self-center">Lead detail · read-only view</span>
+        </div>
+
+        <!-- Lead header card -->
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h3 class="fw-bold mb-1">{{ inquiry.name }}</h3>
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <span class="badge bg-light text-dark border p-2 px-3 shadow-sm">
+                            {{ inquiry.get_service_display|default:"Other" }}
+                        </span>
+                        <span class="badge {% if inquiry.stage == 'won' %}bg-success{% elif inquiry.stage == 'lost' %}bg-danger{% elif inquiry.stage == 'new' %}bg-primary{% else %}bg-info{% endif %} p-2 px-3 shadow-sm">
+                            {{ inquiry.get_stage_display }}
+                        </span>
+                    </div>
+                    <small class="text-muted">
+                        Created {{ inquiry.created_at|date:"M d, Y \a\t h:i A" }}
+                        {% if inquiry.converted_at %}· Converted {{ inquiry.converted_at|date:"M d, Y" }}{% endif %}
+                        {% if inquiry.stage_updated_at %}· Last stage change {{ inquiry.stage_updated_at|date:"M d, Y \a\t h:i A" }}{% endif %}
+                    </small>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'funnel_questionnaire' inquiry.id %}"
+                        class="btn btn-sm btn-outline-primary shadow-sm">
+                        <i data-feather="file-text" style="width:14px;"></i> Questionnaire
+                    </a>
+                    {% with ticket=inquiry.tickets.first %}
+                    {% if ticket %}
+                    <a href="{% url 'ticket_detail' ticket.id %}"
+                        class="btn btn-sm btn-outline-secondary shadow-sm">
+                        <i data-feather="life-buoy" style="width:14px;"></i> {{ ticket.reference }}
+                    </a>
+                    {% endif %}
+                    {% endwith %}
+                    <a href="{% url 'dashboard_edit' 'app' 'serviceinquiry' inquiry.id %}?next={{ request.path }}"
+                        class="btn btn-sm btn-primary shadow-sm">
+                        <i data-feather="edit-2" style="width:14px;"></i> Edit Details
+                    </a>
+                    <a href="{% url 'dashboard_delete' 'app' 'serviceinquiry' inquiry.id %}?next={% url 'dashboard_funnel' %}"
+                        class="btn btn-sm btn-outline-danger shadow-sm">
+                        <i data-feather="trash-2" style="width:14px;"></i> Delete Lead
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Contact information -->
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3 border-bottom pb-3">
+                        <i data-feather="mail" class="text-primary me-2"></i> Contact Information
+                    </h5>
+                    <div class="d-flex flex-column gap-3">
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold"
+                                style="font-size:.7rem; letter-spacing:1px;">Email</small>
+                            <a href="mailto:{{ inquiry.email }}"
+                                class="text-decoration-none fw-bold text-dark d-block mt-1">{{ inquiry.email }}</a>
+                        </div>
+                        {% if inquiry.phone %}
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold"
+                                style="font-size:.7rem; letter-spacing:1px;">Phone</small>
+                            <a href="tel:{{ inquiry.phone }}"
+                                class="text-decoration-none text-dark d-block mt-1">{{ inquiry.phone }}</a>
+                        </div>
+                        {% endif %}
+                        {% if inquiry.organization %}
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size:.7rem; letter-spacing:1px;">Organization</small>
+                            <div class="text-dark d-block mt-1">{{ inquiry.organization.name }}{% if inquiry.organization.industry %} <small class="text-muted">· {{ inquiry.organization.industry }}</small>{% endif %}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deal details -->
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3 border-bottom pb-3">
+                        <i data-feather="credit-card" class="text-warning me-2"></i> Deal Details
+                    </h5>
+                    <div class="d-flex flex-column gap-3">
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold"
+                                style="font-size:.7rem; letter-spacing:1px;">Estimated Value</small>
+                            <div class="fw-bold text-dark mt-1">KES {{ inquiry.estimated_value|floatformat:2 }}</div>
+                        </div>
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size:.7rem; letter-spacing:1px;">Discovery context</small>
+                            <div class="text-dark mt-1">{{ inquiry.get_budget_range_display }}{% if inquiry.timeline %} · {{ inquiry.timeline }}{% endif %}</div>
+                            <small class="text-muted">{{ inquiry.get_source_display }} · prefers {{ inquiry.get_preferred_contact_method_display }}</small>
+                        </div>
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold"
+                                style="font-size:.7rem; letter-spacing:1px;">Assigned To</small>
+                            <div class="mt-1">
+                                {% if inquiry.assigned_to %}
+                                    <span class="text-dark fw-bold">{{ inquiry.assigned_to.get_full_name|default:inquiry.assigned_to.email }}</span>
+                                    <small class="text-muted">({{ inquiry.assigned_to.email }})</small>
+                                {% else %}
+                                    <span class="text-muted">— Unassigned —</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Funnel stage control -->
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3 border-bottom pb-3">
+                        <i data-feather="git-branch" class="text-info me-2"></i> Funnel Stage
+                    </h5>
+                    <form method="post" action="{% url 'funnel_update_stage' inquiry.id %}"
+                        class="d-flex align-items-end gap-2">
+                        {% csrf_token %}
+                        <div class="flex-grow-1">
+                            <label for="stage-select"
+                                class="form-label small text-uppercase fw-bold text-muted"
+                                style="letter-spacing:.5px;">Move to stage</label>
+                            <select name="stage" id="stage-select" class="form-select form-select-sm">
+                                {% for value, label in stage_choices %}
+                                <option value="{{ value }}" {% if value == inquiry.stage %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-dark btn-sm shadow-sm">Move</button>
+                    </form>
+                    <small class="text-muted d-block mt-2">
+                        Stage changes are also available on the funnel board and via
+                        <a href="{% url 'dashboard_edit' 'app' 'serviceinquiry' inquiry.id %}?next={{ request.path }}"
+                            class="text-decoration-none">Edit Details</a>.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Original inquiry message -->
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3 border-bottom pb-3">
+                        <i data-feather="message-square" class="text-primary me-2"></i> Inquiry Message
+                    </h5>
+                    <div class="bg-light-subtle rounded-3 p-3 border"
+                        style="white-space:pre-wrap; word-break:break-word;">{{ inquiry.message }}</div>
+                </div>
+            </div>
+
+            <!-- Internal notes -->
+            <div class="col-12">
+                <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+                    <h5 class="fw-bold mb-3 border-bottom pb-3">
+                        <i data-feather="message-circle" class="text-muted me-2"></i> Internal Notes
+                    </h5>
+                    {% if inquiry.notes %}
+                        <div class="bg-light-subtle rounded-3 p-3 border"
+                            style="white-space:pre-wrap; word-break:break-word;">{{ inquiry.notes }}</div>
+                    {% else %}
+                        <p class="text-muted mb-0">No notes yet. Add some via <a href="{% url 'dashboard_edit' 'app' 'serviceinquiry' inquiry.id %}?next={{ request.path }}" class="text-decoration-none">Edit Details</a>.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+            <h5 class="fw-bold mb-3 border-bottom pb-3"><i data-feather="paperclip" class="text-muted me-2"></i> Supporting files</h5>
+            <div class="row g-3">
+                {% for asset in inquiry.media_assets.all %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    <a class="border rounded-3 p-3 h-100 d-flex gap-2 text-decoration-none" {% if asset.file %}href="{{ asset.file.url }}"{% endif %}>
+                        <i data-feather="{% if asset.is_renderable_image %}image{% else %}file{% endif %}" class="text-primary"></i>
+                        <span class="text-break"><strong class="d-block text-dark">{{ asset.original_name }}</strong><small class="text-muted">{{ asset.get_status_display }} · {{ asset.get_kind_display }}</small></span>
+                    </a>
+                </div>
+                {% empty %}
+                <p class="text-muted mb-0">No supporting files were provided with this enquiry.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

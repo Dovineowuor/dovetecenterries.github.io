@@ -1,0 +1,184 @@
+{% extends 'dashboard/dashboard_base.html' %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <a href="{% url 'template_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i data-feather="chevron-left" style="width:14px;"></i> Template library
+    </a>
+    <span class="text-muted small">{{ template.get_context_display }} · {{ questions|length }} questions</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white mb-3">
+            <h5 class="fw-bold mb-3">Template details</h5>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_meta">
+                <div class="mb-2">
+                    <label class="form-label small">Title</label>
+                    <input name="title" class="form-control" value="{{ template.title }}" required>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Context</label>
+                    <select name="context" class="form-select">
+                        {% for v, l in context_choices %}
+                        <option value="{{ v }}" {% if template.context == v %}selected{% endif %}>{{ l }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Industry filter</label>
+                    <input name="industry" class="form-control" value="{{ template.industry }}" placeholder="blank = any">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Intro</label>
+                    <textarea name="intro" class="form-control" rows="2">{{ template.intro|default:'' }}</textarea>
+                </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" name="is_active" id="is_active" {% if template.is_active %}checked{% endif %}>
+                    <label class="form-check-label small" for="is_active">Active (usable for auto-assign)</label>
+                </div>
+                <button class="btn btn-primary w-100">Save template</button>
+            </form>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white">
+            <h6 class="fw-bold mb-2">Import questions</h6>
+            <form method="get" class="mb-2 d-flex gap-1">
+                <select name="source" class="form-select form-select-sm">
+                    <option value="">Pick source…</option>
+                    {% for t in other_templates %}
+                    <option value="{{ t.id }}" {% if import_source and import_source.id == t.id %}selected{% endif %}>{{ t.title }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-sm btn-outline-dark">Load</button>
+            </form>
+            {% if import_source %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="import_questions">
+                <input type="hidden" name="source_template_id" value="{{ import_source.id }}">
+                <div class="small text-muted mb-1">Select questions from “{{ import_source.title }}”:</div>
+                <div class="mb-2" style="max-height:180px; overflow:auto;">
+                    {% for q in import_source.questions.all %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="import_question_ids" value="{{ q.id }}" id="iq{{ q.id }}">
+                        <label class="form-check-label small" for="iq{{ q.id }}">{{ q.text|truncatechars:80 }}</label>
+                    </div>
+                    {% empty %}
+                    <div class="small text-muted">No questions in source.</div>
+                    {% endfor %}
+                </div>
+                <button class="btn btn-sm btn-success w-100">Import selected (or all if none checked)</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-4 p-4 bg-white mb-3">
+            <h5 class="fw-bold mb-3">Add question</h5>
+            <form method="post" class="row g-2">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_question">
+                <div class="col-12">
+                    <input name="text" class="form-control" placeholder="Question text *" required>
+                </div>
+                <div class="col-md-6">
+                    <input name="help_text" class="form-control" placeholder="Help text">
+                </div>
+                <div class="col-md-3">
+                    <select name="question_type" class="form-select">
+                        {% for v, l in question_types %}
+                        <option value="{{ v }}">{{ l }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input name="context_tag" class="form-control" placeholder="Context tag">
+                </div>
+                <div class="col-md-8">
+                    <input name="options" class="form-control" placeholder="Choice options (comma-separated)">
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check mt-2">
+                        <input type="checkbox" class="form-check-input" name="required" id="req">
+                        <label class="form-check-label small" for="req">Required</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100">Add</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-4 shadow-sm p-4">
+            <h6 class="fw-bold mb-3">Questions ({{ questions|length }})</h6>
+            {% for q in questions %}
+            <div class="border rounded-3 p-3 mb-2">
+                <div class="d-flex justify-content-between gap-2">
+                    <div>
+                        <b>{{ forloop.counter }}. {{ q.text }}</b>
+                        {% if q.help_text %}<div class="small text-muted">{{ q.help_text }}</div>{% endif %}
+                        <div class="small text-muted">{{ q.get_question_type_display }}
+                            {% if q.required %}· required{% endif %}
+                            {% if q.context %}· #{{ q.context }}{% endif %}
+                            {% if q.options %}· {{ q.option_list|join:" / " }}{% endif %}
+                        </div>
+                    </div>
+                    <div class="d-flex gap-1 flex-shrink-0">
+                        <form method="post">{% csrf_token %}
+                            <input type="hidden" name="action" value="move_question">
+                            <input type="hidden" name="question_id" value="{{ q.id }}">
+                            <input type="hidden" name="direction" value="up">
+                            <button class="btn btn-sm btn-outline-secondary" {% if forloop.first %}disabled{% endif %}>↑</button>
+                        </form>
+                        <form method="post">{% csrf_token %}
+                            <input type="hidden" name="action" value="move_question">
+                            <input type="hidden" name="question_id" value="{{ q.id }}">
+                            <input type="hidden" name="direction" value="down">
+                            <button class="btn btn-sm btn-outline-secondary" {% if forloop.last %}disabled{% endif %}>↓</button>
+                        </form>
+                        <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="collapse" data-bs-target="#eq{{ q.id }}">Edit</button>
+                        <form method="post" class="d-inline" onsubmit="return confirm('Delete question?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete_question">
+                            <input type="hidden" name="question_id" value="{{ q.id }}">
+                            <button class="btn btn-sm btn-outline-danger"><i data-feather="trash-2" style="width:14px;"></i></button>
+                        </form>
+                    </div>
+                </div>
+                <div class="collapse mt-2" id="eq{{ q.id }}">
+                    <form method="post" class="row g-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="edit_question">
+                        <input type="hidden" name="question_id" value="{{ q.id }}">
+                        <div class="col-12"><input name="text" class="form-control form-control-sm" value="{{ q.text }}" required></div>
+                        <div class="col-md-6"><input name="help_text" class="form-control form-control-sm" value="{{ q.help_text|default:'' }}"></div>
+                        <div class="col-md-3">
+                            <select name="question_type" class="form-select form-select-sm">
+                                {% for v, l in question_types %}
+                                <option value="{{ v }}" {% if q.question_type == v %}selected{% endif %}>{{ l }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3"><input name="context_tag" class="form-control form-control-sm" value="{{ q.context|default:'' }}"></div>
+                        <div class="col-md-8"><input name="options" class="form-control form-control-sm" value="{{ q.options|default:'' }}"></div>
+                        <div class="col-md-2">
+                            <div class="form-check mt-1">
+                                <input type="checkbox" class="form-check-input" name="required" {% if q.required %}checked{% endif %} id="er{{ q.id }}">
+                                <label class="form-check-label small" for="er{{ q.id }}">Required</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2"><button class="btn btn-sm btn-primary w-100">Save</button></div>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted mb-0">No questions yet — add some or import from another template.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

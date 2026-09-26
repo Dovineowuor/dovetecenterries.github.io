@@ -1,0 +1,45 @@
+<div class="comments-section">
+    <h2 class="h5 mb-4">Comments</h2>
+    {% for comment in article_obj.comments.all %}
+        <div class="comment mb-4" id="comment-{{ comment.id }}">
+            <div class="d-flex align-items-center mb-2">
+                <img class="img-fluid rounded-circle shadow border border-white" 
+                     src="{% if comment.user.avatar %}{{ comment.user.avatar.url }}{% else %}/media/profile/person_1-min.png{% endif %}" 
+                     alt="{{ comment.user.username }}" style="width: 40px; height: 40px;">
+                <div class="ml-3">
+                    <strong>{{ comment.user.username }}</strong>
+                    <p class="mb-0">{{ comment.created_at|date:"D, d M Y H:i" }}</p>
+                </div>
+            </div>
+            <p>{{ comment.content }}</p>
+
+            <!-- Include Reply Form Below Each Comment -->
+            {% include 'reply.html' %}
+            
+            <!-- Replies Section -->
+            <div class="replies ml-5">
+                {% for reply in comment.replies.all %}
+                    <div class="reply mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <img class="img-fluid rounded-circle shadow border border-white" 
+                                 src="{% if reply.user.avatar %}{{ reply.user.avatar.url }}{% else %}/media/profile/person_1-min.png{% endif %}" 
+                                 alt="{{ reply.user.username }}" style="width: 30px; height: 30px;">
+                            <div class="ml-3">
+                                <strong>{{ reply.user.username }}</strong>
+                                <p class="mb-0">{{ reply.created_at|date:"D, d M Y H:i" }}</p>
+                            </div>
+                        </div>
+                        <p>{{ reply.content }}</p>
+                    </div>
+                {% empty %}
+                    <p>Be the first to comment on this post.</p>
+                {% endfor %}
+            </div>
+        </div>
+    {% empty %}
+        <p>Be heard, Be the first to comment.</p>
+    {% endfor %}
+
+    <!-- Add Comment Form Below All Comments -->
+    {% include 'comment_form.html' %}
+</div>
