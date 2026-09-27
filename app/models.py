@@ -922,7 +922,7 @@ class Project(MetadataMixin):
         return self.status == self.STATUS_COMPLETED
 
 
-class CaseStudy(models.Model):
+class CaseStudy(MetadataMixin):
     """A case study with brand-specific assets and Apple-design storytelling sections."""
 
     STATUS_DRAFT = 'draft'

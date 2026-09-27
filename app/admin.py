@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    Answer, Contact, FeatureRequest, FeatureTask, FeatureVote, FeatureMicrotask, MediaAsset, Organization,
+    Answer, CaseStudy, Contact, FeatureRequest, FeatureTask, FeatureVote, FeatureMicrotask, MediaAsset, Organization,
     Plan, Project, Question, Questionnaire, QuestionnaireEvent,
     QuestionnaireTemplate, ServiceInquiry, Subscription, Ticket, TicketActivity, User,
 )
@@ -169,3 +169,19 @@ class FeatureMicrotaskAdmin(admin.ModelAdmin):
     list_filter = ('status', 'task')
     search_fields = ('title',)
     raw_id_fields = ('assignee',)
+
+
+@admin.register(CaseStudy)
+class CaseStudyAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'status', 'featured', 'category', 'created_at')
+    search_fields = ('name', 'tagline', 'description')
+    list_filter = ('status', 'featured', 'category', 'created_at')
+    list_per_page = 20
+    fieldsets = (
+        (None, {'fields': ('name', 'slug', 'tagline', 'description', 'overview', 'category', 'status')}),
+        ('Meta Data', {'fields': ('meta_title', 'meta_description', 'canonical_url', 'og_title', 'og_description', 'og_image', 'twitter_card', 'twitter_title', 'twitter_description', 'twitter_image')}),
+        ('Brand Assets', {'fields': ('accent_color', 'primary_color', 'secondary_color', 'bg_color', 'bg_secondary_color', 'logo_image', 'hero_image', 'favicon')}),
+        ('Section Content', {'fields': ('problem_statement', 'objectives', 'business_challenge', 'research_findings', 'user_needs', 'features', 'user_challenges', 'competitor_data', 'unique_features', 'persona_data', 'task_mapping', 'matrix_data', 'root_cause', 'task_flows', 'sketches', 'major_screens', 'screens')}),
+        ('Metadata', {'fields': ('featured', 'published_at', 'created_at', 'updated_at')}),
+    )
+    readonly_fields = ('created_at', 'updated_at')

@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{ cs.name }} | Case Study | Dovetec Enterprises{% endblock %}
-{% block seo_desc %}{{ cs.tagline|default:cs.description|truncatewords:20 }}{% endblock %}
-{% block og_title %}{{ cs.name }} - Case Study | Dovetec Enterprises{% endblock %}
-{% block og_desc %}{{ cs.tagline|default:cs.description|truncatewords:20 }}{% endblock %}
+{% block title %}{{ cs.meta_title|default:cs.name }} | Case Study | Dovetec Enterprises{% endblock %}
+{% block seo_desc %}{{ cs.meta_description|default:cs.tagline|default:cs.description|truncatewords:160 }}{% endblock %}
+{% block og_title %}{{ cs.og_title|default:cs.meta_title|default:cs.name }} | Case Study | Dovetec Enterprises{% endblock %}
+{% block og_desc %}{{ cs.og_description|default:cs.meta_description|default:cs.tagline|default:cs.description|truncatewords:160 }}{% endblock %}
 {% block og_type %}article{% endblock %}
+{% block canonical_url %}{{ cs.canonical_url|default:request.build_absolute_uri }}{% endblock %}
+{% block og_image %}{% if cs.og_image %}{{ cs.og_image.url }}{% else %}{{ default_og_image|abs_url:request }}{% endif %}{% endblock %}
+{% block twitter_card %}{{ cs.twitter_card|default:'summary_large_image' }}{% endblock %}
+{% block twitter_image %}{% if cs.twitter_image %}{{ cs.twitter_image.url }}{% else %}{{ default_og_image|abs_url:request }}{% endif %}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/aos.css' %}">

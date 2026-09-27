@@ -1,12 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Case Studies | Dovetec Enterprises{% endblock %}
-{% block seo_desc %}Explore our portfolio of successful case studies and client transformations at Dovetec Enterprises.{% endblock %}
+{% block seo_desc %}{% firstof seo_desc default_meta_description %}Explore our portfolio of successful case studies and client transformations.{% endblock %}
 {% block og_title %}Case Studies - Dovetec Enterprises{% endblock %}
-{% block og_desc %}Explore our portfolio of successful case studies and client transformations.{% endblock %}
+{% block og_desc %}{% firstof og_desc seo_desc %}Explore our portfolio of successful case studies and client transformations.{% endblock %}
 {% block og_type %}website{% endblock %}
-{% block twitter_title %}Case Studies - Dovetec Enterprises{% endblock %}
-{% block twitter_desc %}Explore our portfolio of successful case studies and client transformations.{% endblock %}
+{% block canonical_url %}{{ request.build_absolute_uri }}{% endblock %}
+{% block og_image %}{% if default_og_image %}{{ default_og_image|abs_url:request }}{% endif %}{% endblock %}
+{% block twitter_card %}summary_large_image{% endblock %}
+{% block twitter_image %}{% if default_og_image %}{{ default_og_image|abs_url:request }}{% endif %}{% endblock %}
+{% block twitter_title %}{% firstof twitter_title page_title %}Case Studies - Dovetec Enterprises{% endblock %}
+{% block twitter_desc %}{% firstof twitter_desc seo_desc %}Explore our portfolio of successful case studies and client transformations.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/aos.css' %}">
@@ -537,8 +541,8 @@
                     <span class="cat-icon"><i data-feather="tag" style="width:14px;height:14px;"></i></span>
                     {{ cs.category.name|default:"General" }}
                 </p>
-                <h3 class="cs-card-title">{{ cs.name }}</h3>
-                <p class="cs-card-desc">{{ cs.tagline|default:cs.description|truncatewords:20 }}</p>
+                <h3 class="cs-card-title">{{ cs.meta_title|default:cs.name }}</h3>
+                <p class="cs-card-desc">{{ cs.meta_description|default:cs.tagline|default:cs.description|truncatewords:20 }}</p>
                 {% if cs.overview %}<p class="cs-card-overview">{{ cs.overview|truncatewords:15 }}</p>{% endif %}
                 <div class="cs-card-meta">
                     <div class="cs-card-meta-item">
