@@ -34,6 +34,7 @@ if not SECRET_KEY:
 # Set DEBUG to True for development, but respect environment variable if set
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
 if os.getenv('VERCEL_ENV') == 'production' and os.getenv('VERCEL_URL') == 'dovetecenterprises.netlify.app':
+
     DEBUG = False
 
 # Get Vercel URL from environment variable or use wildcard
@@ -44,6 +45,7 @@ if VERCEL_URL:
     ALLOWED_HOSTS.append(VERCEL_URL)
     ALLOWED_HOSTS.append(f'.{VERCEL_URL}')
 if os.getenv('VERCEL_ENV') == 'production' and os.getenv('VERCEL_URL') == 'dovetecenterprises.netlify.app':
+
     DEBUG = False
 INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
@@ -92,6 +94,7 @@ MESSAGE_TAGS = {
 ROOT_URLCONF = 'dovetecenterprises.urls'
 
 
+
 # Define the template directory
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
@@ -107,11 +110,13 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'dovetecenterprises.context_processors.site_metadata',
+
             ],
         },
     },
 ]
 WSGI_APPLICATION = 'dovetecenterprises.wsgi.application'
+
 
 
 # Database
@@ -216,8 +221,10 @@ STORAGES = {
     'default': {
         'BACKEND': (
             'dovetecenterprises.blob_storage.VercelBlobStorage'
+
             if BLOB_READ_WRITE_TOKEN
             else ('django.core.files.storage.FileSystemStorage' if os.getenv('VERCEL') != '1' else 'dovetecenterprises.blob_storage.NoOpStorage')
+
         ),
     },
     'staticfiles': {
@@ -273,6 +280,7 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmast
 
 # Contact settings
 CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', 'contact@dovetecenterprises.tech')
+
 FEEDBACK_EMAIL = os.getenv('FEEDBACK_EMAIL', CONTACT_EMAIL)
 REPORT_EMAIL = os.getenv('REPORT_EMAIL', CONTACT_EMAIL)
 
