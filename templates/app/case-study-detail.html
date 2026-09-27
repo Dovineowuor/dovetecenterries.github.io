@@ -68,7 +68,14 @@
     .csd-hero .meta-lbl { font-size: 0.7rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.1em; }
 
     /* ── Sticky Nav ── */
-    .csd-nav {
+    .csd-overview {
+    font-size: 1.1rem;
+    color: var(--cs-text-secondary);
+    line-height: 1.6;
+    margin-top: 1rem;
+}
+
+.csd-nav {
         position: sticky; top: 70px; z-index: 100;
         background: rgba(255,255,255,0.9); backdrop-filter: blur(20px);
         border-bottom: 1px solid rgba(0,0,0,0.06); padding: 0 20px;
@@ -477,6 +484,7 @@
             </div>
             <h1 data-aos="fade-up" data-aos-delay="400">{{ cs.name }}</h1>
             <p class="tagline" data-aos="fade-up" data-aos-delay="600">{{ cs.tagline|default:cs.description|truncatewords:25 }}</p>
+            {% if cs.overview %}<p class="overview" data-aos="fade-up" data-aos-delay="800">{{ cs.overview|truncatewords:30 }}</p>{% endif %}
             <div class="meta-row" data-aos="fade-up" data-aos-delay="800">
                 <div class="meta-item">
                     <div class="meta-val">{{ cs.created_at|date:"M Y" }}</div>

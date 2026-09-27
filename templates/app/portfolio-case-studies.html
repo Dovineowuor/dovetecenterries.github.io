@@ -539,6 +539,7 @@
                 </p>
                 <h3 class="cs-card-title">{{ cs.name }}</h3>
                 <p class="cs-card-desc">{{ cs.tagline|default:cs.description|truncatewords:20 }}</p>
+                {% if cs.overview %}<p class="cs-card-overview">{{ cs.overview|truncatewords:15 }}</p>{% endif %}
                 <div class="cs-card-meta">
                     <div class="cs-card-meta-item">
                         <i data-feather="calendar" style="width:14px;height:14px;"></i>
