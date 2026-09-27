@@ -63,5 +63,7 @@ urlpatterns = [
     path('help/', help_center, name='help_center'),
     path('help/faq/', faq, name='faq'),
     path('help/contact/', crm_contact, name='contact'),
-
+    path('track/open/<str:tracking_id>/', track_open, name='track_open'),
+    path('track/click/<str:tracking_id>/', track_click, name='track_click'),
+    path('track/login/<str:tracking_id>/', track_log_in, name='track_log_in'),
 ]

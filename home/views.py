@@ -1442,3 +1442,67 @@ def current_year(request):
 
     current_year = datetime.now().year
     return render(request, 'footer.html', {'current_year': current_year})
+
+
+def track_open(request, tracking_id):
+    """Track newsletter email open via tracking pixel."""
+    from django.http import HttpResponse
+    from django.utils import timezone
+    from home.models import NewsletterLog
+
+    try:
+        log = NewsletterLog.objects.get(tracking_id=tracking_id)
+        if not log.opened:
+            log.opened = True
+            log.opened_at = timezone.now()
+            log.status = 'opened'
+            log.save()
+        gif = b'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+        response = HttpResponse(gif, content_type='image/gif')
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
+    except NewsletterLog.DoesNotExist:
+        return HttpResponse(status=404)
+
+
+def track_click(request, tracking_id):
+    """Track newsletter link click and redirect to original URL."""
+    from django.shortcuts import redirect
+    from django.utils import timezone
+    from home.models import NewsletterLog
+
+    try:
+        log = NewsletterLog.objects.get(tracking_id=tracking_id)
+        if not log.clicked:
+            log.clicked = True
+            log.clicked_at = timezone.now()
+            log.status = 'clicked'
+            log.save()
+        url = request.GET.get('url', '')
+        if url:
+            log.clicked_url = url
+            log.save()
+            return redirect(url)
+        return redirect('/')
+    except NewsletterLog.DoesNotExist:
+        return redirect('/')
+
+
+def track_log_in(request, tracking_id):
+    """Track when a user logs on via newsletter link."""
+    from django.shortcuts import redirect
+    from django.utils import timezone
+    from home.models import NewsletterLog
+
+    try:
+        log = NewsletterLog.objects.get(tracking_id=tracking_id)
+        if not log.read:
+            log.read = True
+            log.read_at = timezone.now()
+            log.status = 'read'
+            log.save()
+        return redirect('/login/')
+    except NewsletterLog.DoesNotExist:
+        return redirect('/login/')

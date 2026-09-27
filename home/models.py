@@ -665,65 +665,122 @@ class Newsletter(MetadataMixin):
     slug = models.SlugField(max_length=250, unique=True, null=True, blank=True)
     tracking_enabled = models.BooleanField(default=True)
     accent_color = models.CharField(max_length=7, default='#007bff', help_text='Brand accent color for email design')
+    content_type = models.CharField(max_length=20, blank=True, help_text='Content type: article, service, product, case_study, resource, advertisement')
+    content_id = models.PositiveIntegerField(null=True, blank=True, help_text='ID of the related content')
+    allow_attachments = models.BooleanField(default=True, help_text='Allow attachments in this newsletter')
+    resend_count = models.PositiveIntegerField(default=0, help_text='Number of times this newsletter has been resent')
+    tracking_pixel_enabled = models.BooleanField(default=True, help_text='Enable tracking pixel for open tracking')
+    click_tracking_enabled = models.BooleanField(default=True, help_text='Enable click tracking')
+    advertisement = models.ForeignKey('Advertisement', on_delete=models.SET_NULL, null=True, blank=True, related_name='newsletters', help_text='Related advertisement if this newsletter is an ad')
 
     class Meta:
         ordering = ['-created_at']
-        indexes = [models.Index(fields=['status', 'scheduled_for'])]
+        indexes = [models.Index(fields=['status', 'scheduled_for']), models.Index(fields=['content_type', 'content_id'])]
 
     def get_all_recipient_emails(self):
         """
-        Combine database recipients and manual ad-hoc emails, returning a unique list.
+        Combine verified subscribers and manual ad-hoc emails.
+        Only verified subscribers who haven't unsubscribed.
         """
-        emails = list(self.recipients.filter(unsubscribed_at__isnull=True).values_list('email', flat=True))
+        emails = list(
+            self.recipients.filter(
+                unsubscribed_at__isnull=True,
+                is_verified=True
+            ).values_list('email', flat=True)
+        )
         if self.manual_recipients:
             manual_list = [e.strip() for e in self.manual_recipients.split(',') if '@' in e]
             emails.extend(manual_list)
         return list(set(emails))
 
-    def send_newsletter(self, batch_size=500):
+    def get_verified_recipients(self):
+        """Get verified newsletter subscription objects."""
+        return self.recipients.filter(unsubscribed_at__isnull=True, is_verified=True)
+
+    def get_failed_emails(self):
+        """Get emails that failed in previous attempts."""
+        from .models import NewsletterLog
+        return list(
+            NewsletterLog.objects.filter(
+                newsletter=self,
+                status='failed'
+            ).values_list('email', flat=True).distinct()
+        )
+
+    def send_newsletter(self, batch_size=500, resend=False):
         """
-        Send newsletter to all unique recipients in batches.
-        Sends to verified subscribers, admin emails, and user emails.
+        Send newsletter to all verified recipients in batches.
+        Tracks KPIs: open, click, read, engagement.
+        Supports attachments, resend, and content type references.
         """
-        if self.status == 'sent':
+        if self.status == 'sent' and not resend:
             return False
 
         self.status = 'sending'
         self.save()
 
         try:
-            from django.core.mail import EmailMultiAlternatives
-            from django.template.loader import render_to_string
-            from django.utils.html import strip_tags
-            import settings as _settings
-
-            # Get all recipient emails: verified subscribers
-            all_emails = self.get_all_recipient_emails()
-            
-            # Add admin emails
+            from django.core.mail import EmailMultiAlternatives, AttachmentFile
             from django.conf import settings
-            admin_emails = [admin[1] for admin in settings.ADMINS]
-            all_emails.extend(admin_emails)
-            
-            # Add user emails from related user profiles
             from django.contrib.auth import get_user_model
+            from django.utils.html import strip_tags
+            from django.template.loader import render_to_string
+            from .models import NewsletterLog, NewsletterAttachment
+            import uuid
+            import base64
+            import logging
+            from datetime import datetime
+
+            logger = logging.getLogger(__name__)
+
+            # Get verified subscriber emails
+            all_emails = self.get_all_recipient_emails()
+
+            # Add admin emails
+            admin_emails = [admin[1] for admin in settings.ADMINS if admin[1]]
+            all_emails.extend(admin_emails)
+
+            # Add user emails from related user profiles
             User = get_user_model()
-            for sub in self.recipients.filter(user__isnull=False, user__is_active=True):
+            for sub in self.recipients.filter(user__isnull=False, user__is_active=True, user__email__isnull=False):
                 if sub.user.email and sub.user.email not in all_emails:
                     all_emails.append(sub.user.email)
-            
+
+            # Add failed retry emails
+            failed_emails = self.get_failed_emails()
+            for email in failed_emails:
+                if email not in all_emails:
+                    all_emails.append(email)
+
             # Remove duplicates and empty emails
             all_emails = list(set([e for e in all_emails if e]))
-            
-            # Build HTML content
+
+            # Build HTML content with tracking pixel and click tracking
             html_content = self._build_html_content()
             plain_content = strip_tags(html_content)
-            
+
+            # Collect attachments
+            attachments = list(NewsletterAttachment.objects.filter(newsletter=self).order_by('order'))
+            attachment_files = []
+            for att in attachments:
+                try:
+                    attachment_files.append((att.file, att.name, att.content_type or 'application/octet-stream'))
+                except Exception as e:
+                    logger.error(f"Failed to load attachment {att.name}: {e}")
+                    continue
+
+            # Track sending statistics
+            total_sent = 0
+            total_failed = 0
+            total_opened = 0
+            total_clicked = 0
+
             # Split list into batches and send
             for i in range(0, len(all_emails), batch_size):
                 batch = all_emails[i:i + batch_size]
                 for email in batch:
                     try:
+                        # Create email message
                         email_message = EmailMultiAlternatives(
                             subject=self.subject,
                             body=plain_content,
@@ -731,19 +788,142 @@ class Newsletter(MetadataMixin):
                             recipient_list=[email],
                         )
                         email_message.attach_alternative(html_content, 'text/html')
+
+                        # Attach files
+                        for file_obj, name, content_type in attachment_files:
+                            email_message.attach(name, file_obj.read(), content_type)
+
+                        # Send email
                         email_message.send(fail_silently=False)
+
+                        # Log successful send with KPI tracking
+                        tracking_id = str(uuid.uuid4())
+                        NewsletterLog.objects.create(
+                            newsletter=self,
+                            email=email,
+                            status='sent',
+                            tracking_id=tracking_id,
+                            sent_at=timezone.now()
+                        )
+                        total_sent += 1
                     except Exception as e:
                         logger.error(f"Failed to send newsletter to {email}: {e}")
+                        NewsletterLog.objects.create(
+                            newsletter=self,
+                            email=email,
+                            status='failed',
+                            error=str(e),
+                            sent_at=timezone.now()
+                        )
+                        total_failed += 1
                         continue
-            
-            self.status = 'sent'
+
+            self.status = 'sent' if total_failed == 0 else 'partial'
             self.sent_at = timezone.now()
             self.save()
+
+            # Update content tracking
+            if self.content_type and self.content_id:
+                self._update_content_performance(total_sent, total_failed, total_opened, total_clicked)
+
+            logger.info(f"Newsletter '{self.subject}' sent. Sent: {total_sent}, Failed: {total_failed}")
             return True
         except Exception as e:
             self.status = 'failed'
             self.save()
+            logger.error(f"Newsletter sending failed: {e}")
             raise e
+
+    def resend_newsletter(self):
+        """
+        Resend a previously sent or failed newsletter.
+        """
+        self.resend_count += 1
+        return self.send_newsletter(resend=True)
+
+    def _update_content_performance(self, sent, failed, opened, clicked):
+        """
+        Update performance metrics for related content.
+        """
+        from django.contrib.contenttypes.models import ContentType
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        try:
+            ct = ContentType.objects.get_for_id(self.content_type)
+            obj = ct.get_object_for_this_type(id=self.content_id)
+            # Update article/view counts if applicable
+            if hasattr(obj, 'view_count'):
+                obj.view_count += sent
+                obj.save()
+            if hasattr(obj, 'read_count'):
+                obj.read_count += opened
+                obj.save()
+        except Exception as e:
+            logger.error(f"Failed to update content performance: {e}")
+
+    def _build_html_content(self):
+        """
+        Build a properly designed HTML email with tracking pixels and click tracking.
+        """
+        from django.conf import settings
+        from django.utils.html import strip_tags
+        accent = '#007bff'
+        if hasattr(self, 'accent_color'):
+            accent = self.accent_color
+
+        tracking_pixel = ''
+        if self.tracking_pixel_enabled:
+            tracking_id = str(uuid.uuid4()) if not hasattr(self, '_tracking_id') else self._tracking_id
+            tracking_pixel = f'<img src="{settings.SITE_URL}/track/open/{tracking_id}" width="1" height="1" style="display:none;" alt=""/>'
+
+        # Add click tracking links
+        content_with_links = self.content
+        if self.click_tracking_enabled:
+            import re
+            def add_tracking(m):
+                url = m.group(1)
+                tracking_id = str(uuid.uuid4())
+                return f'<a href="{settings.SITE_URL}/track/click/{tracking_id}?url={url}" data-track-id="{tracking_id}" data-track-url="{url}">{m.group(0)}</a>'
+            content_with_links = re.sub(r'<a\s+href="([^"]+)"', add_tracking, content_with_links)
+
+        return f"""
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #f0f0f0; border-radius: 15px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <h1 style="color: {accent}; margin: 0; font-size: 24px;">DoveTec Enterprises</h1>
+            </div>
+            <div style="border-top: 3px solid {accent}; padding-top: 20px;">
+                <h2 style="color: #2d3436; margin-top: 0;">{self.subject}</h2>
+                <div style="color: #636e72; line-height: 1.7; font-size: 16px; margin-bottom: 25px;">
+                    {content_with_links if self.click_tracking_enabled else self.content}
+                </div>
+                <div style="text-align: center;">
+                    <a href="{self.get_cta_link()}" style="display: inline-block; padding: 12px 30px; background-color: {accent}; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+            {tracking_pixel}
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #b2bec3;">
+                <p>You are receiving this email because you subscribed to DoveTec Enterprises newsletters.</p>
+                <p>Don't want these emails? <a href="{settings.SITE_URL}/unsubscribe" style="color: {accent}; text-decoration: none;">Unsubscribe</a></p>
+                <p>&copy; {timezone.now().year} DoveTec Enterprises. All rights reserved.</p>
+            </div>
+        </div>
+        """
+
+    def get_cta_link(self):
+        """
+        Get the call-to-action link for the newsletter.
+        """
+        from django.conf import settings
+        return getattr(settings, 'SITE_URL', 'https://dovetecenterries.site')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.subject or not self.content:
+            raise forms.ValidationError("Subject and content are required")
+        return cleaned_data
 
     def _build_html_content(self):
         """
@@ -1169,3 +1349,75 @@ class Department(MetadataMixin):
     @property
     def total_applications(self):
         return self.applications.filter(is_active=True).count()
+
+
+class NewsletterLog(models.Model):
+    """Track newsletter delivery KPIs: open, click, read, and engagement."""
+    STATUS_SENT = 'sent'
+    STATUS_OPENED = 'opened'
+    STATUS_CLICKED = 'clicked'
+    STATUS_READ = 'read'
+    STATUS_BOUNCED = 'bounced'
+    STATUS_UNSUBSCRIBED = 'unsubscribed'
+    STATUS_CHOICES = [
+        (STATUS_SENT, 'Sent'), (STATUS_OPENED, 'Opened'), (STATUS_CLICKED, 'Clicked'),
+        (STATUS_READ, 'Read'), (STATUS_BOUNCED, 'Bounced'), (STATUS_UNSUBSCRIBED, 'Unsubscribed'),
+    ]
+    newsletter = models.ForeignKey('Newsletter', on_delete=models.CASCADE, related_name='logs')
+    email = models.EmailField()
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='newsletter_logs')
+    tracking_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, help_text='Tracking identifier for open/click tracking')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_SENT)
+    opened = models.BooleanField(default=False)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    clicked = models.BooleanField(default=False)
+    clicked_url = models.URLField(max_length=500, blank=True, null=True)
+    clicked_at = models.DateTimeField(null=True, blank=True)
+    read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(null=True, blank=True)
+    bounced = models.BooleanField(default=False)
+    bounce_reason = models.TextField(blank=True, null=True)
+    unsubscribed = models.BooleanField(default=False)
+    error = models.TextField(blank=True, null=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=500, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['newsletter', 'status']),
+            models.Index(fields=['email', 'status']),
+        ]
+
+    def __str__(self):
+        return f"{self.email} - {self.status} - {self.newsletter.subject}"
+
+    @property
+    def engagement_score(self):
+        score = 0
+        if self.opened: score += 1
+        if self.clicked: score += 2
+        if self.read: score += 2
+        if self.unsubscribed: score -= 1
+        return max(score, 0)
+
+
+class NewsletterAttachment(models.Model):
+    """Attachments for newsletters (resources, PDFs, images)."""""
+    newsletter = models.ForeignKey('Newsletter', on_delete=models.CASCADE, related_name='attachments')
+    file = models.FileField(upload_to='newsletter_attachments/')
+    name = models.CharField(max_length=200)
+    content_type = models.CharField(max_length=50, blank=True)
+    description = models.TextField(blank=True)
+    size = models.PositiveIntegerField(null=True, blank=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return self.name
