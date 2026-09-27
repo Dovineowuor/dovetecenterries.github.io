@@ -28,11 +28,11 @@ class MetadataMixin(models.Model):
 
     def get_meta_title(self):
         """Return the most appropriate title for this page."""
-        return self.meta_title or self.title if hasattr(self, 'title') else ''
+        return self.meta_title if self.meta_title else (self.title if hasattr(self, 'title') else '')
 
     def get_meta_description(self):
         """Return the most appropriate description for this page."""
-        return self.meta_description or (self.seo_description[:160] if hasattr(self, 'seo_description') and self.seo_description else '')
+        return self.meta_description if self.meta_description else (self.seo_description[:160] if hasattr(self, 'seo_description') and self.seo_description else '')
 
     def get_og_title(self):
         """Return the Open Graph title."""
