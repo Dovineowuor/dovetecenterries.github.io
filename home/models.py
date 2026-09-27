@@ -664,6 +664,7 @@ class Newsletter(MetadataMixin):
                             default='draft')
     slug = models.SlugField(max_length=250, unique=True, null=True, blank=True)
     tracking_enabled = models.BooleanField(default=True)
+    accent_color = models.CharField(max_length=7, default='#007bff', help_text='Brand accent color for email design')
 
     class Meta:
         ordering = ['-created_at']
@@ -682,6 +683,7 @@ class Newsletter(MetadataMixin):
     def send_newsletter(self, batch_size=500):
         """
         Send newsletter to all unique recipients in batches.
+        Sends to verified subscribers, admin emails, and user emails.
         """
         if self.status == 'sent':
             return False
@@ -690,12 +692,49 @@ class Newsletter(MetadataMixin):
         self.save()
 
         try:
+            from django.core.mail import EmailMultiAlternatives
+            from django.template.loader import render_to_string
+            from django.utils.html import strip_tags
+            import settings as _settings
+
+            # Get all recipient emails: verified subscribers
             all_emails = self.get_all_recipient_emails()
-            # Split list into batches
+            
+            # Add admin emails
+            from django.conf import settings
+            admin_emails = [admin[1] for admin in settings.ADMINS]
+            all_emails.extend(admin_emails)
+            
+            # Add user emails from related user profiles
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            for sub in self.recipients.filter(user__isnull=False, user__is_active=True):
+                if sub.user.email and sub.user.email not in all_emails:
+                    all_emails.append(sub.user.email)
+            
+            # Remove duplicates and empty emails
+            all_emails = list(set([e for e in all_emails if e]))
+            
+            # Build HTML content
+            html_content = self._build_html_content()
+            plain_content = strip_tags(html_content)
+            
+            # Split list into batches and send
             for i in range(0, len(all_emails), batch_size):
                 batch = all_emails[i:i + batch_size]
-                # Email sending implementation would go here (e.g., send_mass_mail)
-                pass
+                for email in batch:
+                    try:
+                        email_message = EmailMultiAlternatives(
+                            subject=self.subject,
+                            body=plain_content,
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[email],
+                        )
+                        email_message.attach_alternative(html_content, 'text/html')
+                        email_message.send(fail_silently=False)
+                    except Exception as e:
+                        logger.error(f"Failed to send newsletter to {email}: {e}")
+                        continue
             
             self.status = 'sent'
             self.sent_at = timezone.now()
@@ -705,6 +744,45 @@ class Newsletter(MetadataMixin):
             self.status = 'failed'
             self.save()
             raise e
+
+    def _build_html_content(self):
+        """
+        Build a properly designed HTML email from newsletter content.
+        """
+        from django.conf import settings
+        accent = '#007bff'  # Default accent color
+        if hasattr(self, 'accent_color'):
+            accent = self.accent_color
+        return f"""
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #f0f0f0; border-radius: 15px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <h1 style="color: {accent}; margin: 0; font-size: 24px;">DoveTec Enterprises</h1>
+            </div>
+            <div style="border-top: 3px solid {accent}; padding-top: 20px;">
+                <h2 style="color: #2d3436; margin-top: 0;">{self.subject}</h2>
+                <div style="color: #636e72; line-height: 1.7; font-size: 16px; margin-bottom: 25px;">
+                    {self.content}
+                </div>
+                <div style="text-align: center;">
+                    <a href="{self.get_cta_link()}" style="display: inline-block; padding: 12px 30px; background-color: {accent}; color: #ffffff; text-decoration: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #b2bec3;">
+                <p>You are receiving this email because you subscribed to DoveTec Enterprises newsletters.</p>
+                <p>Don't want these emails? <a href="#" style="color: {accent}; text-decoration: none;">Unsubscribe</a></p>
+                <p>&copy; {timezone.now().year} DoveTec Enterprises. All rights reserved.</p>
+            </div>
+        </div>
+        """
+
+    def get_cta_link(self):
+        """
+        Get the call-to-action link for the newsletter.
+        """
+        from django.conf import settings
+        return getattr(settings, 'SITE_URL', 'https://dovetecenterries.site')
 
     def clean(self):
         cleaned_data = super().clean()

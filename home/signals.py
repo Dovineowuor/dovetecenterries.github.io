@@ -1,9 +1,13 @@
 import uuid
+import logging
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 from .models import Article, Newsletter, NewsletterSubscription, Profile
 from shop.models import Product
 from community.models import Topic, Post
@@ -157,6 +161,18 @@ def sync_user_primary_role_group(sender, instance, created=False, raw=False, **k
     else:
         target = client_group
     instance.groups.add(target)
+
+
+@receiver(post_save, sender=Newsletter)
+def send_newsletter_on_publish(sender, instance, created, **kwargs):
+    """
+    Automatically send newsletter emails when status changes to 'sending'.
+    """
+    if instance.status == 'sending':
+        try:
+            instance.send_newsletter()
+        except Exception as e:
+            logger.error(f"Failed to auto-send newsletter: {e}")
 
 
 @receiver(post_migrate)

@@ -128,7 +128,6 @@ import socket
 # Get DATABASE_URL from .env
 DATABASE_URL = os.getenv('DATABASE_URL')
 
-# Default to SQLite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -277,6 +276,12 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '').replace(' ', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmaster@localhost')
+SERVER_EMAIL = os.getenv("SERVER_EMAIL", EMAIL_HOST_USER or "webmaster@localhost")
+SITE_URL = os.getenv("SITE_URL", "https://dovetecenterries.site")
+ADMINS = [
+    ("Admin", "admin@dovetecenterries.tech"),
+]
+MANAGERS = ADMINS
 
 # Contact settings
 CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', 'contact@dovetecenterprises.tech')
