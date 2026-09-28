@@ -5,11 +5,16 @@ from froala_editor.fields import FroalaField
 from django.utils import timezone
 from django.utils.text import slugify
 import hashlib
+import logging
 import mimetypes
 import uuid
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from dovetecenterprises import settings
+
+logger = logging.getLogger(__name__)
+
+_SEND_LOCKS = {}
 
 
 class MetadataMixin(models.Model):
@@ -304,6 +309,12 @@ class Article(models.Model):
     scheduled_at = models.DateTimeField(null=True, blank=True, help_text="Future date to schedule publication")
     deleted = models.BooleanField(default=False)
     # Resource-specific fields
+    # Newsletter performance counters (rolled up by Newsletter._update_content_performance)
+    newsletter_sent_count = models.PositiveIntegerField(default=0, help_text="Times included in a newsletter send")
+    newsletter_open_count = models.PositiveIntegerField(default=0, help_text="Newsletter opens attributed to this article")
+    newsletter_click_count = models.PositiveIntegerField(default=0, help_text="Newsletter link clicks attributed to this article")
+    newsletter_read_count = models.PositiveIntegerField(default=0, help_text="Newsletter recipients who signed in")
+    newsletter_failed_count = models.PositiveIntegerField(default=0, help_text="Newsletter deliveries that failed")
     is_resource = models.BooleanField(default=False, help_text="Mark as a downloadable resource")
     resource_type = models.CharField(max_length=20, choices=[
         ('document', 'Document (PDF/Doc)'),
@@ -691,7 +702,10 @@ class Newsletter(MetadataMixin):
     def get_all_recipient_emails(self):
         """
         Combine verified subscribers and manual ad-hoc emails.
-        Only verified subscribers who haven't unsubscribed.
+
+        Only verified subscribers who haven't unsubscribed. Addresses that have
+        unsubscribed are always excluded, including when typed into
+        ``manual_recipients`` — an opt-out must be honoured on every send.
         """
         emails = list(
             self.recipients.filter(
@@ -700,9 +714,16 @@ class Newsletter(MetadataMixin):
             ).values_list('email', flat=True)
         )
         if self.manual_recipients:
-            manual_list = [e.strip() for e in self.manual_recipients.split(',') if '@' in e]
-            emails.extend(manual_list)
-        return list(set(emails))
+            emails.extend(e.strip() for e in self.manual_recipients.split(',') if '@' in e)
+
+        # Honour prior opt-outs regardless of how the address was supplied.
+        unsubscribed = {
+            (u or '').strip().lower()
+            for u in NewsletterSubscription.objects.filter(
+                unsubscribed_at__isnull=False
+            ).values_list('email', flat=True)
+        }
+        return sorted({e for e in emails if e and e.strip().lower() not in unsubscribed})
 
     def get_verified_recipients(self):
         """Get verified newsletter subscription objects."""
@@ -727,15 +748,30 @@ class Newsletter(MetadataMixin):
         attachments, content references (articles, resources, services, products,
         case studies, adverts), resends, and failed-only retries.
         """
-        import logging
+        import threading
 
         from django.conf import settings
         from django.core.mail import EmailMultiAlternatives, get_connection
-        from django.utils.html import strip_tags
 
         from .models import NewsletterAttachment, NewsletterLog
 
-        logger = logging.getLogger(__name__)
+        guard = _SEND_LOCKS.setdefault(self.pk, threading.Lock())
+        if not guard.acquire(blocking=False):
+            logger.warning(
+                "Newsletter %r is already being sent; skipping duplicate call.", self.subject
+            )
+            return False
+        try:
+            return self._send_locked(batch_size=batch_size, resend=resend, only_failed=only_failed)
+        finally:
+            guard.release()
+
+    def _send_locked(self, batch_size=500, resend=False, only_failed=False):
+        """Body of send_newsletter, executed while holding the per-newsletter lock."""
+        from django.conf import settings
+        from django.core.mail import EmailMultiAlternatives, get_connection
+
+        from .models import NewsletterAttachment, NewsletterLog
 
         if self.status == 'sent' and not (resend or only_failed):
             logger.info("Newsletter %r already sent; skipping.", self.subject)
@@ -805,20 +841,31 @@ class Newsletter(MetadataMixin):
                         sent_at=now,
                     )
                     subscription = subscriptions.get(address)
-                    unsubscribe_url = (
-                        f"{site_url}/newsletter/unsubscribe/{subscription.token}/"
-                        if subscription and subscription.token
-                        else f"{site_url}/unsubscribe/"
-                    )
+                    if not (subscription and subscription.token):
+                        # Manually entered recipients have no subscription row yet.
+                        # Create one so every email carries a valid, per-recipient
+                        # unsubscribe token instead of a shared link. The token
+                        # itself comes from the field default so its format stays
+                        # identical to tokens issued by the signup flow.
+                        subscription, _ = NewsletterSubscription.objects.get_or_create(
+                            email=address,
+                            defaults={'is_verified': True},
+                        )
+                        subscriptions[address] = subscription
+                    unsubscribe_url = f"{site_url}/newsletter/unsubscribe/{subscription.token}/"
 
                     try:
                         html_content = self._build_html_content(
                             tracking_id=log.tracking_id,
                             unsubscribe_url=unsubscribe_url,
                         )
+                        text_content = self._build_text_content(
+                            tracking_id=log.tracking_id,
+                            unsubscribe_url=unsubscribe_url,
+                        )
                         message = EmailMultiAlternatives(
                             subject=self.subject,
-                            body=strip_tags(html_content),
+                            body=text_content,
                             from_email=settings.DEFAULT_FROM_EMAIL,
                             to=[address],
                             connection=connection,
@@ -884,24 +931,48 @@ class Newsletter(MetadataMixin):
 
     def _update_content_performance(self, sent, failed, opened, clicked):
         """
-        Update performance metrics for related content.
+        Roll newsletter delivery counts into the referenced content so article,
+        case study, service and product performance can be reported.
         """
-        from django.contrib.contenttypes.models import ContentType
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
+        counters = (
+            ('newsletter_sent_count', sent),
+            ('newsletter_open_count', opened),
+            ('newsletter_click_count', clicked),
+            ('newsletter_failed_count', failed),
+        )
 
         try:
-            ct = ContentType.objects.get_for_id(self.content_type)
-            obj = ct.get_object_for_this_type(id=self.content_id)
-            # Update article/view counts if applicable
-            if hasattr(obj, 'view_count'):
-                obj.view_count += sent
-                obj.save()
-            if hasattr(obj, 'read_count'):
-                obj.read_count += opened
-                obj.save()
-        except Exception as e:
-            logger.error(f"Failed to update content performance: {e}")
+            groups = self._resolve_content_groups()
+        except Exception as exc:
+            logger.error("Could not resolve content references for %r: %s", self.subject, exc)
+            return
+
+        seen = set()
+        for objects in groups.values():
+            for obj in objects:
+                if obj is None:
+                    continue
+                # Key on model + pk: PKs are only unique per table, so an
+                # Article(pk=1) would otherwise mask a CaseStudy(pk=1).
+                key = (type(obj)._meta.label_lower, obj.pk)
+                if key in seen:
+                    continue
+                seen.add(key)
+                changed = []
+                for field, value in counters:
+                    if not value or not hasattr(obj, field):
+                        continue
+                    try:
+                        setattr(obj, field, (getattr(obj, field) or 0) + value)
+                        changed.append(field)
+                    except (TypeError, ValueError):
+                        continue
+                if not changed:
+                    continue
+                try:
+                    obj.save(update_fields=changed)
+                except Exception as exc:
+                    logger.warning("Could not update performance on %r: %s", obj, exc)
 
     def _resolve_content_groups(self):
         """
@@ -1030,6 +1101,137 @@ class Newsletter(MetadataMixin):
             ),
         }
         return render_to_string('emails/newsletter.html', context)
+
+    def _html_to_text(self, html):
+        """
+        Convert an HTML fragment to readable plain text: drop script/style, turn
+        block boundaries into newlines, then strip remaining markup.
+        """
+        import re
+
+        from django.utils.html import strip_tags
+
+        if not html:
+            return ''
+
+        cleaned = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', html, flags=re.DOTALL | re.IGNORECASE)
+        cleaned = re.sub(r'<br\s*/?>', '\n', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(
+            r'</\s*(p|div|li|tr|td|h1|h2|h3|h4|h5|h6|blockquote|section)\s*>',
+            '\n\n',
+            cleaned,
+            flags=re.IGNORECASE,
+        )
+        cleaned = re.sub(r'<li[^>]*>', '  - ', cleaned, flags=re.IGNORECASE)
+        text = strip_tags(cleaned)
+        text = text.replace('&nbsp;', ' ').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
+        text = re.sub(r'[ \t]+', ' ', text)
+        return re.sub(r'\n{3,}', '\n\n', text).strip()
+
+    def _build_text_content(self, tracking_id=None, unsubscribe_url=None):
+        """
+        Build the plain-text alternative: no CSS, no markup, readable in any client.
+        """
+        import re
+
+        from django.conf import settings
+        from django.utils.html import strip_tags
+
+        site_url = (getattr(settings, 'SITE_URL', '') or '').rstrip('/')
+        groups = self._resolve_content_groups()
+
+        def label(obj, *names):
+            for name in names:
+                value = getattr(obj, name, None)
+                if value:
+                    return str(value)
+            return str(obj)
+
+        def summary(obj, *names, limit=140):
+            for name in names:
+                value = getattr(obj, name, None)
+                if value:
+                    return self._html_to_text(str(value)).replace('\n', ' ')[:limit]
+            return ''
+
+        lines = [self.subject, '']
+        if self.preheader:
+            lines += [self.preheader, '']
+        if self.subtitle:
+            lines += [self.subtitle, '']
+        lines += ['=' * 60, '']
+
+        body = self._html_to_text(self.content)
+        if body:
+            lines += [body, '']
+
+        if groups['articles']:
+            lines += ['FROM THE BLOG', '-' * 60]
+            for article in groups['articles']:
+                url = f"{site_url}/blog-detail/{article.slug}"
+                lines += [f"* {label(article, 'title', 'name')}", f"  {url}"]
+                text = summary(article, 'content', 'seo_description')
+                if text:
+                    lines += [f"  {text}"]
+            lines += ['']
+
+        if groups['resources']:
+            lines += ['FREE RESOURCES', '-' * 60]
+            for resource in groups['resources']:
+                target = getattr(resource, 'get_absolute_url', None)
+                url = f"{site_url}{target()}" if callable(target) else ''
+                lines += [f"* {label(resource, 'title', 'name')}", f"  {url}"]
+            lines += ['']
+
+        if groups['services']:
+            lines += ['OUR SERVICES', '-' * 60]
+            for service in groups['services']:
+                lines += [f"* {label(service, 'title', 'name')}", f"  {summary(service, 'description', 'content', limit=120)}"]
+            lines += [f"Browse all services: {site_url}/services/", '']
+
+        if groups['products']:
+            lines += ['FEATURED PRODUCTS', '-' * 60]
+            for product in groups['products']:
+                lines += [f"* {label(product, 'name', 'title')} - {product.price}", f"  {site_url}/shop/"]
+            lines += ['']
+
+        if groups['case_studies']:
+            lines += ['CASE STUDIES', '-' * 60]
+            for case_study in groups['case_studies']:
+                lines += [f"* {label(case_study, 'name', 'title')}", f"  {site_url}/case-study/{case_study.slug}/"]
+                text = summary(case_study, 'tagline', 'overview', 'description')
+                if text:
+                    lines += [f"  {text}"]
+            lines += ['']
+
+        if groups['adverts']:
+            lines += ['SPONSORED', '-' * 60]
+            for advert in groups['adverts']:
+                lines += [f"* {label(advert, 'title', 'name')} - {getattr(advert, 'url', '')}"]
+                text = summary(advert, 'description', limit=120)
+                if text:
+                    lines += [f"  {text}"]
+            lines += ['']
+
+        if self.allow_attachments:
+            attachments = list(self.attachments.all())
+            if attachments:
+                lines += ['ATTACHMENTS', '-' * 60]
+                for attachment in attachments:
+                    size = f" ({attachment.size} bytes)" if attachment.size else ''
+                    lines += [f"* {attachment.name}{size}"]
+                lines += ['']
+
+        cta_label = self.cta_label or 'Get started'
+        lines += ['-' * 60, self.get_cta_link(), cta_label, '']
+
+        if unsubscribe_url:
+            lines += [f"Unsubscribe: {unsubscribe_url}", '']
+        lines += [f"You are receiving this because you subscribed to the Dovetec Digest.", '']
+        lines += [f"© {timezone.now().year} Dovetec Enterprises. All rights reserved."]
+
+        text = re.sub(r'[ \t]+', ' ', '\n'.join(lines))
+        return re.sub(r'\n{3,}', '\n\n', text).strip() + '\n'
 
     def get_cta_link(self):
         """Return the call-to-action destination for this newsletter."""
