@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import base64
 import uuid
 import secrets
 import string
@@ -1390,13 +1391,37 @@ def unsubscribe(request, token):
 
 def newsletter(request):
     """
-    Landing page for the newsletter system, summarizing latest activity across the site.
+    Landing page for the newsletter system, previewing the sections a digest
+    can carry (articles, resources, services, products, case studies, adverts)
+    together with live delivery statistics.
     """
+    from app.models import CaseStudy
+    from shop.models import Category as ShopCategory
+    from .models import Advertisement, NewsletterLog
+
+    published_articles = Article.objects.filter(status='published')
     context = {
-        'articles': Article.objects.filter(status='published').order_by('-created_at')[:3],
+        'articles': published_articles.exclude(is_resource=True).order_by('-created_at')[:3],
+        'resources': published_articles.filter(is_resource=True).order_by('-created_at')[:3],
         'products': Product.objects.all().order_by('-created_at')[:3],
+        'services': ShopCategory.objects.all()[:6],
+        'case_studies': CaseStudy.objects.filter(status=CaseStudy.STATUS_PUBLISHED).order_by('-featured', '-published_at')[:3],
         'communities': Topic.objects.all().order_by('-created_at')[:3],
+        'adverts': Advertisement.objects.all()[:3],
+        'subscriber_count': NewsletterSubscription.objects.filter(
+            unsubscribed_at__isnull=True, is_verified=True,
+        ).count(),
+        'kpis': NewsletterLog.objects.aggregate(
+            delivered=Count('id', filter=Q(status__in=['sent', 'opened', 'clicked', 'read'])),
+            opened=Count('id', filter=Q(opened=True)),
+            clicked=Count('id', filter=Q(clicked=True)),
+            read=Count('id', filter=Q(read=True)),
+        ),
     }
+    delivered = context['kpis']['delivered'] or 0
+    context['kpis']['open_rate'] = round(context['kpis']['opened'] / delivered * 100, 1) if delivered else 0.0
+    context['kpis']['click_rate'] = round(context['kpis']['clicked'] / delivered * 100, 1) if delivered else 0.0
+    context['kpis']['read_rate'] = round(context['kpis']['read'] / delivered * 100, 1) if delivered else 0.0
     return render(request, 'newsletter.html', context)
 
 def unsubscribe(request, token):
@@ -1444,65 +1469,70 @@ def current_year(request):
     return render(request, 'footer.html', {'current_year': current_year})
 
 
-def track_open(request, tracking_id):
-    """Track newsletter email open via tracking pixel."""
+def _tracking_gif():
+    """1x1 transparent GIF used as the newsletter open-tracking pixel."""
     from django.http import HttpResponse
-    from django.utils import timezone
+    response = HttpResponse(
+        base64.b64decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'),
+        content_type='image/gif',
+    )
+    response['Cache-Control'] = 'no-cache, no-store, no-private, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = 'Wed, 11 Jan 1984 05:00:00 GMT'
+    return response
+
+
+def _safe_redirect_target(url, fallback='/'):
+    """Only allow redirects to our own site, to avoid an open redirect."""
+    from urllib.parse import urlparse
+
+    if not url:
+        return fallback
+    parsed = urlparse(url)
+    if parsed.scheme and parsed.scheme not in ('http', 'https'):
+        return fallback
+    site_url = (getattr(settings, 'SITE_URL', '') or '').rstrip('/')
+    host = parsed.netloc
+    if not parsed.netloc:
+        return url
+    if site_url:
+        site_host = urlparse(site_url).netloc
+        if host == site_host:
+            return url
+    if host == request.get_host():
+        return url
+    return fallback
+
+
+def track_open(request, tracking_id):
+    """Record a newsletter open fired by the tracking pixel."""
     from home.models import NewsletterLog
 
-    try:
-        log = NewsletterLog.objects.get(tracking_id=tracking_id)
-        if not log.opened:
-            log.opened = True
-            log.opened_at = timezone.now()
-            log.status = 'opened'
-            log.save()
-        gif = b'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-        response = HttpResponse(gif, content_type='image/gif')
-        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response['Pragma'] = 'no-cache'
-        response['Expires'] = '0'
-        return response
-    except NewsletterLog.DoesNotExist:
-        return HttpResponse(status=404)
+    log = NewsletterLog.objects.filter(tracking_id=tracking_id).first()
+    if log is not None:
+        log.mark_opened(
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', ''),
+        )
+    return _tracking_gif()
 
 
 def track_click(request, tracking_id):
-    """Track newsletter link click and redirect to original URL."""
-    from django.shortcuts import redirect
-    from django.utils import timezone
+    """Record a newsletter link click, then forward the reader to the target."""
     from home.models import NewsletterLog
 
-    try:
-        log = NewsletterLog.objects.get(tracking_id=tracking_id)
-        if not log.clicked:
-            log.clicked = True
-            log.clicked_at = timezone.now()
-            log.status = 'clicked'
-            log.save()
-        url = request.GET.get('url', '')
-        if url:
-            log.clicked_url = url
-            log.save()
-            return redirect(url)
-        return redirect('/')
-    except NewsletterLog.DoesNotExist:
-        return redirect('/')
+    log = NewsletterLog.objects.filter(tracking_id=tracking_id).first()
+    target = request.GET.get('url', '')
+    if log is not None:
+        log.mark_clicked(target)
+    return redirect(_safe_redirect_target(target, fallback='/?utm_source=newsletter'))
 
 
 def track_log_in(request, tracking_id):
-    """Track when a user logs on via newsletter link."""
-    from django.shortcuts import redirect
-    from django.utils import timezone
+    """Record that a recipient reached the site and send them to sign in."""
     from home.models import NewsletterLog
 
-    try:
-        log = NewsletterLog.objects.get(tracking_id=tracking_id)
-        if not log.read:
-            log.read = True
-            log.read_at = timezone.now()
-            log.status = 'read'
-            log.save()
-        return redirect('/login/')
-    except NewsletterLog.DoesNotExist:
-        return redirect('/login/')
+    log = NewsletterLog.objects.filter(tracking_id=tracking_id).first()
+    if log is not None:
+        log.mark_read()
+    return redirect(f'/login/?next={request.GET.get("next", "/")}')

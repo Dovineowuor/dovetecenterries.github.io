@@ -81,6 +81,157 @@
         background: rgba(255, 255, 255, 0.05);
         border-radius: 50%;
     }
+
+    /* ── Digest contents (mirrors the email sections) ── */
+    .digest-section {
+        margin-bottom: 3.5rem;
+    }
+
+    .digest-eyebrow {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #6e6e73;
+        margin-bottom: 1.25rem;
+        display: block;
+    }
+
+    .digest-card {
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 22px;
+        background: #fff;
+        overflow: hidden;
+        height: 100%;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+        transition: transform .3s cubic-bezier(.4, 0, .2, 1), box-shadow .3s;
+    }
+
+    .digest-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.09);
+    }
+
+    .digest-card img {
+        width: 100%;
+        height: 190px;
+        object-fit: cover;
+    }
+
+    .digest-card-body {
+        padding: 1.5rem;
+    }
+
+    .digest-card-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: -0.012em;
+        color: #1d1d1f;
+        margin-bottom: 0.5rem;
+    }
+
+    .digest-card-text {
+        font-size: 0.875rem;
+        color: #6e6e73;
+        margin-bottom: 1rem;
+    }
+
+    .digest-tag {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #2b5f57;
+        background: rgba(43, 95, 87, 0.08);
+        padding: 0.25rem 0.65rem;
+        border-radius: 980px;
+        margin-bottom: 0.75rem;
+    }
+
+    .digest-resource {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: #f5f5f7;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        text-decoration: none;
+        color: inherit;
+        transition: background .2s;
+    }
+
+    .digest-resource:hover {
+        background: #eeeef0;
+        color: inherit;
+    }
+
+    .digest-resource-icon {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background: rgba(43, 95, 87, 0.1);
+        color: #2b5f57;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    /* ── Adverts ── */
+    .advert-block {
+        border: 2px dashed #d2d2d7;
+        border-radius: 22px;
+        background: #fbfbfd;
+        padding: 1.5rem;
+        height: 100%;
+    }
+
+    .advert-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #86868b;
+        margin-bottom: 0.75rem;
+    }
+
+    .advert-block img {
+        width: 100%;
+        max-height: 200px;
+        object-fit: cover;
+        border-radius: 14px;
+        margin-bottom: 1rem;
+    }
+
+    /* ── KPI strip ── */
+    .kpi-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 24px;
+        padding: 1.75rem;
+    }
+
+    .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #1d1d1f;
+        line-height: 1.1;
+    }
+
+    .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #86868b;
+    }
 </style>
 {% endblock %}
 
@@ -182,11 +333,126 @@
                 </div>
             </div>
 
+            <!-- Case Studies -->
+            {% if case_studies %}
+            <div class="col-lg-12 digest-section" data-aos="fade-up">
+                <span class="digest-eyebrow">Case Studies</span>
+                <div class="row g-4">
+                    {% for cs in case_studies %}
+                    <div class="col-md-4">
+                        <div class="digest-card">
+                            {% if cs.hero_image %}
+                            <img src="{{ cs.hero_image.url }}" alt="{{ cs.name }}">
+                            {% endif %}
+                            <div class="digest-card-body">
+                                <h5 class="digest-card-title">{{ cs.name }}</h5>
+                                <p class="digest-card-text">{{ cs.tagline|default:cs.overview|truncatechars:110 }}</p>
+                                <a href="{% url 'case_study_detail' cs.slug %}"
+                                    class="fw-bold text-decoration-none small">View case study <i
+                                        class="feather-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Services -->
+            {% if services %}
+            <div class="col-lg-12 digest-section" data-aos="fade-up">
+                <span class="digest-eyebrow">What We Do</span>
+                <div class="row g-4">
+                    {% for service in services %}
+                    <div class="col-md-4">
+                        <div class="digest-card">
+                            <div class="digest-card-body">
+                                <h5 class="digest-card-title">{{ service.name|default:service.title }}</h5>
+                                <p class="digest-card-text">{{ service.description|striptags|truncatechars:120 }}</p>
+                                <a href="{% url 'services' %}" class="fw-bold text-decoration-none small">Learn more <i
+                                        class="feather-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Resources -->
+            {% if resources %}
+            <div class="col-lg-12 digest-section" data-aos="fade-up">
+                <span class="digest-eyebrow">Free Resources</span>
+                <div class="d-flex flex-column gap-3">
+                    {% for resource in resources %}
+                    <a href="{{ resource.get_absolute_url }}" class="digest-resource">
+                        <div class="digest-resource-icon"><i class="feather-download"></i></div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-1">{{ resource.title|default:resource.name }}</h6>
+                            <p class="small text-muted mb-0">{{ resource.content|striptags|truncatechars:100 }}</p>
+                        </div>
+                        <i class="feather-chevron-right text-muted"></i>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Adverts -->
+            {% if adverts %}
+            <div class="col-lg-12 digest-section" data-aos="fade-up">
+                <span class="digest-eyebrow">Sponsored</span>
+                <div class="row g-4">
+                    {% for advert in adverts %}
+                    <div class="col-md-4">
+                        <div class="advert-block">
+                            <div class="advert-label">Advertisement</div>
+                            {% if advert.image %}
+                            <a href="{{ advert.url }}"><img src="{{ advert.image.url }}" alt="{{ advert.title }}"></a>
+                            {% endif %}
+                            <h6 class="fw-bold mb-2">
+                                <a href="{{ advert.url }}" class="text-dark text-decoration-none">{{ advert.title }}</a>
+                            </h6>
+                            <p class="small text-muted mb-0">{{ advert.description|striptags|truncatechars:120 }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Live delivery stats -->
+            <div class="col-lg-12 digest-section" data-aos="fade-up">
+                <span class="digest-eyebrow">Live Delivery Stats</span>
+                <div class="kpi-strip">
+                    <div>
+                        <div class="kpi-value">{{ kpis.delivered|default:0 }}</div>
+                        <div class="kpi-label">Delivered</div>
+                    </div>
+                    <div>
+                        <div class="kpi-value">{{ kpis.open_rate|default:0 }}%</div>
+                        <div class="kpi-label">Opened</div>
+                    </div>
+                    <div>
+                        <div class="kpi-value">{{ kpis.click_rate|default:0 }}%</div>
+                        <div class="kpi-label">Link Clicks</div>
+                    </div>
+                    <div>
+                        <div class="kpi-value">{{ kpis.read_rate|default:0 }}%</div>
+                        <div class="kpi-label">Read &amp; Signed In</div>
+                    </div>
+                    <div>
+                        <div class="kpi-value">{{ subscriber_count|default:0 }}</div>
+                        <div class="kpi-label">Subscribers</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Call to Action -->
             <div class="col-lg-12" data-aos="zoom-in">
                 <div class="cta-gradient text-center text-white">
                     <h2 class="display-5 fw-bold mb-3">Stay in the Loop</h2>
-                    <p class="lead mb-5 opacity-75">Join 5,000+ pioneers receiving our curated innovation digests.</p>
+                    <p class="lead mb-5 opacity-75">Join {{ subscriber_count|default:"thousands of" }} pioneers receiving our curated innovation digests.</p>
                     <form action="{% url 'subscribe' %}" method="post" class="row justify-content-center g-3">
                         {% csrf_token %}
                         <div class="col-md-5">
