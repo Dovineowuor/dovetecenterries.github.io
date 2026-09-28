@@ -10,11 +10,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.http import Http404
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from .form import RegistrationForm
-from .models import Newsletter, NewsletterSubscription, User, Profile
+from .models import Newsletter, NewsletterSubscription, NewsletterLog, User, Profile
 from shop.models import Product
 
 from django.shortcuts import get_object_or_404, redirect, render
@@ -1429,10 +1430,19 @@ def unsubscribe(request, token):
     """
     Handle newsletter unsubscription via unique token.
     """
+    try:
+        token = uuid.UUID(str(token))
+    except (ValueError, AttributeError, TypeError):
+        raise Http404("Invalid unsubscribe token.")
+
     subscription = get_object_or_404(NewsletterSubscription, token=token)
-    subscription.unsubscribed_at = timezone.now()
-    subscription.save()
-    
+    if subscription.unsubscribed_at is None:
+        subscription.unsubscribed_at = timezone.now()
+        subscription.save(update_fields=['unsubscribed_at'])
+        NewsletterLog.objects.filter(
+            email__iexact=subscription.email, unsubscribed=False
+        ).update(unsubscribed=True)
+
     messages.success(request, "You have been successfully unsubscribed from our newsletter.")
     return render(request, "unsubscribe_success.html", {"email": subscription.email})
 
