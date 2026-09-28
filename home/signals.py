@@ -163,20 +163,8 @@ def sync_user_primary_role_group(sender, instance, created=False, raw=False, **k
     instance.groups.add(target)
 
 
-@receiver(post_save, sender=Newsletter)
-def send_newsletter_on_publish(sender, instance, created, **kwargs):
-    """
-    Automatically send newsletter emails when status changes to 'sending'.
-    """
-    if instance.status == 'sending':
-        try:
-            instance.send_newsletter()
-        except Exception as e:
-            logger.error(f"Failed to auto-send newsletter: {e}")
-
-
 @receiver(post_migrate)
 def provision_platform_role_groups(sender, **kwargs):
-    """Provision role groups after migrations have created Django permissions."""
+    """Provision platform role groups after migrations have created Django permissions."""
     from .roles import ensure_role_groups
     ensure_role_groups()
