@@ -277,9 +277,9 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '').replace(' ', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmaster@localhost')
 SERVER_EMAIL = os.getenv("SERVER_EMAIL", EMAIL_HOST_USER or "webmaster@localhost")
-SITE_URL = os.getenv("SITE_URL", "https://dovetecenterries.site")
+SITE_URL = os.getenv("SITE_URL", "https://dovetecenterprises.vercel.app")
 ADMINS = [
-    ("Admin", "admin@dovetecenterries.tech"),
+    ("Admin", "admin@dovetecenterprises.tech"),
 ]
 MANAGERS = ADMINS
 
