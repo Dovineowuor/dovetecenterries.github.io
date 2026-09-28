@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Unsubscribed{% endblock %}
+{% block page_title %}You've been unsubscribed{% endblock %}
+{% block seo_desc %}You have been unsubscribed from the Dovetec Enterprises newsletter.{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block content %}
+<section class="hero" style="min-height: 60vh; display: flex; align-items: center; justify-content: center; padding: 60px 20px;">
+    <div style="max-width: 560px; width: 100%; text-align: center;">
+
+        <div style="width: 72px; height: 72px; margin: 0 auto 28px; border-radius: 50%;
+                    background: rgba(52, 199, 89, 0.12); display: flex; align-items: center; justify-content: center;">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+        </div>
+
+        <h1 style="font-size: clamp(28px, 5vw, 40px); font-weight: 700; letter-spacing: -0.02em; margin: 0 0 16px;">
+            You're unsubscribed
+        </h1>
+
+        <p style="font-size: 17px; line-height: 1.6; color: var(--text-secondary, #6e6e73); margin: 0 0 8px;">
+            {% if email %}
+                <strong style="color: var(--text-primary, #1d1d1f);">{{ email }}</strong>
+            {% endif %}
+            will no longer receive the Dovetec Enterprises newsletter.
+        </p>
+
+        <p style="font-size: 15px; line-height: 1.6; color: var(--text-secondary, #6e6e73); margin: 0 0 32px;">
+            Changed your mind? You can resubscribe at any time — it only takes a moment.
+        </p>
+
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'newsletter' %}"
+               style="display: inline-block; padding: 13px 26px; border-radius: 980px;
+                      background: #0071e3; color: #ffffff; text-decoration: none;
+                      font-weight: 600; font-size: 15px;">Browse the newsletter archive</a>
+            <a href="/"
+               style="display: inline-block; padding: 13px 26px; border-radius: 980px;
+                      border: 1px solid rgba(0, 0, 0, 0.15); color: var(--text-primary, #1d1d1f);
+                      text-decoration: none; font-weight: 600; font-size: 15px;">Back to home</a>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
