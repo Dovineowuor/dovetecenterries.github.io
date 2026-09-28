@@ -150,11 +150,11 @@
                 <div class="dt-divider"></div>
 
                 <!-- ══ Main body content ══ -->
-                {% if newsletter.content %}
+                {% if content %}
                 <table role="presentation" width="100%">
                     <tr>
                         <td class="dt-section" style="padding:32px 40px;">
-                            <div style="font-size:17px; line-height:1.6; color:#1d1d1f;">{{ newsletter.content|safe }}</div>
+                            <div style="font-size:17px; line-height:1.6; color:#1d1d1f;">{{ content|safe }}</div>
                         </td>
                     </tr>
                 </table>
@@ -233,7 +233,7 @@
                                         <table role="presentation" width="100%">
                                             <tr>
                                                 <td style="padding-bottom:4px;">
-                                                    <h3 class="dt-headline" style="font-size:17px; margin:0;">{{ service.title|default:service.name }}</h3>
+                                                    <h3 class="dt-headline" style="font-size:17px; margin:0;">{% firstof service.title service.name %}</h3>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -375,7 +375,7 @@
                                             <div class="dt-file-icon" style="width:40px; height:40px; border-radius:10px; line-height:40px; text-align:center; font-size:16px; font-weight:700;">&#8595;</div>
                                         </td>
                                         <td style="padding:16px 16px 16px 12px; vertical-align:middle;">
-                                            <p style="font-size:16px; font-weight:600; color:#1d1d1f; margin:0 0 2px;">{{ resource.title|default:resource.name }}</p>
+                                            <p style="font-size:16px; font-weight:600; color:#1d1d1f; margin:0 0 2px;">{% firstof resource.title resource.name resource.content|truncatewords:8 %}</p>
                                             <p class="dt-caption" style="margin:0;">{{ resource.description|striptags|truncatechars:90 }}</p>
                                         </td>
                                     </tr>

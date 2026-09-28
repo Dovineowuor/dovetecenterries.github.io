@@ -367,7 +367,7 @@
                     <div class="col-md-4">
                         <div class="digest-card">
                             <div class="digest-card-body">
-                                <h5 class="digest-card-title">{{ service.name|default:service.title }}</h5>
+                                <h5 class="digest-card-title">{% firstof service.name service.title %}</h5>
                                 <p class="digest-card-text">{{ service.description|striptags|truncatechars:120 }}</p>
                                 <a href="{% url 'services' %}" class="fw-bold text-decoration-none small">Learn more <i
                                         class="feather-arrow-right"></i></a>
@@ -388,7 +388,7 @@
                     <a href="{{ resource.get_absolute_url }}" class="digest-resource">
                         <div class="digest-resource-icon"><i class="feather-download"></i></div>
                         <div class="flex-grow-1">
-                            <h6 class="fw-bold mb-1">{{ resource.title|default:resource.name }}</h6>
+                            <h6 class="fw-bold mb-1">{% firstof resource.title resource.name resource.content|truncatewords:8 %}</h6>
                             <p class="small text-muted mb-0">{{ resource.content|striptags|truncatechars:100 }}</p>
                         </div>
                         <i class="feather-chevron-right text-muted"></i>
