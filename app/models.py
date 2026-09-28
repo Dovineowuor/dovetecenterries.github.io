@@ -977,6 +977,13 @@ class CaseStudy(MetadataMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # ── Newsletter performance counters ──
+    newsletter_sent_count = models.PositiveIntegerField(default=0, help_text="Times included in a newsletter send")
+    newsletter_open_count = models.PositiveIntegerField(default=0, help_text="Newsletter opens attributed to this case study")
+    newsletter_click_count = models.PositiveIntegerField(default=0, help_text="Newsletter link clicks attributed to this case study")
+    newsletter_read_count = models.PositiveIntegerField(default=0, help_text="Newsletter recipients who signed in")
+    newsletter_failed_count = models.PositiveIntegerField(default=0, help_text="Newsletter deliveries that failed")
+
     # ── Section Content (structured for Apple design) ──
     problem_statement = models.TextField(blank=True, help_text="Problem statement section content")
     objectives = models.TextField(blank=True, help_text="Objectives & goals section content")
