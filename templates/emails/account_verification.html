@@ -1,0 +1,37 @@
+{% extends "emails/base_email.html" %}
+{% comment %}Account/email verification: one-time code plus a clickable link.{% endcomment %}
+
+{% block title %}Verify your email address{% endblock %}
+{% block preheader %}{% if otp and not hide_otp %}Your {{ site_name }} verification code is {{ otp }}{% else %}Confirm your email address to activate your {{ site_name }} account{% endif %}{% endblock %}
+
+{% block heading %}Verify your email{% endblock %}
+{% block subheading %}
+<p class="dt-lead" style="margin:0;">Welcome{% if user %}, {{ user.first_name|default:user.get_short_name|default:"there" }}{% endif %}. Confirm this address to activate your account.</p>
+{% endblock %}
+
+{% block content %}
+{% if otp and not hide_otp %}
+<p class="dt-body" style="margin:0 0 20px;">Enter this code on the verification page to activate your account:</p>
+
+<div class="dt-code">{{ otp }}</div>
+
+<p class="dt-muted" style="margin:0 0 24px;">The code expires in 10 minutes and can only be used once.</p>
+{% endif %}
+
+<p class="dt-muted" style="margin:0;">If the button does not work, open the link below on the device you registered from:</p>
+<p style="margin:8px 0 0;"><a class="dt-link" href="{{ verification_link }}">{{ verification_link }}</a></p>
+{% endblock %}
+
+{% block action %}
+<table role="presentation" width="100%" style="padding:0 40px 32px;">
+    <tr>
+        <td align="center">
+            <a class="dt-btn" href="{{ verification_link }}">Verify my email</a>
+        </td>
+    </tr>
+</table>
+{% endblock %}
+
+{% block footer_note %}
+<p class="dt-fine" style="margin:8px 0 0;">You are receiving this because someone registered an account with this address.</p>
+{% endblock %}

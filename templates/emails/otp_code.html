@@ -1,0 +1,28 @@
+{% extends "emails/base_email.html" %}
+{% comment %}One-time code only, used for password resets and sign-in checks.{% endcomment %}
+
+{% block title %}Your {{ site_name }} security code{% endblock %}
+{% block preheader %}{{ purpose|default:"Your verification code" }} is {{ otp }}{% endblock %}
+
+{% block heading %}{{ heading|default:"Your security code" }}{% endblock %}
+{% block subheading %}
+<p class="dt-lead" style="margin:0;">{% if recipient_name %}Hello {{ recipient_name }},{% else %}Hello,{% endif %} use this code to continue. We only use it to confirm it is really you.</p>
+{% endblock %}
+
+{% block content %}
+<p class="dt-body" style="margin:0 0 20px;">{% if purpose %}{{ purpose }}{% else %}Enter this code to continue.{% endif %}</p>
+
+<div class="dt-code">{{ otp }}</div>
+
+<p class="dt-muted" style="margin:0 0 16px;">The code expires in 10 minutes. Requests are limited to five per hour for your protection.</p>
+
+<div class="dt-panel">
+    <p class="dt-muted" style="margin:0;">If you did not request this code, you can ignore this email. Your password will not change until you complete the reset.</p>
+</div>
+{% endblock %}
+
+{% block footer_links %}<a href="{{ site_url }}">Visit website</a>{% endblock %}
+
+{% block footer_note %}
+<p class="dt-fine" style="margin:8px 0 0;">Need help? Reply to this email or write to {{ support_email }}.</p>
+{% endblock %}

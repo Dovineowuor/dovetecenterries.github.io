@@ -1,0 +1,41 @@
+{% extends "emails/base_email.html" %}
+{% comment %}Double opt-in for the newsletter subscription.{% endcomment %}
+
+{% block title %}Confirm your Dovetec Insights subscription{% endblock %}
+{% block preheader %}Confirm your subscription to {{ site_name }} Insights{% endblock %}
+
+{% block heading %}Confirm your subscription{% endblock %}
+{% block subheading %}
+<p class="dt-lead" style="margin:0;">Thanks for subscribing. One click and {{ site_name }} Insights starts landing in your inbox.</p>
+{% endblock %}
+
+{% block content %}
+<p class="dt-body" style="margin:0 0 16px;">We send a short digest of engineering practice, delivery lessons and product thinking from our team in Nairobi. No more than twice a month, and you can unsubscribe from any issue.</p>
+
+<div class="dt-panel">
+    <p class="dt-muted" style="margin:0;">Confirming keeps automated sign-ups out of the list, so you will never receive mail you did not ask for.</p>
+</div>
+
+{% if not verification_link %}
+<p class="dt-muted" style="margin:0;">If you did not request this subscription, you can safely ignore this email.</p>
+{% else %}
+<p class="dt-muted" style="margin:0 0 8px;">If the button does not work, paste this link into your browser:</p>
+<p style="margin:0;"><a class="dt-link" href="{{ verification_link }}">{{ verification_link }}</a></p>
+{% endif %}
+{% endblock %}
+
+{% block action %}
+{% if verification_link %}
+<table role="presentation" width="100%" style="padding:0 40px 32px;">
+    <tr>
+        <td align="center">
+            <a class="dt-btn" href="{{ verification_link }}">Confirm subscription</a>
+        </td>
+    </tr>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block footer_note %}
+<p class="dt-fine" style="margin:8px 0 0;">You are receiving this because this address was submitted for the {{ site_name }} Insights list.</p>
+{% endblock %}
