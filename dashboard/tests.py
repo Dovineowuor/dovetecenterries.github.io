@@ -66,3 +66,65 @@ class DashboardPermissionsTests(TestCase):
         self.assertIn('lead_chart_labels', response.context)
         self.assertIn('article_chart_values', response.context)
         self.assertContains(response, 'leadPipelineChart')
+
+    def test_every_dashboard_chart_gets_matched_labels_values_and_colour_keys(self):
+        """A chart with mismatched series silently renders wrong or throws.
+
+        The colour maps are keyed on the raw status key, not the display
+        label, so both have to reach the template. Getting this wrong is what
+        left every slice of a doughnut the same colour, and a mistyped ORM
+        keyword is a 500 rather than a visual regression, so assert the whole
+        contract rather than just the page returning 200.
+        """
+        administrator = self.create_user('admin3@example.com', superuser=True, staff=True)
+        self.client.force_login(administrator)
+
+        response = self.client.get(reverse('admin_dashboard'))
+        self.assertEqual(response.status_code, 200)
+
+        # (canvas id, label/keys context keys, value context keys)
+        charts = [
+            ('leadPipelineChart', ['lead_chart_labels', 'lead_chart_keys'],
+             ['lead_chart_values', 'lead_chart_values_kes']),
+            ('articleWorkflowChart', ['article_chart_labels', 'article_chart_keys'],
+             ['article_chart_values']),
+            ('projectStatusChart', ['project_chart_labels', 'project_chart_keys'],
+             ['project_chart_values', 'project_chart_budget']),
+            ('newsletterTurnoutChart', ['newsletter_chart_labels'],
+             ['newsletter_chart_values', 'newsletter_chart_rates']),
+        ]
+        for canvas_id, label_keys, value_keys in charts:
+            with self.subTest(chart=canvas_id):
+                self.assertContains(response, canvas_id)
+                labels = None
+                for key in label_keys:
+                    self.assertIn(key, response.context, f'{canvas_id} missing {key}')
+                    labels = response.context[key]
+                for key in value_keys:
+                    self.assertIn(key, response.context, f'{canvas_id} missing {key}')
+                    values = response.context[key]
+                    self.assertEqual(
+                        len(labels), len(values),
+                        f'{canvas_id}: {key} has {len(values)} values '
+                        f'but there are {len(labels)} labels',
+                    )
+
+    def test_dashboard_charts_survive_an_empty_database(self):
+        """Charts must render with no rows, not crash or lose their axes.
+
+        The view pads missing stages with zeroes on purpose so the funnel does
+        not change width as data arrives; that padding is what keeps the page
+        alive on a brand-new install.
+        """
+        administrator = self.create_user('admin4@example.com', superuser=True, staff=True)
+        self.client.force_login(administrator)
+
+        response = self.client.get(reverse('admin_dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'leadPipelineChart')
+        self.assertContains(response, 'newsletterTurnoutChart')
+        self.assertEqual(response.context['lead_chart_values'],
+                         [0] * len(response.context['lead_chart_labels']))
+        self.assertEqual(response.context['newsletter_chart_values'],
+                         [0] * len(response.context['newsletter_chart_labels']))
