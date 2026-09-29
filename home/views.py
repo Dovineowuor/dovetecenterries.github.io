@@ -11,20 +11,19 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from .form import RegistrationForm
 from .models import Newsletter, NewsletterSubscription, NewsletterLog, User, Profile
+from .email import send_styled_email
 from shop.models import Product
 
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from community.forms import CommentForm
 from community.models import Post, Topic
 from home.form import ArticleForm
-from .models import Article, Comment, Profile, Reply, Tag
+from .models import Article, Comment, Dislike, Like, Profile, Reply, Tag
 from django.contrib.auth import authenticate, login
 from django.urls import reverse
 from django.utils import timezone
@@ -113,22 +112,17 @@ def register_view(request):
                 profile.save()
 
                 verification_link = request.build_absolute_uri(f'/verify/{token}/')
-            
-                # Render the verification email template
-                email_context = {
-                    'verification_link': verification_link,
-                    'user': user,
-                    'otp': otp
-                }
-                message = render_to_string('verify_account.html', email_context)
 
-                send_mail(
+                send_styled_email(
                     'Verify your email',
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
+                    'emails/account_verification.html',
+                    {
+                        'verification_link': verification_link,
+                        'user': user,
+                        'otp': otp,
+                    },
                     [email],
                     fail_silently=False,
-                    html_message=message  # Send the HTML version
                 )
 
                 profile.otp = otp
@@ -942,10 +936,15 @@ def send_otp(user):
     profile.otp_timestamp = timezone.now()
     profile.save()
 
-    send_mail(
-        'Your OTP Code',
-        f'Your OTP code is: {otp}',
-        settings.DEFAULT_FROM_EMAIL,
+    send_styled_email(
+        'Your Dovetec verification code',
+        'emails/otp_code.html',
+        {
+            'otp': otp,
+            'purpose': 'Use this code to reset your password.',
+            'heading': 'Reset your password',
+            'recipient_name': user.first_name or user.get_short_name(),
+        },
         [user.email],
         fail_silently=False,
     )
@@ -1260,11 +1259,23 @@ def feedback(request):
         message = request.POST.get('message')
         
         # Send feedback email to administrators
-        send_mail(
+        send_styled_email(
             f'Feedback from {name}',
-            f'Message: {message}\n\nFrom: {email}',
-            settings.DEFAULT_FROM_EMAIL,
+            'emails/notification.html',
+            {
+                'heading': f'New feedback from {name}',
+                'preheader': f'{name} sent feedback via the website',
+                'intro': 'Someone submitted the feedback form on the website.',
+                'details': [
+                    ('Name', name),
+                    ('Email', email),
+                    ('Received', timezone.localtime().strftime('%d %b %Y, %H:%M')),
+                ],
+                'body': message,
+                'reply_hint': name,
+            },
             [settings.FEEDBACK_EMAIL],
+            reply_to=[email] if email else None,
             fail_silently=False,
         )
         
@@ -1290,11 +1301,24 @@ def report(request):
         reporter_email = request.POST.get('email')
         
         # Send report email to administrators
-        send_mail(
-            'Content Report',
-            f'Content URL: {content_url}\nReason: {reason}\nDetails: {details}\nReporter: {reporter_email}',
-            settings.DEFAULT_FROM_EMAIL,
+        send_styled_email(
+            f'Content report: {reason or "unspecified"}',
+            'emails/notification.html',
+            {
+                'heading': 'Content reported for review',
+                'preheader': f'Report on {content_url or "unknown content"}',
+                'intro': 'A reader reported content on the website for moderation.',
+                'details': [
+                    ('Content URL', content_url),
+                    ('Reason', reason),
+                    ('Reporter', reporter_email),
+                    ('Received', timezone.localtime().strftime('%d %b %Y, %H:%M')),
+                ],
+                'body': details,
+                'reply_hint': 'the reporter',
+            },
             [settings.REPORT_EMAIL],
+            reply_to=[reporter_email] if reporter_email else None,
             fail_silently=False,
         )
         
@@ -1332,25 +1356,13 @@ def subscribe(request):
                 reverse('verify_subscription', kwargs={'token': str(subscription.token)})
             )
             
-            # Send verification email (HTML version)
-            from django.template.loader import render_to_string
-            from django.utils.html import strip_tags
-            from django.core.mail import EmailMultiAlternatives
-
-            subject = 'Verify your Dovetec Insights subscription'
-            html_content = render_to_string('emails/verification_email.html', {
-                'verification_link': verification_link
-            })
-            text_content = strip_tags(html_content)
-
-            email_msg = EmailMultiAlternatives(
-                subject,
-                text_content,
-                settings.DEFAULT_FROM_EMAIL,
-                [email]
+            send_styled_email(
+                'Confirm your Dovetec Insights subscription',
+                'emails/newsletter_confirm.html',
+                {'verification_link': verification_link},
+                [email],
+                fail_silently=False,
             )
-            email_msg.attach_alternative(html_content, "text/html")
-            email_msg.send(fail_silently=False)
             
             messages.info(request, "Please check your email to verify your subscription!")
             return redirect('home')
@@ -1499,7 +1511,7 @@ def _tracking_gif():
     return response
 
 
-def _safe_redirect_target(url, fallback='/'):
+def _safe_redirect_target(url, fallback='/', request=None):
     """Only allow redirects to our own site, to avoid an open redirect."""
     from urllib.parse import urlparse
 
@@ -1516,7 +1528,10 @@ def _safe_redirect_target(url, fallback='/'):
         site_host = urlparse(site_url).netloc
         if host == site_host:
             return url
-    if host == request.get_host():
+    # Compare against the incoming host too, so preview deployments (which do
+    # not match SITE_URL) still resolve their own links.
+    live_host = request.get_host() if request is not None else None
+    if live_host and host == live_host:
         return url
     return fallback
 
@@ -1542,7 +1557,8 @@ def track_click(request, tracking_id):
     target = request.GET.get('url', '')
     if log is not None:
         log.mark_clicked(target)
-    return redirect(_safe_redirect_target(target, fallback='/?utm_source=newsletter'))
+    return redirect(_safe_redirect_target(target, fallback='/?utm_source=newsletter',
+                                          request=request))
 
 
 def track_log_in(request, tracking_id):
