@@ -454,3 +454,387 @@ NEWSLETTER = {
         "<p>Thanks,<br>The Dovetec Enterprises team</p>"
     ),
 }
+
+# ── Discovery questionnaires (app.models.Questionnaire) ────────────────
+# One entry per won/late-stage inquiry. ``answers`` is a list aligned to
+# the template's questions in ``order``; extras are attached as custom
+# questions on the questionnaire itself so the dashboard's per-engagement
+# question path is exercised too.
+QUESTIONNAIRES = [
+    {
+        "inquiry": "Field lending platform for our members",
+        "template": "Technical discovery — fintech",
+        "status": "completed",
+        "context": "Field lending origination — Harambee Sacco Union",
+        "intro": (
+            "Before we scope the field lending platform we need to understand your "
+            "regulatory position, core banking integration and expected volumes. "
+            "Answers here shape the technical proposal directly."
+        ),
+        "answers": [
+            "We are supervised by the Central Bank of Kenya under the Sacco Societies "
+            "Act. Member PII must stay in-country, card data must never reach our "
+            "servers, and every disbursement has to be reproducible for seven years.",
+            "FlexiCore core banking, and we settle to KCB and Co-op Bank through the "
+            "existing account mapping service.",
+            "Yes. Our current manual onboarding captures a national ID, a passport "
+            "photo and proof of address, and reconciles the three before approval.",
+            "18000",
+            "Immutable append-only ledger of every state transition, exportable for "
+            "the internal audit committee and the external auditor on request.",
+        ],
+        "custom_questions": [
+            (
+                "How many field officers will use this concurrently?",
+                "number",
+                "Peak concurrency drives the synchronisation design.",
+                1,
+                True,
+            ),
+            (
+                "Which counties are hardest to reach?",
+                "text",
+                "Weakest coverage usually points at a specific carrier or tower gap.",
+                2,
+                False,
+            ),
+        ],
+        "answers_custom": [
+            "62 field officers, of whom roughly 30 are in the field at any one time.",
+            "Turkana and Marsabit. Vodacom coverage is intermittent outside the "
+            "town centres, and our officers share handsets between routes.",
+        ],
+        "events": ["created", "sent", "opened", "answered", "completed"],
+    },
+    {
+        "inquiry": "Patient records across 38 facilities",
+        "template": "Technical discovery — health",
+        "status": "completed",
+        "context": "Clinical records consolidation — Jamii Health",
+        "intro": (
+            "Consolidating records across 38 facilities raises data-sensitivity and "
+            "availability questions we need answered before we commit to an "
+            "architecture. Please answer candidly, including where the current "
+            "process is informal."
+        ),
+        "answers": [
+            "Records are confidential health information. We are not yet certified to "
+            "HIPAA, but we hold ourselves to the same standard: encryption at rest, "
+            "strict role-based access, a full audit trail, and a signed confidentiality "
+            "agreement for every staff member with access.",
+            "We use a mix of two EMR implementations, with a shared MySQL instance "
+            "for the smaller facilities that has no replication between them.",
+            "Yes. Nine of the 38 facilities lose power and connectivity for hours at a "
+            "time, and clinic staff continue to see patients throughout.",
+            "Dr. Achieng' Omondi, Medical Superintendent, is the clinical product "
+            "owner and signs off on any change to the record model.",
+        ],
+        "custom_questions": [
+            (
+                "How many concurrent clinicians write to a record at peak?",
+                "number",
+                "Concurrent writes on one record are the usual source of lost updates.",
+                1,
+                True,
+            )
+        ],
+        "answers_custom": ["14 at the two largest facilities during morning round."],
+        "events": ["created", "sent", "opened", "answered", "completed"],
+    },
+    {
+        "inquiry": "Learning platform and fee collection",
+        "template": "Discovery — needs & goals",
+        "status": "in_progress",
+        "context": "Course delivery and fee collection — TechDarasa",
+        "intro": (
+            "A short discovery to understand the teaching model, the fee-collection "
+            "problem and what the 14 schools already run, before we propose a rollout."
+        ),
+        "answers": [
+            "Teachers distribute course material as file downloads, so nobody knows who "
+            "completed what, and fee collection is reconciled manually over about four "
+            "days at the end of each term.",
+            "Learners on shared Android handsets, teachers on school desktops, and "
+            "parents on ordinary smartphones, largely over mobile data.",
+            "A parent can pay a fee from any phone and see the receipt immediately, and "
+            "a head teacher can see completion for their whole school without asking "
+            "anyone for a report.",
+            "An existing student records system in each school, a bank account per "
+            "school, and an SMS gateway we use for announcements.",
+            "Between 4 and 6 million KES for the first year across all 14 schools.",
+        ],
+        "custom_questions": [
+            (
+                "Do schools share a single network, or independent links?",
+                "text",
+                "Independent links mean the platform cannot assume a shared LAN.",
+                1,
+                True,
+            )
+        ],
+        "answers_custom": [
+            "Independent. Each school has its own router and a metered connection, and "
+            "the weakest is a 2Mbps link that is already contended during term time."
+        ],
+        "events": ["created", "sent", "opened", "answered"],
+    },
+    {
+        "inquiry": "Multi-branch stock visibility",
+        "template": "Discovery — needs & goals",
+        "status": "sent",
+        "context": "Branch stock visibility — Oddibites",
+        "intro": (
+            "Six stores cannot see group-level stock until the nightly count. This "
+            "questionnaire covers the counting process, the transfer process and who "
+            "makes the call on a stock-out."
+        ),
+        "answers": [],
+        "custom_questions": [
+            (
+                "Who approves an inter-branch transfer today?",
+                "text",
+                "Approval flow determines whether transfers need a workflow or a queue.",
+                1,
+                True,
+            )
+        ],
+        "answers_custom": [],
+        "events": ["created", "sent"],
+    },
+    {
+        "inquiry": "Fleet visibility and dispatch",
+        "template": "Discovery — needs & goals",
+        "status": "draft",
+        "context": "Consignment tracking and dispatch — Savannah Freight",
+        "intro": (
+            "Draft questionnaire for consignment tracking and exception alerting along "
+            "the main corridors. Held internally until the client confirms the "
+            "corridor list."
+        ),
+        "answers": [],
+        "custom_questions": [],
+        "answers_custom": [],
+        "events": ["created"],
+    },
+]
+
+# ── Microtasks breaking a feature task into deliverable slices ─────────
+# Keyed on the feature-task title defined in the command.
+MICROTASKS = {
+    "Add theme tokens to the design system": [
+        ("Define the semantic token names", "done",
+         "Naming first, values second. The names are what every later component "
+         "depends on, and renaming them after adoption is expensive.", 6),
+        ("Map the existing palette onto semantic tokens", "in_progress",
+         "Every colour currently hard-coded in a component resolves to exactly one "
+         "semantic token, so switching themes is a token swap.", 11),
+        ("Add the dark palette", "todo",
+         "Dark values are contrast-checked against the same token names rather "
+         "than picked by eye.", 15),
+    ],
+    "Migrate admin components to token variables": [
+        ("Audit hard-coded colours across the admin", "done",
+         "Inventory produced by grepping the admin templates and stylesheets for "
+         "literal colour values.", 9),
+        ("Migrate the shared layout and navigation", "in_progress",
+         "The layout is the widest-reaching surface, so it goes first and the "
+         "component migrations inherit the result.", 4),
+    ],
+    "Define the import contract and validation rules": [
+        ("Specify the column mapping contract", "done",
+         "Mapping is validated at upload time so a bad file fails fast with a row "
+         "reference rather than partway through the import.", 7),
+        ("Specify duplicate and conflict handling", "done",
+         "Conflicts are resolved by explicit column precedence, never by row "
+         "order, so a rerun is deterministic.", 3),
+    ],
+    "Implement the import job with progress reporting": [
+        ("Build the chunked upload endpoint", "in_progress",
+         "Uploads are chunked so a large CSV does not tie up a worker for the "
+         "whole parse.", 5),
+        ("Stream progress to the operator", "todo",
+         "Progress is polled rather than streamed, which is simpler and survives "
+         "a dropped connection.", 8),
+    ],
+    "Add a delivery schedule model": [
+        ("Model the schedule and its timezone handling", "in_progress",
+         "Schedules are stored in UTC with the report timezone alongside, since "
+         "a monthly report at 08:00 local is a different instant per region.", 10),
+    ],
+    "Map existing groups to report scopes": [
+        ("Inventory the current group model", "done",
+         "Existing groups are documented before any mapping, so the migration "
+         "does not silently widen access.", 12),
+    ],
+}
+
+# ── Article discussion threads (home.models.DiscussionTopic) ───────────
+DISCUSSION_TOPICS = [
+    {
+        "title": "Where do you draw the line on background jobs?",
+        "description": (
+            "Celery for anything longer than a second, or keep short work inline and "
+            "push only genuinely slow things to a queue? Interested in where the line "
+            "sits for teams that also have strict latency requirements."
+        ),
+        "status": "active",
+        "is_pinned": True,
+        "author": "Sarah",
+        "replies": [
+            "We draw it at request time. Anything that would add more than about 200ms "
+            "to a response goes to a queue, because the moment a user waits on a third "
+            "party they start refreshing.",
+            "Seconded, with one caveat: we keep the job enqueue inline and only the work "
+            "off the request. An enqueue that fails silently is worse than a slow page.",
+            "Counterpoint for regulated clients. We had audit requirements that made "
+            "asynchronous processing more complex than it saved, so for them we do it "
+            "inline and accept the latency with an explicit SLA.",
+        ],
+    },
+    {
+        "title": "Strangler fig: what would you have done differently?",
+        "description": (
+            "We have migrated three monoliths this way. Collecting the things that were "
+            "harder than expected, since the pattern is well described and the operational "
+            "reality less so."
+        ),
+        "status": "active",
+        "is_pinned": False,
+        "author": "Dove",
+        "replies": [
+            "Reconciliation. The articles are clear about running both paths, and vague "
+            "about what happens when the old path and the new one disagree. We now treat "
+            "the reconciliation report as the deliverable, not a dashboard.",
+            "We underestimated the read traffic. Writes were straightforward to move "
+            "because we owned them, but every read we left on the monolith was another "
+            "place the two systems could disagree.",
+            "The hardest part was not technical. It was agreeing in advance who could "
+            "switch traffic back, and having that person on call during cutover.",
+        ],
+    },
+    {
+        "title": "Postgres connection pooling for serverless Django",
+        "description": (
+            "Pgbouncer in transaction mode has been the answer for most of our serverless "
+            "deployments. Looking for experience of the failure modes that are not in the "
+            "documentation, particularly around prepared statements."
+        ),
+        "status": "open",
+        "is_pinned": False,
+        "author": "Michael",
+        "replies": [
+            "Transaction mode plus Django requires disabling server-side cursors, "
+            "otherwise long-running queries hold the connection open and the pool "
+            "serialises everything behind them.",
+            "We set a conservative pool size per instance and let the platform scale "
+            "instances instead. Sizing the pool for peak per-instance traffic is how you "
+            "exhaust the database at low platform scale.",
+        ],
+    },
+]
+
+# ── Interviews and application notes (home.models) ─────────────────────
+# Keyed on candidate name from the applicant list in the command.
+INTERVIEWS = {
+    "Brian Mutiso": {
+        "interview_type": "video",
+        "interview_stage": "technical",
+        "outcome": "pass",
+        "duration_minutes": 60,
+        "location": "Google Meet",
+        "scheduled_in_days": -4,
+        "notes": (
+            "Walked through the lending ledger work. Strong on idempotency and the "
+            "expand/migrate/contract reasoning; hesitated on locking strategy under "
+            "contention and needed a prompt on isolation levels."
+        ),
+        "feedback": (
+            "Pass for the next stage. The ledger design held up under questioning, and "
+            "the production incident write-up showed honest reflection. Push on "
+            "concurrency in the final round."
+        ),
+    },
+    "Mercy Achieng": {
+        "interview_type": "onsite",
+        "interview_stage": "final",
+        "outcome": "pass",
+        "duration_minutes": 90,
+        "location": "Nairobi office",
+        "scheduled_in_days": -12,
+        "notes": (
+            "Final round with the founding team. Excellent on delivery under client "
+            "pressure and on saying no to scope. Comfortable with the ambiguity in the "
+            "healthcare engagements."
+        ),
+        "feedback": (
+            "Strong hire. Reference the same qualities in the offer conversation and set "
+            "her up on the healthcare data model, which is where her backend depth is "
+            "most valuable."
+        ),
+    },
+    "Wanjiru Kamau": {
+        "interview_type": "video",
+        "interview_stage": "initial",
+        "outcome": "pass",
+        "duration_minutes": 45,
+        "location": "Zoom",
+        "scheduled_in_days": -9,
+        "notes": (
+            "Initial screen focused on Python fundamentals and Django ORM usage. Clear "
+            "communication and asked good questions about how we run client work."
+        ),
+        "feedback": (
+            "Progress to technical. Communication is a real strength and she asked "
+            "better questions about our delivery process than most candidates at this "
+            "level."
+        ),
+    },
+}
+
+APPLICATION_NOTES = {
+    "Wanjiru Kamau": [
+        ("screened", "Sarah",
+         "Portfolio shows payment work in production, including a reconciliation job "
+         "that replaced a spreadsheet. Worth progressing on that depth."),
+        ("shortlisted", "Michael",
+         "Strong Django and comfortable with Postgres query plans. Gaps in Kubernetes, "
+         "which is teachable for this role."),
+        ("note", "Dove",
+         "Referred by Grace Njeri at TechDarasa. Reference taken and consistent with "
+         "the interview account."),
+    ],
+    "Brian Mutiso": [
+        ("screened", "Michael", "Screen notes attached. Ready for a technical round."),
+        ("interview_scheduled", "Sarah",
+         "Technical scheduled with Michael. Confirmed availability and the interview "
+         "brief with the candidate."),
+        ("stage_change", "Sarah",
+         "Passed technical. Progressing to a final round with the founding team."),
+    ],
+    "Faith Chebet": [
+        ("created", "Achieng",
+         "Applied through the careers page. CV confirms four years of backend work in "
+         "Python, mostly on an internal logistics tool."),
+        ("note", "Michael",
+         "Screen scheduled. Flagged as a strong fit for the client success role given "
+         "her support background."),
+    ],
+    "Kevin Otieno": [
+        ("created", "Achieng", "Applied via LinkedIn after the DevOps posting."),
+        ("assessment", "Michael",
+         "Assessment submitted. Infrastructure automation section was notably strong; "
+         "review the networking answers in detail."),
+    ],
+    "Mercy Achieng": [
+        ("screened", "Sarah", "Exceptional screen. Moving quickly."),
+        ("shortlisted", "Dove",
+         "Shortlisted against the backend lead role. She has led a team of four."),
+        ("interview_scheduled", "Dove", "Final round booked at the Nairobi office."),
+        ("stage_change", "Dove",
+         "Final round passed with a strong recommendation from the founding team. "
+         "Proceeding to offer."),
+        ("note", "Sarah",
+         "Prepare the offer letter. Her current notice period is one month and she has "
+         "confirmed a start date of the first of next month."),
+    ],
+}
