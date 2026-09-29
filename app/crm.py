@@ -5,7 +5,6 @@ import logging
 import re
 
 from django.conf import settings
-from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q, Case, When, Value, IntegerField
 from django.http import HttpResponse
@@ -14,6 +13,9 @@ from django.urls import reverse
 from django.utils import timezone
 
 import requests
+
+from home.email import send_styled_email
+
 from .media import store_uploaded_media
 from .models import (
     Answer, Contact, Organization, Project, Question, Questionnaire,
@@ -82,10 +84,18 @@ def notify(*, recipients, verb, title, body='', link='', actor=None, email_subje
         )
         if send_email and recipient.is_staff and recipient.email:
             try:
-                send_mail(
+                send_styled_email(
                     email_subject or title[:200],
-                    f"{title}\n\n{body}\n\n{settings.SITE_URL if hasattr(settings, 'SITE_URL') else ''}{link}",
-                    settings.DEFAULT_FROM_EMAIL,
+                    'emails/notification.html',
+                    {
+                        'heading': title[:120],
+                        'preheader': f'{verb or "Notification"}: {title[:80]}',
+                        'intro': f'Triggered by {verb or "a workspace event"}.',
+                        'body': body,
+                        'action_url': absolute_url(link) if link else None,
+                        'action_label': 'Open in the portal',
+                        'actor': getattr(actor, 'email', None) or actor,
+                    },
                     [recipient.email],
                     fail_silently=True,
                 )
@@ -289,7 +299,6 @@ def email_questionnaire_to_client(questionnaire, *, kind='sent', question_count=
         questionnaire.context, questionnaire.context or 'General',
     )
     count = question_count if question_count is not None else questionnaire.question_count
-    bullets = '\n'.join(f"  • {item}" for item in directives)
 
     if kind == 'completed':
         subject = f"Responses received: {questionnaire.title}"
@@ -297,46 +306,51 @@ def email_questionnaire_to_client(questionnaire, *, kind='sent', question_count=
             f"We received your responses for “{questionnaire.title}”"
             + (f" ({changed_count} answer(s) updated this submit)." if changed_count else ".")
         )
-        cta = "You can review a copy in your client portal:"
-        next_steps = "What happens next (based on this survey's context):"
+        action_label = "Review responses in your portal"
+        steps_heading = "What happens next"
     elif kind == 'reopened':
         subject = f"More questions added: {questionnaire.title}"
         opening = (
             f"We added new questions to “{questionnaire.title}”. "
             "Your previous answers were kept — please complete the new items."
         )
-        cta = "Continue where you left off:"
-        next_steps = "Directives for this stage:"
+        action_label = "Continue where you left off"
+        steps_heading = "Directives for this stage"
     elif kind == 'updated':
         subject = f"Survey updated: {questionnaire.title}"
         opening = f"Updates were saved for “{questionnaire.title}”."
-        cta = "Review or amend your responses:"
-        next_steps = "Reminders for this stage:"
+        action_label = "Review your responses"
+        steps_heading = "Reminders for this stage"
     else:
         subject = f"Action required: {questionnaire.title}"
         opening = (
             f"A new {context_label.lower()} questionnaire is ready for you: "
             f"“{questionnaire.title}” ({count} question(s))."
         )
-        cta = "Open the survey in your portal:"
-        next_steps = f"Directives for {context_label}:"
-
-    body = (
-        f"Hello {inquiry.name or inquiry.email},\n\n"
-        f"{opening}\n\n"
-        f"{cta}\n{link}\n\n"
-        f"{next_steps}\n{bullets}\n\n"
-        f"Context: {context_label}\n"
-        f"Questions: {count} · Status: {questionnaire.get_status_display()}\n\n"
-        "— Dovetec Enterprises\n"
-        f"{absolute_url('/')}\n"
-    )
+        action_label = "Open the survey"
+        steps_heading = f"Directives for {context_label}"
 
     try:
-        send_mail(
+        send_styled_email(
             subject[:200],
-            body,
-            settings.DEFAULT_FROM_EMAIL,
+            'emails/client_message.html',
+            {
+                'heading': f'Questionnaire: {questionnaire.title}',
+                'preheader': opening[:120],
+                'intro': context_label,
+                'greeting': inquiry.name or inquiry.email.split('@')[0],
+                'paragraphs': [opening],
+                'steps_heading': steps_heading,
+                'steps': directives,
+                'details': [
+                    ('Survey', questionnaire.title),
+                    ('Context', context_label),
+                    ('Questions', count),
+                    ('Status', questionnaire.get_status_display()),
+                ],
+                'action_url': link,
+                'action_label': action_label,
+            },
             [inquiry.email],
             fail_silently=True,
         )
