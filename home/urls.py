@@ -11,6 +11,7 @@ urlpatterns = [
     path('login/', login_view, name="login_view"),
     path('add-blog/', add_blog, name="add_blog"),
     path('blog-detail/<slug>', blog_detail, name="blog_detail"),
+    path('blog-detail/<slug>/', blog_detail, name="blog_detail"),
     path('blog/', see_blog, name="see_blog"),
     path('blog-delete/<id>', blog_delete, name="blog_delete"),
     path('blog-update/<slug>/', blog_update, name="blog_update"),
@@ -26,8 +27,11 @@ urlpatterns = [
     path('advertise/', advertise, name="advertise"),
     path('advertise-with-us/', advertise_with_us, name="advertise_with_us"),
     path('search/', search, name="search"),
-    path('category/<category>/', category, name="category"),
-    path('tag/<tag>/', tag, name="tag_detail"),
+    # <path:...> rather than the default <str:...> because tag and category
+    # names legitimately contain slashes ("DevOps & CI/CD"), which str
+    # excludes and therefore raises NoReverseMatch.
+    path('category/<path:category>/', category, name="category"),
+    path('tag/<path:tag>/', tag, name="tag_detail"),
     path('tags/', tags, name="tags"),
     path('like/<id>/', like, name="like"),
     path('dislike/<id>/', dislike, name="dislike"),
