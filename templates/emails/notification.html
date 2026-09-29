@@ -1,0 +1,63 @@
+{% extends "emails/base_email.html" %}
+{% comment %}
+Internal notification to staff or administrators: feedback, content reports,
+support ticket alerts and anything routed to an inbox.
+
+Pass:
+  heading, intro, details=[(label, value), ...], action_label, action_url,
+  footer_note
+{% endcomment %}
+
+{% block title %}{{ heading|default:"Notification" }}{% endblock %}
+{% block preheader %}{{ preheader|default:heading|default:"New notification" }}{% endblock %}
+
+{% block heading %}{{ heading|default:"New notification" }}{% endblock %}
+{% block subheading %}
+{% if intro %}<p class="dt-lead" style="margin:0;">{{ intro }}</p>{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if details %}
+<table role="presentation" width="100%" class="dt-panel" style="background-color:#f5f5f7; border-radius:14px; padding:18px 20px; margin:0 0 20px;">
+    {% for label, value in details %}
+    <tr>
+        <td width="34%" valign="top" style="padding:7px 12px 7px 0; border-bottom:1px solid #e5e5ea;">
+            <p class="dt-key" style="margin:0;">{{ label }}</p>
+        </td>
+        <td valign="top" style="padding:7px 0; border-bottom:1px solid #e5e5ea;">
+            <p class="dt-val" style="margin:0;">{{ value|default:"&mdash;"|safe }}</p>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+{% if body %}
+<div class="dt-panel">
+    <p class="dt-muted" style="margin:0; white-space:pre-wrap;">{{ body }}</p>
+</div>
+{% endif %}
+
+{% if action_url %}
+<p class="dt-muted" style="margin:0 0 8px;">Or open it directly in the portal:</p>
+<p style="margin:0;"><a class="dt-link" href="{{ action_url }}">{{ action_url }}</a></p>
+{% endif %}
+
+{% if reply_hint %}
+<p class="dt-muted" style="margin:20px 0 0;">Reply to this email to answer {{ reply_hint }}.</p>
+{% endif %}
+{% endblock %}
+
+{% block action %}
+{% if action_url and action_label %}
+<table role="presentation" width="100%" style="padding:0 40px 32px;">
+    <tr>
+        <td align="center">
+            <a class="dt-btn" href="{{ action_url }}">{{ action_label }}</a>
+        </td>
+    </tr>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block footer_links %}<a href="{{ site_url }}">Open portal</a>{% endblock %}
