@@ -10,7 +10,12 @@ from dovetecenterprises import settings as _base
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(_base.BASE_DIR, "db.sqlite3"),
+        # Honour DATABASE_NAME so a caller can point at a throwaway file
+        # (DATABASE_NAME=/tmp/seed.db) for a genuinely fresh run. Previously
+        # this was pinned to the repo's db.sqlite3, which silently ignored the
+        # override and reused an already-seeded database.
+        "NAME": os.environ.get("DATABASE_NAME")
+        or os.path.join(_base.BASE_DIR, "db.sqlite3"),
     }
 }
 

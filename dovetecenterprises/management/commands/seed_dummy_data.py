@@ -11,6 +11,11 @@ Content-creation signals are disconnected for the duration of the run.
 Without this, each Article, Product, Topic and Post created here would also
 generate its own Newsletter row, burying the intended sample digest.
 """
+import getpass
+import os
+import secrets
+import string
+import sys
 from io import BytesIO
 from pathlib import Path
 
@@ -19,7 +24,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.db.models.signals import post_save
 from django.utils import timezone
@@ -57,24 +62,24 @@ from community.models import Reply as CommunityReply
 from adverts.models import Advertisement as SiteAdvertisement, AdvertLeads as AdvertLead
 
 # ── Accounts ───────────────────────────────────────────────────────────
+# No account carries a password here. Passwords are resolved at run time from
+# --password, the SEED_PASSWORD environment variable, or a freshly generated
+# random value, so no credential is ever committed to the repository.
 ADMINS = [
     {
         "email": "admin@dovetecenterprises.tech",
-        "password": "REDACTED",
         "first_name": "Sarah", "last_name": "Johnson",
         "title": "Principal Consultant",
         "bio": "Principal consultant at Dovetec Enterprises, leading software engineering engagements across East Africa.",
     },
     {
         "email": "dove@dovetecenterprises.tech",
-        "password": "REDACTED",
         "first_name": "Dove", "last_name": "Owino",
         "title": "Founder & Lead Engineer",
         "bio": "Founder of Dovetec Enterprises. Builds delivery practice and architecture for fintech and healthcare clients.",
     },
     {
         "email": "admin2@dovetecenterprises.tech",
-        "password": "REDACTED",
         "first_name": "Michael", "last_name": "Chen",
         "title": "Head of Engineering",
         "bio": "Heads engineering at Dovetec Enterprises. Focus on infrastructure, observability and delivery reliability.",
@@ -82,7 +87,6 @@ ADMINS = [
 ]
 STAFF = {
     "email": "staff@dovetecenterprises.tech",
-    "password": "REDACTED",
     "first_name": "Achieng", "last_name": "Otieno",
     "title": "Support Engineer",
     "bio": "Support and maintenance at Dovetec Enterprises.",
@@ -356,7 +360,11 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--password", default=None,
-            help="Password to set on every account created (default: %(default)r).",
+            help=(
+                "Password to set on every account this run creates. Omit to use "
+                "$SEED_PASSWORD, else you are prompted, else a random password is "
+                "generated and shown once."
+            ),
         )
         parser.add_argument(
             "--flush-newsletters", action="store_true",
@@ -367,8 +375,38 @@ class Command(BaseCommand):
             help="Skip image uploads; mandatory image fields are left blank.",
         )
 
+    def _resolve_password(self, supplied):
+        """Resolve a password for this run without ever committing one.
+
+        Order: --password, $SEED_PASSWORD, interactive prompt, random.
+        """
+        if supplied:
+            return supplied, "supplied via --password"
+        env = os.environ.get("SEED_PASSWORD")
+        if env:
+            return env, "supplied via $SEED_PASSWORD"
+        if not sys.stdin.isatty():
+            # Non-interactive (CI, deploy) with no secret available: generate
+            # one and print it rather than silently shipping a default.
+            return self._random_password(), "generated (no password available)"
+        typed = getpass.getpass("Password for seeded accounts: ")
+        if not typed:
+            raise CommandError("Password must not be empty.")
+        if len(typed) < 12:
+            raise CommandError(
+                "Password must be at least 12 characters; use --password, "
+                "$SEED_PASSWORD, or a longer value."
+            )
+        return typed, "entered interactively"
+
+    @staticmethod
+    def _random_password():
+        alphabet = string.ascii_letters + string.digits + "!@#$%^&*()-_=+"
+        return "".join(secrets.choice(alphabet) for _ in range(24))
+
     def handle(self, *args, **opts):
-        password = opts["password"]
+        password, origin = self._resolve_password(opts["password"])
+        self.stdout.write(f"Seed password {origin}.")
         make_images = not opts["no_images"]
 
         # Creating Articles/Products/Topics/Posts fires receivers that each
@@ -413,9 +451,19 @@ class Command(BaseCommand):
             self.stdout.write(f"  {section}:")
             for key, value in made.items():
                 self.stdout.write(f"    {key}: {value}")
-        self.stdout.write(self.style.SUCCESS(
-            f"\nSign in at /admin/ as {ADMINS[0]['email']} / {password}"
-        ))
+        if opts["password"] is not None or os.environ.get("SEED_PASSWORD") \
+                or not sys.stdin.isatty():
+            # Show it once so the operator can sign in; never re-printed and
+            # never stored in the repository.
+            self.stdout.write(self.style.SUCCESS(
+                f"\nSign in at /admin/ as {ADMINS[0]['email']}\n"
+                f"Password (shown once): {password}"
+            ))
+        else:
+            self.stdout.write(self.style.SUCCESS(
+                f"\nSign in at /admin/ as {ADMINS[0]['email']} "
+                f"with the password you entered."
+            ))
 
     class _content_signals_disconnected:
         def __enter__(self):
@@ -632,10 +680,10 @@ class Command(BaseCommand):
                 if not (user.is_superuser and user.is_staff):
                     user.is_superuser = True
                     user.is_staff = True
-                    user.set_password(spec["password"])
+                    user.set_password(password)
                     user.save(update_fields=["is_superuser", "is_staff", "password"])
             elif created:
-                user.set_password(spec["password"])
+                user.set_password(password)
                 user.save()
             # A realistic last_login makes the admin's "active users" panel
             # show something, and every seeded account is a real sign-in.
@@ -813,7 +861,9 @@ class Command(BaseCommand):
                 },
             )
             if created:
-                made[kind] += 1
+                # kind is "article"/"resource" (singular) to match the section
+                # names; pluralise for the counter keys.
+                made[f"{kind}s"] += 1
             # A draft or scheduled row has no publication date yet; an
             # archived one keeps the date it originally went out on.
             _ensure(
@@ -2162,11 +2212,20 @@ class Command(BaseCommand):
 
         adverts = []
         for index, (title, description, url) in enumerate(ADVERT_SLOTS):
+            # home.Advertisement has no published_at field; it is dated by
+            # created_at (auto_now_add). Backdating that keeps the digest's
+            # slot ordering believable.
             advert, created = HomeAdvertisement.objects.get_or_create(
                 title=title,
-                defaults={"description": description, "url": url,
-                          "published_at": _ago(20 - index * 3)},
+                defaults={"description": description, "url": url},
             )
+            if not created:
+                wanted_created = _ago(20 - index * 3)
+                if abs((advert.created_at - wanted_created).days) > 1:
+                    HomeAdvertisement.objects.filter(pk=advert.pk).update(
+                        created_at=wanted_created
+                    )
+                    advert.refresh_from_db()
             if created:
                 made["advertisements"] += 1
                 if make_images and not advert.image:
@@ -2189,7 +2248,8 @@ class Command(BaseCommand):
                 "published_at": _ago(10),
                 "sent_at": sent_at,
                 "scheduled_for": sent_at,
-                "content_id": f"digest-{sent_at:%Y%m%d}",
+                # content_id is an integer FK-ish column; it cannot be set
+                # before the row exists, so _ensure() below fills in the pk.
                 "accent_color": spec["accent_color"],
                 "cta_label": spec["cta_label"],
                 "cta_text": spec["cta_text"],
@@ -2272,6 +2332,10 @@ class Command(BaseCommand):
             "mercy.otieno@example.com", "brian.kimutai@example.com",
             "susan.njenga@example.com",
         ]
+        click_targets = [
+            "newsletter/", "services/", "blog/", "contact/",
+            "case-studies/", "blog-detail/agridoer-fintech-infrastructure/",
+        ]
         sends = [(sub.email, sub.user) for sub in newsletter.recipients.all()]
         sends += [(email, None) for email in extra_recipients]
         for index, (email, user) in enumerate(sends):
@@ -2296,6 +2360,17 @@ class Command(BaseCommand):
                 bounced=bounced, unsubscribed=unsubscribed,
                 opened_at=_ago(8, hours=3) if opened else None,
                 clicked_at=_ago(8, hours=2) if clicked else None,
+                # A click with no destination is incoherent: every click in the
+                # digest points at one of its own tracked CTAs.
+                clicked_url=(
+                    f"https://dovetecenterprises.vercel.app/{click_targets[index % len(click_targets)]}"
+                    if clicked else None
+                ),
+                ip_address=(
+                    # Documentation/test ranges only (RFC 5737), never a real
+                    # recipient address.
+                    f"198.51.100.{index % 250 + 1}" if opened else None
+                ),
                 read_at=_ago(8, hours=1) if read else None,
                 **bounces,
             )
