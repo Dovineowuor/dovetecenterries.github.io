@@ -1,5 +1,4 @@
 from django import forms
-from django.core.mail import send_mail
 from datetime import timedelta
 from django_countries.fields import CountryField
 
@@ -40,64 +39,42 @@ class AdvertContactForm(forms.Form):
 
     
     def send_email(self):
-        # Logic to send email
-        subject = 'New Lead from Advert Contact Form'
-        message = f"""
-        <html>
-        <head>
-            <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-        </head>
-        <body>
-            <div class="container">
-            <p class="mt-4">Hey {self.cleaned_data['name']},</p>
-            <p>You have a new lead into your funnel via the Advert Contact Form.</p>
-            <h2 class="mt-4">Lead Details:</h2>
-            <table class="table table-bordered mt-3">
-                <tr>
-                <th>Name</th>
-                <td>{self.cleaned_data['name']}</td>
-                </tr>
-                <tr>
-                <th>Email</th>
-                <td>{self.cleaned_data['email']}</td>
-                </tr>
-                <tr>
-                <th>Phone</th>
-                <td>{self.cleaned_data.get('phone', 'N/A')}</td>
-                </tr>
-                <tr>
-                <th>Company</th>
-                <td>{self.cleaned_data.get('company', 'N/A')}</td>
-                </tr>
-                <tr>
-                <th>Interest</th>
-                <td>{self.cleaned_data.get('interest', 'N/A')}</td>
-                </tr>
-                <tr>
-                <th>Message</th>
-                <td>{self.cleaned_data['message']}</td>
-                </tr>
-                <tr>
-                <th>Advert Timeline</th>
-                <td>{self.cleaned_data['timeline']}</td>
-                </tr>
-                <tr>
-                <th>Start Date</th>
-                <td>{self.cleaned_data['start_date']}</td>
-                </tr>
-                <tr>
-                <th>End Date</th>
-                <td>{self.cleaned_data.get('end_date', 'N/A')}</td>
-                </tr>
-            </table>
-            </div>
-        </body>
-        </html>
-        """
-        from_email = 'owuordove@gmail.com'
-        recipient_list = ['dovetecenterprises@gmail.com']
-        
-        send_mail(subject, message, from_email, recipient_list)
+        """Notify the sales inbox about a new advert lead."""
+        from django.conf import settings
+
+        from home.email import send_styled_email
+
+        data = self.cleaned_data
+        subject = f"New advert lead from {data['name']}"
+        recipient = getattr(settings, 'ADVERT_EMAIL', None) or getattr(
+            settings, 'CONTACT_EMAIL', None
+        ) or settings.DEFAULT_FROM_EMAIL
+        timelines = dict(self.fields['timeline'].choices)
+
+        return send_styled_email(
+            subject,
+            'emails/notification.html',
+            {
+                'heading': 'New advert lead',
+                'preheader': f"{data['name']} enquired about advertising space",
+                'intro': 'Someone submitted the advertise-with-us form.',
+                'details': [
+                    ('Name', data['name']),
+                    ('Email', data['email']),
+                    ('Phone', data.get('phone')),
+                    ('Company', data.get('company')),
+                    ('Interest', data.get('interest')),
+                    ('Timeline', timelines.get(data.get('timeline'))),
+                    ('Start date', data.get('start_date')),
+                    ('End date', data.get('end_date')),
+                ],
+                'body': data['message'],
+                'reply_hint': data['name'],
+            },
+            [recipient],
+            reply_to=[data['email']] if data.get('email') else None,
+            fail_silently=True,
+        )
 
 class ContactForm(forms.Form):
     name = forms.CharField(max_length=100)
