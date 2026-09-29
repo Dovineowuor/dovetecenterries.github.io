@@ -503,7 +503,7 @@
             </div>
 
             <div class="author-avatar-badge">
-              {% if article.author.image %}
+              {% if article.author and article.author.image %}
               <img src="{{ article.author.image.url }}" alt="{{ article.author.user.username }}">
               {% else %}
               <img src="{% static 'images/person_1-min.png' %}" alt="Author">
@@ -513,7 +513,7 @@
             <!-- Content -->
             <div class="card-content">
               <div>
-                <span class="text-muted small">By {{ article.author.user.get_full_name|default:article.author.user.username }}</span>
+                <span class="text-muted small">By {% if article.author %}{{ article.author.user.get_full_name|default:article.author.user.username }}{% else %}Dovetec Enterprises{% endif %}</span>
                 <a href="{% url 'blog_detail' article.slug %}" class="card-title-link">{{ article.title }}</a>
                 <div class="article-content-snippet small text-muted">
                   {{ article.content|safe|striptags|truncatewords:45}}
