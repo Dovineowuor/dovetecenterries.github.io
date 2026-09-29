@@ -21,7 +21,7 @@ from app.crm import (
 )
 from community.models import Topic, Post
 from shop.models import Product, Order, Payment
-from home.models import User, Article, Newsletter, NewsletterSubscription, Comment, Job, Notification
+from home.models import User, Article, Newsletter, NewsletterLog, NewsletterSubscription, Comment, Job, Notification
 from adverts.models import Advertisement
 from .forms import MediaAssetUploadForm, ServiceInquiryForm
 
@@ -121,6 +121,68 @@ def dashboard_index(request):
     )
     conversion_rate = round((won_leads / total_leads) * 100, 1) if total_leads else 0.0
 
+    # ── Chart series ────────────────────────────────────────────────
+    # Charts are fed in a fixed, meaningful order rather than whatever order
+    # the database happens to return, and each series carries the values a
+    # contrast-first palette needs. Ordering matters as much as colouring:
+    # a funnel read left-to-right has to start wide and end narrow, and a
+    # workflow chart has to run draft -> published -> archived.
+    stage_choices = dict(ServiceInquiry.STAGE_CHOICES)
+    stage_order = list(ServiceInquiry.PIPELINE_STAGES) + [
+        key for key, _label in ServiceInquiry.STAGE_CHOICES
+        if key not in ServiceInquiry.PIPELINE_STAGES
+    ]
+    stage_counts = {row['stage']: row for row in lead_stage_summary}
+    lead_labels, lead_values, lead_values_kes = [], [], []
+    for stage in stage_order:
+        if stage not in stage_choices:
+            continue
+        row = stage_counts.get(stage, {})
+        lead_labels.append(stage_choices[stage])
+        lead_values.append(row.get('count', 0))
+        lead_values_kes.append(float(row.get('value') or 0))
+    # Funnel stages with no enquiries yet must still render, otherwise the
+    # bar chart silently changes width as data moves around.
+    lead_keys = [s for s in stage_order if s in stage_choices]
+
+    article_order = ['draft', 'scheduled', 'published', 'archived']
+    article_counts = {row['status']: row['total'] for row in article_status_summary}
+    article_status_labels = [
+        dict(Article._meta.get_field('status').choices).get(s, s.title()) for s in article_order
+    ]
+    article_status_values = [article_counts.get(s, 0) for s in article_order]
+
+    project_summary = (
+        Project.objects.values('status')
+        .annotate(total=Count('id'), value=Sum('estimated_budget'))
+        .order_by('status')
+    )
+    project_order = ['active', 'completed', 'on_hold', 'cancelled']
+    project_counts = {row['status']: row for row in project_summary}
+    project_status_labels = [
+        dict(Project._meta.get_field('status').choices).get(s, s.replace('_', ' ').title())
+        for s in project_order
+    ]
+    project_status_values = [project_counts.get(s, {}).get('total', 0) for s in project_order]
+    project_budget_values = [
+        float(project_counts.get(s, {}).get('value') or 0) for s in project_order
+    ]
+
+    # Newsletter turnout: a genuine funnel, because every stage is a subset
+    # of the send. Opening a log moves it to "read", so the counts have to be
+    # read as "reached at least this far", not as mutually exclusive buckets.
+    logs = NewsletterLog.objects.all()
+    delivered = logs.exclude(bounced=True).exclude(status='failed').count()
+    opened = logs.filter(opened=True).count()
+    clicked = logs.filter(clicked=True).count()
+    read = logs.filter(read=True).count()
+    bounced = logs.filter(bounced=True).count()
+    unsubscribed = logs.filter(unsubscribed=True).count()
+    total_logs = logs.count()
+
+    def _rate(part, whole):
+        return round((part / whole) * 100, 1) if whole else 0.0
+
     context = {
         'total_users': User.objects.count(),
         'total_leads': total_leads,
@@ -132,31 +194,26 @@ def dashboard_index(request):
         'completed_orders': completed_orders,
         'published_articles': Article.objects.filter(status='published').count(),
         'pipeline_value': pipeline_value,
-        'lead_chart_labels': [
-            dict(ServiceInquiry.STAGE_CHOICES)[row['stage']]
-            for row in lead_stage_summary
+        # Chart series.
+        'lead_chart_keys': lead_keys,
+        'lead_chart_labels': lead_labels,
+        'lead_chart_values': lead_values,
+        'lead_chart_values_kes': lead_values_kes,
+        'article_chart_labels': article_status_labels,
+        'article_chart_values': article_status_values,
+        'article_chart_keys': article_order,
+        'project_chart_labels': project_status_labels,
+        'project_chart_values': project_status_values,
+        'project_chart_budget': project_budget_values,
+        'project_chart_keys': project_order,
+        'newsletter_chart_labels': ['Delivered', 'Opened', 'Read', 'Clicked', 'Unsubscribed', 'Bounced'],
+        'newsletter_chart_values': [delivered, opened, read, clicked, unsubscribed, bounced],
+        'newsletter_chart_rates': [
+            _rate(delivered, total_logs), _rate(opened, delivered),
+            _rate(read, delivered), _rate(clicked, delivered),
+            _rate(unsubscribed, delivered), _rate(bounced, total_logs),
         ],
-        'lead_chart_values': [row['count'] for row in lead_stage_summary],
-        'article_chart_labels': [row['status'].title() for row in article_status_summary],
-        'article_chart_values': [row['total'] for row in article_status_summary],
-        'open_orders': open_orders,
-        'total_orders': total_orders,
-        'completed_orders': completed_orders,
-        'total_topics': total_topics,
-        'total_posts': total_posts,
-        'total_assets': total_assets,
-        'ready_assets': ready_assets,
-        'failed_assets': failed_assets,
-        'total_jobs': total_jobs,
-        'active_jobs': active_jobs,
-        'pipeline_value': pipeline_value,
-        'lead_chart_labels': [
-            dict(ServiceInquiry.STAGE_CHOICES)[row['stage']]
-            for row in lead_stage_summary
-        ],
-        'lead_chart_values': [row['count'] for row in lead_stage_summary],
-        'article_chart_labels': [row['status'].title() for row in article_status_summary],
-        'article_chart_values': [row['total'] for row in article_status_summary],
+        'newsletter_total_sends': total_logs,
         'page_title': 'Dovetec Hub (CRM & CMS)'
     }
     return render(request, 'dashboard/index.html', context)
