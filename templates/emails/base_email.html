@@ -1,0 +1,129 @@
+{% comment %}
+Shared base for every transactional email (OTP, verification, resets,
+notifications). Email clients ignore stylesheets, so all visual styling is
+inlined on the elements; the <style> block only handles dark mode and
+mobile, which cannot be expressed inline.
+{% endcomment %}<!DOCTYPE html>
+<html lang="en" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta name="format-detection" content="telephone=no,address=no,email=no,date=no">
+    <meta name="color-scheme" content="light dark">
+    <meta name="supported-color-schemes" content="light dark">
+    <title>{% block title %}{{ site_name }}{% endblock %}</title>
+    <!--[if mso]>
+    <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml></noscript>
+    <![endif]-->
+    <style>
+        :root { color-scheme: light dark; supported-color-schemes: light dark; }
+        html, body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.5;
+        }
+        table { border-collapse: collapse; mso-table-lspace: 0; mso-table-rspace: 0; }
+        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; max-width: 100%; }
+        a { text-decoration: none; }
+        .dt-card { width: 100%; max-width: 600px; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.05); }
+        .dt-pad { padding: 36px 40px; }
+        .dt-display { font-size: 27px; line-height: 1.18; font-weight: 700; letter-spacing: -.022em; color: #1d1d1f; margin: 0 0 8px; }
+        .dt-lead { font-size: 16px; line-height: 1.5; color: #6e6e73; margin: 0; }
+        .dt-body { font-size: 16px; line-height: 1.6; color: #1d1d1f; margin: 0 0 16px; }
+        .dt-muted { font-size: 15px; line-height: 1.5; color: #6e6e73; }
+        .dt-fine { font-size: 12px; line-height: 1.45; color: #86868b; }
+        .dt-brand { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #0071e3; margin: 0 0 18px; }
+        .dt-btn { display: inline-block; font-size: 16px; line-height: 1; font-weight: 500; letter-spacing: -.01em; padding: 14px 28px; border-radius: 980px; background-color: #0071e3; color: #ffffff !important; text-align: center; }
+        .dt-code {
+            font-size: 34px; font-weight: 700; letter-spacing: .2em; text-align: center;
+            background-color: #f5f5f7; border-radius: 16px; padding: 20px 12px; margin: 4px 0 20px; color: #1d1d1f;
+        }
+        .dt-panel { background-color: #f5f5f7; border-radius: 14px; padding: 18px 20px; margin: 0 0 20px; }
+        .dt-key { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: #86868b; }
+        .dt-val { font-size: 15px; line-height: 1.45; color: #1d1d1f; word-break: break-word; }
+        .dt-divider { height: 1px; background-color: #e5e5ea; }
+        .dt-footer { padding: 28px 40px; text-align: center; background-color: #fbfbfd; }
+        .dt-footer a { color: #6e6e73; text-decoration: underline; }
+        .dt-link { color: #0071e3; word-break: break-all; }
+        @media (prefers-color-scheme: dark) {
+            body { background-color: #000000 !important; }
+            .dt-card { background-color: #1d1d1f !important; box-shadow: none !important; }
+            .dt-pad { background-color: #1d1d1f !important; }
+            .dt-display, .dt-body, .dt-val, .dt-code { color: #f5f5f7 !important; }
+            .dt-lead, .dt-muted, .dt-fine { color: #98989d !important; }
+            .dt-brand { color: #0a84ff !important; }
+            .dt-divider { background-color: #3a3a3c !important; }
+            .dt-panel, .dt-code { background-color: #2c2c2e !important; }
+            .dt-footer { background-color: #141416 !important; }
+            .dt-link { color: #0a84ff !important; }
+        }
+        @media only screen and (max-width: 620px) {
+            .dt-card { border-radius: 0 !important; }
+            .dt-pad { padding: 28px 22px !important; }
+            .dt-footer { padding: 22px !important; }
+            .dt-display { font-size: 23px !important; }
+            .dt-btn { display: block !important; width: 100% !important; }
+            .dt-code { font-size: 28px !important; letter-spacing: .14em !important; }
+        }
+    </style>
+</head>
+<body style="margin:0; padding:0; background-color:#f5f5f7;">
+
+{% comment %}Inbox preview text; hidden in the rendered message.{% endcomment %}
+<div style="display:none; max-height:0; max-width:0; overflow:hidden; opacity:0; mso-hide:all;">
+    {% block preheader %}{% endblock %}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
+</div>
+
+<div style="padding:24px 12px;">
+    <table role="presentation" class="dt-card" align="center" width="100%">
+        <tr>
+            <td style="padding:0;">
+
+                <table role="presentation" width="100%">
+                    <tr>
+                        <td class="dt-pad">
+                            <p class="dt-brand" style="margin:0 0 18px;">{{ site_name }}</p>
+                            <h1 class="dt-display" style="margin:0 0 8px;">{% block heading %}{% endblock %}</h1>
+                            {% block subheading %}{% if subheading %}<p class="dt-lead" style="margin:0;">{{ subheading }}</p>{% endif %}{% endblock %}
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="dt-divider"></div>
+
+                <table role="presentation" width="100%">
+                    <tr>
+                        <td class="dt-pad">
+                            {% block content %}{% endblock %}
+                        </td>
+                    </tr>
+                </table>
+
+                {% block action %}{% endblock %}
+
+                <div class="dt-divider"></div>
+
+                <table role="presentation" width="100%">
+                    <tr>
+                        <td class="dt-footer" style="background-color:#fbfbfd; text-align:center;">
+                            <p class="dt-fine" style="margin:0 0 8px;">
+                                {% block footer_links %}<a href="{{ site_url }}">Visit website</a>{% endblock %}
+                            </p>
+                            <p class="dt-fine" style="margin:0;">&copy; {{ year }} {{ site_name }}. All rights reserved.</p>
+                            {% block footer_note %}{% endblock %}
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>
