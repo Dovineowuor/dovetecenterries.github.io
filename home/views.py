@@ -625,9 +625,15 @@ def tag(request, tag):
         'twitter_title': f'Articles tagged #{tag} - Dovetec Enterprises',
         'twitter_desc': f'Explore all articles tagged with #{tag}.',
     }
+    # Templates link with both tag.name and tag.slug, so accept either.
+    tag_name = Tag.objects.filter(name=tag).values_list("name", flat=True).first()
+    if tag_name is None:
+        tag_name = (
+            Tag.objects.filter(slug=tag).values_list("name", flat=True).first() or tag
+        )
     try:
         articles = Article.objects.filter(
-            tags__name=tag,
+            tags__name=tag_name,
             status='published',
             deleted=False,
         ).order_by('-created_at').distinct()
@@ -636,7 +642,7 @@ def tag(request, tag):
         ).values_list('category', flat=True).distinct()
         all_tags = Tag.objects.all().order_by('name')
         context.update({
-            'tag': tag,
+            'tag': tag_name,
             'articles': articles,
             'all_categories': all_categories,
             'all_tags': all_tags,
@@ -649,9 +655,10 @@ def tag(request, tag):
 
 def tags(request):
     context = {
-        'tags': Tag.objects.all()
+        'tags': Tag.objects.all().order_by('name')
     }
-    return render(request, 'tags.html', context)
+    # tag_list.html is the existing tags index; tags.html does not exist.
+    return render(request, 'tag_list.html', context)
 
 def like(request, id):
     """Handle the liking of an article by a user."""
