@@ -105,8 +105,8 @@
     </div>
 </div>
 
-<div class="row g-3 g-xl-4 mb-5">
-    <div class="col-12 col-xl-7">
+<div class="row g-3 g-xl-4 mb-4">
+    <div class="col-12 col-xl-8">
         <section class="card h-100 shadow-sm border-0 p-3 p-md-4">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
@@ -117,10 +117,14 @@
             </div>
             {{ lead_chart_labels|json_script:"lead-chart-labels" }}
             {{ lead_chart_values|json_script:"lead-chart-values" }}
-            <div style="height: 280px;"><canvas id="leadPipelineChart" aria-label="Lead pipeline chart" role="img"></canvas></div>
+            {{ lead_chart_values_kes|json_script:"lead-chart-values-kes" }}
+            {{ lead_chart_keys|json_script:"lead-chart-keys" }}
+            <div style="height: 300px;">
+                <canvas id="leadPipelineChart" aria-label="Lead pipeline chart" role="img"></canvas>
+            </div>
         </section>
     </div>
-    <div class="col-12 col-xl-5">
+    <div class="col-12 col-xl-4">
         <section class="card h-100 shadow-sm border-0 p-3 p-md-4">
             <div class="mb-3">
                 <h2 class="h5 mb-1">Content workflow</h2>
@@ -128,7 +132,45 @@
             </div>
             {{ article_chart_labels|json_script:"article-chart-labels" }}
             {{ article_chart_values|json_script:"article-chart-values" }}
-            <div style="height: 280px;"><canvas id="articleWorkflowChart" aria-label="Article workflow chart" role="img"></canvas></div>
+            {{ article_chart_keys|json_script:"article-chart-keys" }}
+            <div style="height: 300px;">
+                <canvas id="articleWorkflowChart" aria-label="Article workflow chart" role="img"></canvas>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="row g-3 g-xl-4 mb-4">
+    <div class="col-12 col-xl-5">
+        <section class="card h-100 shadow-sm border-0 p-3 p-md-4">
+            <div class="mb-3">
+                <h2 class="h5 mb-1">Project portfolio</h2>
+                <p class="text-muted small mb-0">Engagements by status, with budget</p>
+            </div>
+            {{ project_chart_labels|json_script:"project-chart-labels" }}
+            {{ project_chart_values|json_script:"project-chart-values" }}
+            {{ project_chart_budget|json_script:"project-chart-budget" }}
+            {{ project_chart_keys|json_script:"project-chart-keys" }}
+            <div style="height: 300px;">
+                <canvas id="projectStatusChart" aria-label="Project status chart" role="img"></canvas>
+            </div>
+        </section>
+    </div>
+    <div class="col-12 col-xl-7">
+        <section class="card h-100 shadow-sm border-0 p-3 p-md-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Newsletter turnout</h2>
+                    <p class="text-muted small mb-0">Reached at least this far, across {{ newsletter_total_sends }} sends</p>
+                </div>
+                <a href="{% url 'dashboard_newsletters' %}" class="btn btn-sm btn-outline-primary">Newsletters</a>
+            </div>
+            {{ newsletter_chart_labels|json_script:"newsletter-chart-labels" }}
+            {{ newsletter_chart_values|json_script:"newsletter-chart-values" }}
+            {{ newsletter_chart_rates|json_script:"newsletter-chart-rates" }}
+            <div style="height: 300px;">
+                <canvas id="newsletterTurnoutChart" aria-label="Newsletter turnout chart" role="img"></canvas>
+            </div>
         </section>
     </div>
 </div>
@@ -184,23 +226,311 @@
 {% block dashboard_scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-    const chartPalette = ['#0d6efd', '#20c997', '#ffc107', '#fd7e14', '#6f42c1', '#198754', '#dc3545'];
-    const leadLabels = JSON.parse(document.getElementById('lead-chart-labels').textContent);
-    const leadValues = JSON.parse(document.getElementById('lead-chart-values').textContent);
-    const articleLabels = JSON.parse(document.getElementById('article-chart-labels').textContent);
-    const articleValues = JSON.parse(document.getElementById('article-chart-values').textContent);
+    /*
+     * Contrast-first chart palette.
+     *
+     * A dashboard breaks down when every bar is the same blue: the eye cannot
+     * tell two adjacent categories apart, so "variance between objects" is
+     * invisible. These colours are picked so that neighbours differ in hue
+     * *and* in luminance -- dark and light alternate -- which keeps segments
+     * separable even where a hue alone would be hard to tell apart, and it
+     * survives the common forms of colour-vision deficiency because no two
+     * adjacent entries rely on red/green discrimination.
+     */
+    const INK = '#1f2933';
+    const MUTED = '#7b8794';
+    const GRID = 'rgba(31, 41, 51, 0.08)';
+
+    const C = {
+        navy: '#0d47a1',        // dark   L≈0.18
+        orange: '#ff7043',      // light  L≈0.55
+        green: '#1b5e20',       // dark   L≈0.19
+        greenLight: '#66bb6a',  // light  L≈0.60
+        magenta: '#c2185b',     // dark   L≈0.29
+        cyan: '#00acc1',        // light  L≈0.61
+        amber: '#f9a825',       // light  L≈0.68
+        purple: '#6a1b9a',      // dark   L≈0.11
+        purpleLight: '#ab47bc', // light  L≈0.45
+        brown: '#795548',       // dark   L≈0.28
+        slate: '#546e7a',       // mid    L≈0.42
+        red: '#c62828',         // dark   L≈0.24
+    };
+
+    // Ordered dark -> light -> dark so adjacent entries never share a tone.
+    const categorical = [
+        C.navy, C.orange, C.green, C.magenta,
+        C.cyan, C.amber, C.purple, C.brown, C.slate, C.red,
+    ];
+
+    /* Per-stage colours in funnel order. Consecutive entries alternate dark
+       and light so neighbouring bars separate by brightness as well as hue.
+       The one deliberate exception is won/lost: both are dark by convention,
+       but green and red are the most hue-distant pair in the palette, so
+       they stay unambiguous. */
+    const FUNNEL = [C.navy, C.amber, C.magenta, C.cyan, C.brown, C.green, C.red];
+    const stageColor = (stage, index) => FUNNEL[index % FUNNEL.length] || categorical[0];
+
+    const projectColor = (status, index) => ({
+        active: C.navy, completed: C.greenLight,
+        on_hold: C.purple, cancelled: C.red,
+    }[status] || categorical[index % categorical.length]);
+
+    const articleColor = (status, index) => ({
+        draft: C.slate, scheduled: C.amber,
+        published: C.green, archived: C.purpleLight,
+    }[status] || categorical[index % categorical.length]);
+
+    const turnoutColor = (label, index) => ({
+        Delivered: C.navy, Opened: C.cyan, Read: C.green,
+        Clicked: C.purpleLight, Unsubscribed: C.amber, Bounced: C.red,
+    }[label] || categorical[index % categorical.length]);
+
+    /* Alternating dark/light border so touching segments separate even when
+       two slices are the same width. */
+    const contrastRing = (colors) => colors.map((_, i) =>
+        i % 2 ? 'rgba(255,255,255,0.9)' : 'rgba(31,41,51,0.55)');
+
+    const read = (id, fallback = []) => {
+        const el = document.getElementById(id);
+        if (!el) return fallback;
+        try { return JSON.parse(el.textContent) || fallback; }
+        catch (e) { return fallback; }
+    };
+
+    const leadKeys = read('lead-chart-keys', []);
+    const leadLabels = read('lead-chart-labels', []);
+    const leadValues = read('lead-chart-values', []);
+    const leadValuesKes = read('lead-chart-values-kes', []);
+    const articleLabels = read('article-chart-labels', []);
+    const articleKeys = read('article-chart-keys', []);
+    const articleValues = read('article-chart-values', []);
+    const projectLabels = read('project-chart-labels', []);
+    const projectKeys = read('project-chart-keys', []);
+    const projectValues = read('project-chart-values', []);
+    const projectBudget = read('project-chart-budget', []);
+    const turnoutLabels = read('newsletter-chart-labels', []);
+    const turnoutValues = read('newsletter-chart-values', []);
+    const turnoutRates = read('newsletter-chart-rates', []);
+
+    const baseOptions = {
+        maintainAspectRatio: false,
+        responsive: true,
+        animation: { duration: 350 },
+        plugins: {
+            legend: { labels: { color: INK, boxWidth: 12, boxHeight: 12, usePointStyle: true, padding: 14 } },
+            tooltip: {
+                backgroundColor: INK, padding: 10, cornerRadius: 6,
+                titleColor: '#fff', bodyColor: '#e5e7eb',
+            },
+        },
+    };
+
+    const valueAxis = (extra = {}) => ({
+        beginAtZero: true,
+        grid: { color: GRID, drawBorder: false },
+        ticks: { color: MUTED, precision: 0, ...(extra.ticks || {}) },
+        ...extra,
+    });
+
+    const categoryAxis = {
+        grid: { display: false, drawBorder: false },
+        ticks: { color: MUTED, maxRotation: 0, autoSkip: false },
+    };
 
     if (window.Chart) {
+        Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+        Chart.defaults.color = INK;
+
+        /* Lead pipeline: count as bars, value as a line on a second axis.
+           Two measures of the same stages, deliberately different scales and
+           different colours, so "lots of leads, little money" and the reverse
+           are both readable at a glance. */
+        const leadColors = leadKeys.map(stageColor);
         new Chart(document.getElementById('leadPipelineChart'), {
-            type: 'bar',
-            data: { labels: leadLabels, datasets: [{ label: 'Leads', data: leadValues, backgroundColor: '#0d6efd', borderRadius: 6 }] },
-            options: { maintainAspectRatio: false, responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
+            data: {
+                labels: leadLabels,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'Enquiries',
+                        data: leadValues,
+                        backgroundColor: leadColors,
+                        borderColor: contrastRing(leadColors),
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y',
+                    },
+                    {
+                        type: 'line',
+                        label: 'Pipeline value (KES)',
+                        data: leadValuesKes,
+                        borderColor: C.magenta,
+                        backgroundColor: 'rgba(194, 24, 91, 0.12)',
+                        pointBackgroundColor: C.magenta,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y1',
+                    },
+                ],
+            },
+            options: {
+                ...baseOptions,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    ...baseOptions.plugins,
+                    legend: { ...baseOptions.plugins.legend, position: 'top', align: 'end' },
+                    tooltip: {
+                        ...baseOptions.plugins.tooltip,
+                        callbacks: {
+                            label: (item) => item.dataset.yAxisID === 'y1'
+                                ? ` ${item.dataset.label}: KES ${Number(item.raw).toLocaleString('en-KE')}`
+                                : ` ${item.dataset.label}: ${item.raw}`,
+                        },
+                    },
+                },
+                scales: {
+                    y: { ...valueAxis(), position: 'left', title: { display: true, text: 'Enquiries', color: MUTED, font: { size: 11 } } },
+                    y1: {
+                        ...valueAxis({ ticks: { color: MUTED, callback: (v) => `${(v / 1000000).toFixed(1)}M` } }),
+                        position: 'right', grid: { drawOnChartArea: false },
+                        title: { display: true, text: 'KES', color: MUTED, font: { size: 11 } },
+                    },
+                    x: categoryAxis,
+                },
+            },
         });
 
+        /* Content workflow: ordered doughnut. Slice order follows the editorial
+           lifecycle, and the ring alternates light/dark so equal slices in
+           adjacent hues still read as separate. */
+        const articleColors = articleKeys.map(articleColor);
         new Chart(document.getElementById('articleWorkflowChart'), {
             type: 'doughnut',
-            data: { labels: articleLabels, datasets: [{ data: articleValues, backgroundColor: chartPalette, borderWidth: 0 }] },
-            options: { maintainAspectRatio: false, responsive: true, cutout: '68%', plugins: { legend: { position: 'bottom' } } }
+            data: {
+                labels: articleLabels,
+                datasets: [{
+                    data: articleValues,
+                    backgroundColor: articleColors,
+                    borderColor: contrastRing(articleColors),
+                    borderWidth: 2,
+                    hoverOffset: 8,
+                }],
+            },
+            options: {
+                ...baseOptions,
+                cutout: '62%',
+                plugins: {
+                    ...baseOptions.plugins,
+                    legend: { ...baseOptions.plugins.legend, position: 'bottom' },
+                },
+            },
+        });
+
+        /* Project portfolio: status as coloured bars against budget on a
+           second axis, so a few large active engagements are distinguishable
+           from many small ones. */
+        const projectColors = projectKeys.map(projectColor);
+        new Chart(document.getElementById('projectStatusChart'), {
+            data: {
+                labels: projectLabels,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'Projects',
+                        data: projectValues,
+                        backgroundColor: projectColors,
+                        borderColor: contrastRing(projectColors),
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        yAxisID: 'y',
+                    },
+                    {
+                        type: 'line',
+                        label: 'Budget (KES)',
+                        data: projectBudget,
+                        borderColor: C.orange,
+                        backgroundColor: 'rgba(255, 112, 67, 0.15)',
+                        pointBackgroundColor: C.orange,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y1',
+                    },
+                ],
+            },
+            options: {
+                ...baseOptions,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    ...baseOptions.plugins,
+                    legend: { ...baseOptions.plugins.legend, position: 'top', align: 'end' },
+                    tooltip: {
+                        ...baseOptions.plugins.tooltip,
+                        callbacks: {
+                            label: (item) => item.dataset.yAxisID === 'y1'
+                                ? ` Budget: KES ${Number(item.raw).toLocaleString('en-KE')}`
+                                : ` ${item.dataset.label}: ${item.raw}`,
+                        },
+                    },
+                },
+                scales: {
+                    y: { ...valueAxis(), position: 'left' },
+                    y1: {
+                        ...valueAxis({ ticks: { color: MUTED, callback: (v) => `${(v / 1000000).toFixed(1)}M` } }),
+                        position: 'right', grid: { drawOnChartArea: false },
+                    },
+                    x: categoryAxis,
+                },
+            },
+        });
+
+        /* Newsletter turnout: a horizontal funnel. Every bar is a subset of
+           the one above it, so it reads top-down as attrition, and the
+           failure modes (unsubscribe, bounce) are the two warm colours that
+           stand out against the cool progression. */
+        const turnoutColors = turnoutLabels.map(turnoutColor);
+        new Chart(document.getElementById('newsletterTurnoutChart'), {
+            type: 'bar',
+            data: {
+                labels: turnoutLabels,
+                datasets: [{
+                    label: 'Recipients',
+                    data: turnoutValues,
+                    backgroundColor: turnoutColors,
+                    borderColor: contrastRing(turnoutColors),
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                }],
+            },
+            options: {
+                ...baseOptions,
+                indexAxis: 'y',
+                plugins: {
+                    ...baseOptions.plugins,
+                    legend: { display: false },
+                    tooltip: {
+                        ...baseOptions.plugins.tooltip,
+                        callbacks: {
+                            afterLabel: (item) => {
+                                const rate = turnoutRates[item.dataIndex];
+                                return rate === undefined ? '' : ` Rate: ${rate}%`;
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    x: { ...valueAxis(), ticks: { color: MUTED, precision: 0 } },
+                    y: { grid: { display: false, drawBorder: false }, ticks: { color: INK, font: { weight: '600' } } },
+                },
+            },
         });
     }
 </script>
