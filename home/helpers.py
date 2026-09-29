@@ -2,9 +2,6 @@ import logging
 from django.utils.text import slugify
 from django.shortcuts import redirect
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 import string
 import secrets
 
@@ -34,51 +31,52 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 def send_mail_to_user(email: str, token: str) -> bool:
-    """Send a verification email to the user using an HTML template."""
-    subject = "Your Account Needs to be Verified"
-    verification_link = f"http://127.0.0.1:8000/verify/{token}"
-    
-    # Render the HTML template with context
-    html_message = render_to_string('verify_account.html', {'verification_link': verification_link})
-    plain_message = strip_tags(html_message)  # Create a plain text version of the email
-    
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = [email]  # Use the provided email
+    """Send an account verification email using the styled email templates."""
+    from home.email import absolute_url, send_styled_email
+
+    subject = "Verify your email address"
+    verification_link = absolute_url(f"/verify/{token}/")
 
     try:
         logger.debug("Initiating email connection.")
-        
-        # Create the email message
-        email_message = EmailMultiAlternatives(subject, plain_message, email_from, recipient_list)
-        email_message.attach_alternative(html_message, "text/html")  # Attach the HTML version
-
-        logger.debug("Email message created, attempting to send.")
-        email_message.send()  # Send the email
-        
+        sent = send_styled_email(
+            subject,
+            "emails/account_verification.html",
+            {"verification_link": verification_link, "otp": "", "hide_otp": True},
+            [email],
+            fail_silently=False,
+        )
         logger.info(f"Email successfully sent to {email}.")
-        return True
+        return sent > 0
     except Exception as e:
         logger.error(f"Failed to send email to {email}: {e}")
         return False
-    
 
 
 def send_mail_to_admin(subject: str, message: str) -> bool:
-    """Send an email to the admin with a message."""
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = [settings.EMAIL_HOST_USER]  # Use the admin email
-    
+    """Send a styled notification email to the site administrators."""
+    from home.email import send_styled_email
+
+    recipient_list = [addr for _, addr in (settings.ADMINS or []) if addr]
+    recipient_list.append(settings.EMAIL_HOST_USER)
+    recipient_list = [addr for addr in dict.fromkeys(recipient_list) if addr]
+
     try:
         logger.debug("Initiating email connection.")
-        
-        # Create the email message
-        email_message = EmailMultiAlternatives(subject, message, email_from, recipient_list)
-        
-        logger.debug("Email message created, attempting to send.")
-        email_message.send()  # Send the email
-        
+        sent = send_styled_email(
+            subject,
+            "emails/notification.html",
+            {
+                "heading": subject[:120],
+                "preheader": subject[:120],
+                "intro": "Message received by the Dovetec Enterprises website.",
+                "body": message,
+            },
+            recipient_list,
+            fail_silently=False,
+        )
         logger.info(f"Email successfully sent to {recipient_list}.")
-        return True
+        return sent > 0
     except Exception as e:
         logger.error(f"Failed to send email to {recipient_list}: {e}")
         return False
