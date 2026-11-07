@@ -43,7 +43,7 @@
                     </div>
                 </td>
                 <td><span class="badge bg-light text-primary border shadow-sm">{{ product.category.name|default:"Uncategorized" }}</span></td>
-                <td class="font-weight-bold text-success">${{ product.price }}</td>
+                <td class="font-weight-bold text-success">Ksh{{ product.price }}</td>
                 <td class="text-center font-weight-bold">
                     {% if product.stock > 10 %}
                     <span class="text-success">{{ product.stock }}</span>
