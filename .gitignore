@@ -160,3 +160,4 @@ tmp_resolve.py
 tmp_verify_funnel.py
 tmp_probe_funnel.py
 devops/check_deploy_size.py
+d_data.json
