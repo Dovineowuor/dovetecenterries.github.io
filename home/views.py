@@ -968,16 +968,23 @@ def forget_password(request):
         HttpResponseRedirect: Redirects to the 'verify_otp' page for successful OTP generation.
         HttpResponseRedirect: Redirects to the 'forget_password' page if rate limit is exceeded.
     """
-    
+
     if request.method == 'POST':
-        email = request.POST.get('email')
-        user = get_object_or_404(User, email=email)
+        email = (request.POST.get('email') or '').strip()
+        if not email:
+            messages.error(request, 'Please enter your email address.')
+            return render(request, 'forget_password.html')
+
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
+            messages.error(request, 'No account found for this email.')
+            return render(request, 'forget_password.html')
 
         # Rate limiting for OTP requests
-        otp_request_count = cache.get(f'otp_request_count_{email}', 0)
+        otp_request_count = cache.get(f'otp_request_count_{email.lower()}', 0)
         if otp_request_count >= 5:
             messages.error(request, 'Too many requests. Please try again later.')
-            return redirect('forgot_password')
+            return render(request, 'forget_password.html')
 
         # Generate and send OTP
         try:
@@ -985,15 +992,15 @@ def forget_password(request):
         except Exception:
             logger.error('Error sending reset OTP', exc_info=True)
             messages.error(request, 'Could not send the verification email. Please try again later.')
-            return redirect('forgot_password')
+            return render(request, 'forget_password.html')
 
         # Increment the request count
-        cache.set(f'otp_request_count_{email}', otp_request_count + 1, timeout=3600)  # Reset after 1 hour
-        
+        cache.set(f'otp_request_count_{email.lower()}', otp_request_count + 1, timeout=3600)  # Reset after 1 hour
+
         messages.success(request, 'An OTP has been sent to your email.')
         return redirect('verify_otp', email=email)
 
-    return render(request, "forget_password.html")
+    return render(request, 'forget_password.html')
 
 def verify_otp(request, email):
     """
@@ -1010,7 +1017,10 @@ def verify_otp(request, email):
         HttpResponse: Renders verify_otp.html or redirects based on verification result
     """
     try:
-        user = get_object_or_404(User, email=email)
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
+            messages.error(request, 'Invalid email address.')
+            return redirect('forgot_password')
         profile, _ = Profile.objects.get_or_create(user=user)
         
         # Check if there is a pending OTP verification
@@ -1068,6 +1078,11 @@ def verify_otp(request, email):
 
 def reset_password(request, email):
     """Reset the user's password."""
+    user = User.objects.filter(email__iexact=email).first()
+    if not user:
+        messages.error(request, 'Invalid email address.')
+        return redirect('forgot_password')
+
     if request.method == 'POST':
         new_password = (request.POST.get('new_password') or '').strip()
         confirm_password = (request.POST.get('confirm_password') or '').strip()
@@ -1080,14 +1095,13 @@ def reset_password(request, email):
             messages.error(request, 'Passwords do not match.')
             return redirect('reset_password', email=email)
 
-        user = get_object_or_404(User, email=email)
         user.set_password(new_password)
         user.save()
 
         messages.success(request, 'Your password has been reset successfully.')
         return redirect('login_view')
 
-    return render(request, "reset_password.html", {'email': email})
+    return render(request, "reset_password.html", {'email': user.email})
 
 # Additional pages
 
